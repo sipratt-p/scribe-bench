@@ -34,7 +34,17 @@ def cite_stats(notes: list[str]) -> dict:
     return {"sentences": sents, "cited_frac": round(cited / max(sents, 1), 3)}
 
 
-def score(pairs: list[tuple[str, str]], bert: bool) -> dict:
+def load_lexicon(path: str | None) -> set[str]:
+    if not path:
+        return set()
+    return {w.strip().lower() for w in Path(path).read_text().split() if w.strip()}
+
+
+def med_terms(text: str, lex: set[str]) -> set[str]:
+    return {w for w in re.findall(r"[a-z][a-z\-]{3,}", text.lower()) if w in lex}
+
+
+def score(pairs: list[tuple[str, str]], bert: bool, lex: set[str] = frozenset()) -> dict:
     sc = rouge_scorer.RougeScorer(["rouge1", "rouge2", "rougeL"], use_stemmer=True)
     agg = {"rouge1": 0.0, "rouge2": 0.0, "rougeL": 0.0}
     for ref, hyp in pairs:
@@ -47,6 +57,13 @@ def score(pairs: list[tuple[str, str]], bert: bool) -> dict:
         _, _, f = bscore([h for _, h in pairs], [r for r, _ in pairs], model_type="microsoft/deberta-xlarge-mnli",
                          lang="en", verbose=False, batch_size=8)
         out["bertscore_f1"] = round(100 * float(f.mean()), 2)
+    if lex:
+        tp = fp = fn = 0
+        for ref, hyp in pairs:
+            r, h = med_terms(ref, lex), med_terms(hyp, lex)
+            tp += len(r & h); fp += len(h - r); fn += len(r - h)
+        out["term_recall"] = round(100 * tp / max(tp + fn, 1), 2)
+        out["term_precision"] = round(100 * tp / max(tp + fp, 1), 2)
     out["n"] = len(pairs)
     out["hyp_words"] = round(sum(len(h.split()) for _, h in pairs) / len(pairs))
     out["ref_words"] = round(sum(len(r.split()) for r, _ in pairs) / len(pairs))
@@ -60,8 +77,11 @@ def main():
     ap.add_argument("run_dir")
     ap.add_argument("--split", default="test1")
     ap.add_argument("--no_bert", action="store_true")
+    ap.add_argument("--intersect", action="store_true", help="score only encounters present in every variant")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--lexicon", default="data/lexicon.txt")
     args = ap.parse_args()
+    lex = load_lexicon(args.lexicon)
 
     if args.corpus == "aci":
         from scribe_bench.acibench import load_split
@@ -72,16 +92,21 @@ def main():
         run = Path(args.run_dir) / "primock"
 
     results = {}
-    for vdir in sorted(d for d in run.iterdir() if d.is_dir()):
+    vdirs = sorted(d for d in run.iterdir() if d.is_dir())
+    keep = set(refs)
+    if args.intersect:
+        for d in vdirs:
+            keep &= {p.stem for p in d.glob("*.json")}
+    for vdir in vdirs:
         pairs, raw = [], []
         for p in vdir.glob("*.json"):
-            if p.stem in refs:
+            if p.stem in keep:
                 note = json.loads(p.read_text())["note"] or ""
                 raw.append(note)
                 pairs.append((refs[p.stem], strip_cites(note)))
         if not pairs:
             continue
-        r = score(pairs, not args.no_bert)
+        r = score(pairs, not args.no_bert, lex)
         if any(CITE.search(n) for n in raw):
             r.update(cite_stats(raw))
         results[vdir.name] = r

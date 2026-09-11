@@ -96,9 +96,10 @@ def main():
     for mf in args.nemo_manifest:
         mf = Path(mf)
         rows = [json.loads(l) for l in mf.read_text().splitlines() if l.strip()]
+        by_text = {r["reference_text"]: cid for cid, r in refs.items()}
         pairs = []
         for row in rows:
-            cid = row.get("id") or Path(row["audio_filepath"]).stem
+            cid = row.get("id") or (Path(row["audio_filepath"]).stem if "audio_filepath" in row else by_text.get(row.get("text")))
             if cid in refs:
                 pairs.append((refs[cid]["reference_text"], row["pred_text"]))
         results[f"{mf.parent.name}/{mf.stem}"] = score_pairs(pairs, lex)

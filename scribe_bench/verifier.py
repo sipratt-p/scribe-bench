@@ -32,6 +32,7 @@ SUPPORTED   - every clinical fact in the sentence is stated or directly implied 
 PARTIAL     - some facts are supported but at least one detail (number, side, duration, drug, negation) is not
 UNSUPPORTED - the central claim is not in the evidence, contradicts it, or describes a person other than the patient as if it were the patient
 
+On the second line answer LEAK=yes if the sentence records health information about a person other than the patient (spouse, child, friend, relative's own diagnosis or medication) that is not the patient's own family history risk; otherwise LEAK=no.
 Then one short line of justification."""
 
 DRUGS = ["paracetamol", "ibuprofen", "amoxicillin", "omeprazole", "metformin", "amlodipine", "atorvastatin",
@@ -123,7 +124,8 @@ def judge(rows: list[dict], base_url: str, model: str, workers: int) -> list[dic
         first = txt.split("\n", 1)[0].upper()
         label = "UNSUPPORTED" if "UNSUPPORTED" in first else "PARTIAL" if "PARTIAL" in first else \
             "SUPPORTED" if "SUPPORTED" in first else "ERROR"
-        return {**r, "label": label, "judge_raw": txt}
+        leak = bool(re.search(r"LEAK\s*=\s*yes", txt, re.I))
+        return {**r, "label": label, "leak": leak, "judge_raw": txt}
 
     with ThreadPoolExecutor(workers) as ex:
         return list(ex.map(one, rows))
@@ -134,7 +136,7 @@ def report(rows: list[dict]) -> dict:
     lab = Counter(r["label"] for r in rows)
     inj = [r for r in rows if r["injected"]]
     clean = [r for r in rows if not r["injected"]]
-    flagged = lambda r: r["label"] in ("UNSUPPORTED", "PARTIAL")  # noqa: E731
+    flagged = lambda r: r["label"] in ("UNSUPPORTED", "PARTIAL") or r.get("leak")  # noqa: E731
     res = {"n": len(rows), "labels": dict(lab)}
     if inj:
         tp = sum(flagged(r) for r in inj)
@@ -144,6 +146,7 @@ def report(rows: list[dict]) -> dict:
         res["flag_rate_on_clean"] = round(fp / max(len(clean), 1), 3)
         by = Counter(r["injected"] for r in inj)
         res["recall_by_kind"] = {k: round(sum(flagged(r) for r in inj if r["injected"] == k) / n, 2) for k, n in by.items()}
+        res["leak_flag_on_clean"] = round(sum(bool(r.get("leak")) for r in clean) / max(len(clean), 1), 3)
     return res
 
 

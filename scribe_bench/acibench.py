@@ -46,9 +46,16 @@ def load_split(root: Path, split: str) -> dict[str, dict]:
 
 
 if __name__ == "__main__":
+    import json
     import sys
     from collections import Counter
     root = Path(sys.argv[1])
+    if len(sys.argv) > 3:  # dump <root> <split> <out.json> [variant]
+        variant = sys.argv[4] if len(sys.argv) > 4 else "humantrans"
+        e = load_split(root, sys.argv[2])
+        Path(sys.argv[3]).write_text(json.dumps({k: v["variants"][variant] for k, v in e.items() if variant in v["variants"]}))
+        print("dumped", len(e), sys.argv[2], variant)
+        sys.exit()
     for s in SPLITS:
         e = load_split(root, s)
         c = Counter(v for x in e.values() for v in x["variants"])
