@@ -90,13 +90,28 @@ def main():
     ap.add_argument("--intersect", action="store_true", help="score only encounters present in every variant")
     ap.add_argument("--out", default=None)
     ap.add_argument("--lexicon", default="data/lexicon.txt")
+    ap.add_argument("--by", default=None, help="aci only: stratify by metadata field, e.g. patient_gender or age_band")
     args = ap.parse_args()
     lex = load_lexicon(args.lexicon)
 
+    groups = None
     if args.corpus == "aci":
-        from scribe_bench.acibench import load_split
+        from scribe_bench.acibench import load_split, load_metadata
         refs = {k: v["note"] for k, v in load_split(Path(args.root), args.split).items()}
         run = Path(args.run_dir) / args.split
+        if args.by:
+            meta = load_metadata(Path(args.root), args.split)
+            groups = {}
+            for eid, m in meta.items():
+                if args.by == "age_band":
+                    try:
+                        a = float(m.get("patient_age") or "nan")
+                        g = "under 40" if a < 40 else "40 to 64" if a < 65 else "65 and over"
+                    except ValueError:
+                        g = "unknown"
+                else:
+                    g = (m.get(args.by) or "unknown").strip().lower() or "unknown"
+                groups.setdefault(g, set()).add(eid)
     else:
         refs = {p.stem: json.loads(p.read_text())["note"]["note"] for p in Path(args.root).glob("*.json")}
         run = Path(args.run_dir) / "primock"
@@ -121,6 +136,15 @@ def main():
             r.update(cite_stats(raw))
         results[vdir.name] = r
         print(f"{vdir.name:20s} " + "  ".join(f"{a}={b}" for a, b in r.items()), flush=True)
+        if groups:
+            ids = [p.stem for p in vdir.glob("*.json") if p.stem in keep]
+            by_id = dict(zip(ids, [pr for pr in pairs]))
+            for g, members in sorted(groups.items()):
+                sub = [by_id[i] for i in ids if i in members]
+                if len(sub) >= 3:
+                    rg = score(sub, not args.no_bert, lex)
+                    results[f"{vdir.name}/{args.by}={g}"] = rg
+                    print(f"  {args.by}={g:12s} " + "  ".join(f"{a}={b}" for a, b in rg.items()), flush=True)
     if args.out:
         Path(args.out).write_text(json.dumps(results, indent=1))
 

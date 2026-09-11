@@ -45,6 +45,11 @@ def load_split(root: Path, split: str) -> dict[str, dict]:
     return enc
 
 
+def load_metadata(root: Path, split: str) -> dict[str, dict]:
+    ch_file, _ = SPLITS[split]
+    return {r["encounter_id"]: r for r in _rows(root / "data" / "challenge_data" / ch_file.replace(".csv", "_metadata.csv"))}
+
+
 if __name__ == "__main__":
     import json
     import sys

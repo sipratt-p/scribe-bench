@@ -50,15 +50,22 @@ def main():
     ap.add_argument("--chunk_s", type=float, default=600.0)
     ap.add_argument("--overlap_s", type=float, default=2.0)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--workers", type=int, default=4)
     args = ap.parse_args()
-    client = OpenAI(base_url=args.base_url, api_key="x")
+    client = OpenAI(base_url=args.base_url, api_key="x", timeout=3600)
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)
     recs = [json.loads(p.read_text()) for p in sorted(Path(args.export_dir).glob("*.json"))][: args.limit or None]
-    for rec in recs:
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(args.workers) as ex:
+        list(ex.map(lambda r: one(r, client, args, out), recs))
+
+
+def one(rec, client, args, out):
+    if True:
         dst = out / f"{rec['id']}.json"
         if dst.exists():
-            continue
+            return
         t0 = time.time()
         segs, raw_all = [], []
         for offset, b64 in chunks(str(Path(rec["audio"]).resolve()), args.chunk_s, args.overlap_s):

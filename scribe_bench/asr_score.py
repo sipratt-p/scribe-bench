@@ -47,6 +47,47 @@ def score_pairs(pairs: list[tuple[str, str]], lex: set[str]) -> dict:
             "med_terms": tot, "med_missed": mis, "med_term_err": round(100 * mis / max(tot, 1), 2)}
 
 
+def attribution_error(export_dir: Path, hyp_dir: Path, ids: list[str]) -> dict:
+    """Word-level speaker misattribution, Abridge's 'attribution' dimension at the transcript level.
+    Each hypothesis segment is placed on the reference timeline; the reference speaker at its
+    midpoint is the truth. Hypothesis speaker labels are mapped to Doctor/Patient by majority
+    overlap per file. Reports the share of hypothesis words carrying the wrong role, split by
+    direction (clinician words given to the patient, patient words given to the clinician)."""
+    from collections import Counter
+    tot = wrong = doc2pat = pat2doc = 0
+    for cid in ids:
+        ref = json.loads((export_dir / f"{cid}.json").read_text())["utterances"]
+        segs = json.loads((hyp_dir / f"{cid}.json").read_text())["segments"]
+
+        def ref_spk(t):
+            for u in ref:
+                if u["start"] <= t <= u["end"]:
+                    return u["speaker"]
+            best = min(ref, key=lambda u: min(abs(t - u["start"]), abs(t - u["end"])), default=None)
+            return best["speaker"] if best else None
+
+        votes = {}
+        placed = []
+        for s in segs:
+            r = ref_spk((s["start"] + s["end"]) / 2)
+            n = len(s["text"].split())
+            if r is None or n == 0:
+                continue
+            votes.setdefault(s["speaker"], Counter())[r] += n
+            placed.append((s["speaker"], r, n))
+        mapping = {h: c.most_common(1)[0][0] for h, c in votes.items()}
+        for h, r, n in placed:
+            tot += n
+            if mapping[h] != r:
+                wrong += n
+                if r == "Doctor":
+                    doc2pat += n
+                else:
+                    pat2doc += n
+    return {"attr_err": round(100 * wrong / max(tot, 1), 2), "clin_to_pat": round(100 * doc2pat / max(tot, 1), 2),
+            "pat_to_clin": round(100 * pat2doc / max(tot, 1), 2)}
+
+
 def der_for(export_dir: Path, hyp_dir: Path, ids: list[str]) -> dict:
     from pyannote.core import Annotation, Segment
     from pyannote.metrics.diarization import DiarizationErrorRate
@@ -90,6 +131,7 @@ def main():
             wall += h.get("wall_s", 0)
         r = score_pairs(pairs, lex)
         r.update(der_for(export_dir, d, ids))
+        r.update(attribution_error(export_dir, d, ids))
         r["wall_s"] = round(wall, 1)
         results[d.name] = r
 
