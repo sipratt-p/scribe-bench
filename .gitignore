@@ -1,0 +1,8 @@
+.venv
+runs/
+data/aci-bench/
+data/MTS-Dialog/
+data/primock57/
+data/medsynth/
+data/primock_export/
+__pycache__/

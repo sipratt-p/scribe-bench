@@ -1,0 +1,21 @@
+[project]
+name = "scribe-bench"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "bert-score>=0.3.13",
+    "datasets>=5.0.1",
+    "huggingface-hub>=1.31.0",
+    "jiwer>=4.0.0",
+    "numpy>=2.5.3",
+    "openai>=3.13.0",
+    "pandas>=3.0.5",
+    "pyannote-metrics>=4.1",
+    "rouge-score>=0.1.2",
+    "soundfile>=0.14.0",
+    "textgrid>=1.6.1",
+    "tqdm>=4.70.1",
+    "wordfreq>=3.1.1",
+]
