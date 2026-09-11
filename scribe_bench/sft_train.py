@@ -30,6 +30,8 @@ def main():
     ap.add_argument("--bs", type=int, default=2)
     ap.add_argument("--grad_acc", type=int, default=8)
     ap.add_argument("--merge", action="store_true")
+    ap.add_argument("--targets", default="q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj",
+                    help="comma list of module names, or all-linear")
     args = ap.parse_args()
 
     tok = AutoTokenizer.from_pretrained(args.model)
@@ -48,7 +50,7 @@ def main():
                                                  attn_implementation="sdpa")
     model.config.use_cache = False
     lora = LoraConfig(r=args.r, lora_alpha=2 * args.r, lora_dropout=0.05, task_type="CAUSAL_LM",
-                      target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"])
+                      target_modules="all-linear" if args.targets == "all-linear" else args.targets.split(","))
     cfg = SFTConfig(output_dir=args.out, num_train_epochs=args.epochs, per_device_train_batch_size=args.bs,
                     gradient_accumulation_steps=args.grad_acc, learning_rate=args.lr, lr_scheduler_type="cosine",
                     warmup_steps=10, logging_steps=10, save_strategy="epoch", eval_strategy="steps", eval_steps=100,
