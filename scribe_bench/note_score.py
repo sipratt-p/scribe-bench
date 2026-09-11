@@ -53,7 +53,17 @@ def score(pairs: list[tuple[str, str]], bert: bool, lex: set[str] = frozenset())
             agg[k] += s[k].fmeasure
     out = {k: round(100 * v / len(pairs), 2) for k, v in agg.items()}
     if bert:
+        import bert_score.utils as bsu
         from bert_score import score as bscore
+        _orig_encode = bsu.sent_encode
+
+        def _capped_encode(tokenizer, sent):  # transformers 5 tokenizers report a huge model_max_length
+            try:
+                tokenizer.model_max_length = min(int(tokenizer.model_max_length), 512)
+            except Exception:  # noqa: BLE001
+                tokenizer.model_max_length = 512
+            return _orig_encode(tokenizer, sent)
+        bsu.sent_encode = _capped_encode
         _, _, f = bscore([h for _, h in pairs], [r for r, _ in pairs], model_type="microsoft/deberta-xlarge-mnli",
                          lang="en", verbose=False, batch_size=8)
         out["bertscore_f1"] = round(100 * float(f.mean()), 2)

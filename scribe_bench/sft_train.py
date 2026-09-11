@@ -40,6 +40,8 @@ def main():
         ids = tok.apply_chat_template(ex["messages"], tokenize=True, add_generation_prompt=False)
         return len(ids) <= args.max_len
     ds = ds.filter(fits, num_proc=8)
+    # prompt/completion form so TRL masks the prompt (Qwen's template has no {% generation %} markers)
+    ds = ds.map(lambda ex: {"prompt": ex["messages"][:-1], "completion": ex["messages"][-1:]}, remove_columns=["messages"])
     print({k: len(v) for k, v in ds.items()}, flush=True)
 
     model = AutoModelForCausalLM.from_pretrained(args.model, dtype=torch.bfloat16, device_map={"": 0},
@@ -49,9 +51,9 @@ def main():
                       target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"])
     cfg = SFTConfig(output_dir=args.out, num_train_epochs=args.epochs, per_device_train_batch_size=args.bs,
                     gradient_accumulation_steps=args.grad_acc, learning_rate=args.lr, lr_scheduler_type="cosine",
-                    warmup_ratio=0.03, logging_steps=10, save_strategy="epoch", eval_strategy="steps", eval_steps=100,
+                    warmup_steps=10, logging_steps=10, save_strategy="epoch", eval_strategy="steps", eval_steps=100,
                     bf16=True, gradient_checkpointing=True, max_length=args.max_len, packing=False,
-                    assistant_only_loss=True, report_to=[], dataloader_num_workers=2)
+                    completion_only_loss=True, report_to=[], dataloader_num_workers=2)
     trainer = SFTTrainer(model=model, args=cfg, train_dataset=ds["train"], eval_dataset=ds["valid"],
                          processing_class=tok, peft_config=lora)
     trainer.train()
