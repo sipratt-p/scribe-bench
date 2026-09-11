@@ -25,7 +25,25 @@ PROMPT = ("Transcribe this recording of a medical consultation verbatim. Identif
           "S01, S02, ... in order of first appearance. Output one line per utterance in exactly this format and nothing else:\n"
           "[start-end] [Sxx] words\n"
           "where start and end are seconds with one decimal, e.g. [12.4-15.9] [S01] Good morning, how can I help?")
-LINE = re.compile(r"\[(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)\]\s*\[(S\d+)\]\s*(.+)")
+LINE = re.compile(r"\[(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)\]\s*\[(S\d+)\]\s*(.+?)(?=\s*\[\d+(?:\.\d+)?\s*-\s*\d|\s*$)", re.S)
+
+
+def parse_segments(raw: str, offset: float = 0.0) -> list[dict]:
+    """Model output is one '[start-end] [Sxx] text' per utterance, but sometimes all on one line."""
+    out = []
+    for m in LINE.finditer(raw):
+        s, e, spk, txt = m.groups()
+        txt = " ".join(txt.split())
+        if txt:
+            out.append({"start": float(s) + offset, "end": float(e) + offset, "speaker": spk, "text": txt})
+    return out
+
+
+def reparse(out_dir: str) -> None:
+    for p in Path(out_dir).glob("*.json"):
+        d = json.loads(p.read_text())
+        d["segments"] = parse_segments(d["raw"])
+        p.write_text(json.dumps(d, indent=1))
 
 
 def chunks(path: str, chunk_s: float, overlap_s: float):
@@ -77,15 +95,15 @@ def one(rec, client, args, out):
                 extra_body={"chat_template_kwargs": {"enable_thinking": False}})
             raw = r.choices[0].message.content or ""
             raw_all.append(raw)
-            for line in raw.splitlines():
-                m = LINE.match(line.strip())
-                if m:
-                    s, e, spk, txt = m.groups()
-                    segs.append({"start": float(s) + offset, "end": float(e) + offset, "speaker": spk, "text": txt.strip()})
+            segs.extend(parse_segments(raw, offset))
         dt = time.time() - t0
         dst.write_text(json.dumps({"id": rec["id"], "raw": "\n".join(raw_all), "segments": segs, "wall_s": dt}, indent=1))
         print(f"{rec['id']}: {len(segs)} segs, {len({s['speaker'] for s in segs})} spk, {dt:.1f}s", flush=True)
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if len(sys.argv) == 3 and sys.argv[1] == "reparse":
+        reparse(sys.argv[2])
+    else:
+        main()

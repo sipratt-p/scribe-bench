@@ -10,6 +10,12 @@ Abridge Frontier Stack brief. Everything runs on open data and open weights:
 | 3 SFT | LoRA fine-tune of the note model on transcript-note pairs, held out on ACI-Bench test | ACI-Bench train/valid, MTS-Dialog, MedSynth | beast or Mac (mlx_lm) |
 | 4 Verifier | Recall of a claim-level judge on injected hallucinations (drug swap, negation flip, fabricated finding, third-party leak) and flag rate on clean claims | claims extracted from cited notes | Mac Gemma 4 :8500 |
 
+Results from the 11 Sep 2026 run are in `RESULTS.md`. Additional scorers added from Abridge's evaluation
+whitepaper: word-level speaker misattribution (`asr_score.py`), attribution and follow-up completeness LLM judges
+(`note_judge.py`), and metadata stratification for fairness (`note_score.py --by patient_gender|age_band`).
+NVIDIA comparison runners: `asr_nemo.py` (Parakeet), `asr_canary_qwen.py`, `diar_sortformer.py`, `asr_omni.py`;
+`pod_matrix.sh` runs the whole matrix on a 2-GPU pod after `remote_setup.sh`.
+
 ## Layout
 
 ```
