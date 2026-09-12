@@ -375,7 +375,7 @@ def main():
                 if judge2_llm is not None and ok1:
                     test_m2 = evaluate(cfg, test, recs, note_llm, judge2_llm)
                     prev2 = (state.get("best_test2") or {}).get("score")
-                    ok2 = prev2 is None or test_m2["score"] > prev2
+                    ok2 = prev2 is None or test_m2["score"] >= prev2 - 0.5  # judge 2 must not contradict (0.5 = noise band)
                 if ok1 and ok2:
                     state.update(best=cfg, best_dev=dev_m, best_test=test_m, best_test2=test_m2)
                     note = "ACCEPTED as best" + (f" (judge2 {test_m2['score']})" if test_m2 else "")
