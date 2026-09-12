@@ -106,9 +106,33 @@ def main():
         if ours_t:
             d["ours"]["asr"].update(der_for(EXPORT, RUNS / "moss_plain", [cid]))
             d["ours"]["asr"].update(attribution_error(EXPORT, RUNS / "moss_plain", [cid]))
+        # loop-optimized variant (autoresearch best config), if exported
+        lb = jload(RUNS / f"loop_best/{cid}.json")
+        hot = jload(RUNS / f"asr_variants/moss_hotcc/{cid}.json")
+        if lb:
+            m = lb["metrics"]
+            segs = []
+            for line in lb["transcript"].splitlines():
+                mm = re.match(r"\[([^\]]+)\]\s*(.*)", line)
+                if mm:
+                    segs.append({"start": None, "end": None, "speaker": mm.group(1), "text": mm.group(2)})
+            hot_text = " ".join(s["text"] for s in hot["segments"]) if hot else lb["transcript"]
+            asr = asr_metrics(rec["reference_text"], hot_text)
+            if hot:
+                asr.update(der_for(EXPORT, RUNS / "asr_variants/moss_hotcc", [cid]))
+                asr.update(attribution_error(EXPORT, RUNS / "asr_variants/moss_hotcc", [cid]))
+            d["ours_v2"] = {
+                "label": "Loop-optimized: complaint-linked hotwords → role-mapped speakers → DeepSeek V4 Flash + proposer instruction",
+                "config": lb["config"], "split": lb["split"],
+                "transcript_text": lb["transcript"], "segments": segs, "asr": asr,
+                "note": lb["note"], "note_metrics": note_metrics(rec["note"]["note"], lb["note"]),
+                "judge": {"attribution": {"A": 0, "B": 0, "C": int(m.get("misattrib", 0))}, "attr_examples": [],
+                          "plan_items": m.get("plan_items"), "plan_found": m.get("plan_found")},
+                "claims": None,
+            }
         (OUT / f"{cid}.json").write_text(json.dumps(d))
         index.append({"id": cid, "complaint": d["presenting_complaint"], "duration_s": d["duration_s"],
-                      "has_ours_note": bool(ours_n), "has_claims": cid in judged})
+                      "has_ours_note": bool(ours_n), "has_claims": cid in judged, "has_v2": bool(lb)})
     (OUT / "index.json").write_text(json.dumps(index, indent=1))
     print(len(index), "consultations ->", OUT)
 

@@ -106,7 +106,9 @@
     <div id="t-judge"></div>
   </div>
   <div class="col ours">
-    <h2>Proposed <small>Second pass after the visit: diarized ASR (MOSS-TD 0.9B) → note with span citations → verifier flags unsupported claims and third-party leaks.</small></h2>
+    <h2>Proposed <small id="o-sub">Second pass after the visit: diarized ASR (MOSS-TD 0.9B) → note with span citations → verifier flags unsupported claims and third-party leaks.</small></h2>
+    <div class="steps" style="margin:-4px 0 8px"><label style="display:inline;text-transform:none;letter-spacing:0;font-size:12px"><input type="radio" name="ov" value="ours" checked> v1: cited note + verifier</label> &nbsp; <label style="display:inline;text-transform:none;letter-spacing:0;font-size:12px"><input type="radio" name="ov" value="ours_v2"> v2: overnight loop's best config</label></div>
+    <div class="explain">v2 is what an automated research loop found overnight on a 20-consultation dev slice and confirmed on the other 37: transcribe with complaint-linked medical hotwords, label which speaker is the clinician before writing, and let DeepSeek V4 Flash write the note with one extra instruction ("prioritize high-precision terminology; say 'no plan' if none; do not invent follow-ups or medications"). Baseline 44.3 → 48.4 on dev, 39.6 → 45.0 on test.</div>
     <div class="explain">After the visit ends there is no rush, so a different kind of speech model re-transcribes the whole recording at once. It uses a language model as its decoder, which is why it keeps rare medical words, and it labels who said what (S01, S02). The note is written from that transcript with a rule: every sentence must point at the line it came from. A separate small model then checks each sentence against the lines it points at.</div>
     <div class="stat-row" id="o-stats"></div>
     <h3>Transcript <span class="pill" id="o-tlabel"></span></h3>
@@ -229,14 +231,21 @@ function renderDelta(d){
   if (t.terms_only_here) add("Medical terms only this transcript caught", t.terms_only_here.length, o.terms_only_here.length, false);
   $("delta").innerHTML = `<table><thead><tr><th>Measure</th><th class="num">Theirs</th><th class="num">Proposed</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
 }
+function oursVariant(d){
+  const v = document.querySelector('input[name=ov]:checked').value;
+  return (v==="ours_v2" && d.ours_v2) ? d.ours_v2 : d.ours;
+}
 function show(d){
   current = d;
   $("player").src = d.audio;
+  const o = oursVariant(d);
+  $("o-sub").textContent = o.label || "";
   renderSide("t", d.theirs, d.reference);
-  renderSide("o", d.ours, d.reference);
-  renderClaims(d.ours.claims);
-  renderDelta(d);
+  renderSide("o", o, d.reference);
+  renderClaims(o.claims);
+  renderDelta({...d, ours: o});
 }
+document.querySelectorAll('input[name=ov]').forEach(r => r.onchange = () => { if (current) show(current); });
 async function loadList(){
   const list = await (await fetch("/api/consultations")).json();
   $("pick").innerHTML = list.map(c => `<option value="${c.id}">${c.id.replace("_consultation"," #")} · ${esc(c.complaint||"").slice(0,60)} · ${Math.round((c.duration_s||0)/60)} min</option>`).join("");
