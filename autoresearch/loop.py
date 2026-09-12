@@ -70,7 +70,6 @@ DEV_N = 20
 NOTE_MODELS = {
     "qwen27b": ("http://localhost:8004/v1", "qwen3.8-27b"),
     "dsv4flash": ("http://100.90.251.52:8600/v1", "v4-flash"),
-    "flashnext": ("http://localhost:8003/v1", "Qwen3.8-Flash-Next-ablit-nvfp4"),
 }
 
 
