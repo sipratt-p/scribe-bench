@@ -114,6 +114,35 @@
 | asrcorr | 22 | 27.07 | 52.92 | 18.91 | 66.73 | 61.09 | 49.82 |  | 426 | 400 |
 | humantrans | 22 | 27.78 | 53.1 | 18.96 | 66.69 | 60.65 | 51.38 |  | 386 | 400 |
 
+### Notes — note_score_ultra_test1
+
+| system | n | rougeL | rouge1 | rouge2 | bertscore_f1 | term_recall | term_precision | cited_frac | hyp_words | ref_words |
+|---|---|---|---|---|---|---|---|---|---|---|
+| humantrans | 40 | 34.21 | 56.61 | 24.6 | 70.17 | 64.04 | 56.54 |  | 307 | 415 |
+
+### Notes — note_score_ultra_test2
+
+| system | n | rougeL | rouge1 | rouge2 | bertscore_f1 | term_recall | term_precision | cited_frac | hyp_words | ref_words |
+|---|---|---|---|---|---|---|---|---|---|---|
+| humantrans | 40 | 32.31 | 54.84 | 23.41 | 69.36 | 63.03 | 56.69 |  | 319 | 438 |
+
+### Notes — note_score_ultra_test3
+
+| system | n | rougeL | rouge1 | rouge2 | bertscore_f1 | term_recall | term_precision | cited_frac | hyp_words | ref_words |
+|---|---|---|---|---|---|---|---|---|---|---|
+| humantrans | 40 | 32.66 | 54.84 | 24.07 | 69.29 | 62.05 | 63.4 |  | 326 | 440 |
+
+### Notes — note_score_test1_nano24_compare
+
+| system | n | rougeL | rouge1 | rouge2 | bertscore_f1 | term_recall | term_precision | cited_frac | hyp_words | ref_words |
+|---|---|---|---|---|---|---|---|---|---|---|
+| qwen_base | 24 | 36.76 | 58.35 | 26.55 | 70.86 | 62.48 | 67.35 |  | 300 | 421 |
+| qwen_cite | 24 | 34.81 | 57.31 | 24.72 | 70.29 | 60.41 | 69.64 |  | 317 | 421 |
+| qwen_sft | 24 | 43.81 | 63.96 | 36.52 | 74.27 | 66.95 | 77.64 |  | 480 | 421 |
+| nano_base | 24 | 31.12 | 53.49 | 21.46 | 67.44 | 58.18 | 54.87 |  | 314 | 421 |
+| nano_sft | 24 | 38.48 | 56.68 | 30.05 | 69.55 | 54.22 | 74.29 |  | 414 | 421 |
+| ultra_base | 24 | 35.65 | 57.06 | 24.8 | 70.17 | 62.31 | 55.78 |  | 304 | 421 |
+
 ### Notes — note_score_primock
 
 | system | n | rougeL | rouge1 | rouge2 | bertscore_f1 | term_recall | term_precision | cited_frac | hyp_words | ref_words |

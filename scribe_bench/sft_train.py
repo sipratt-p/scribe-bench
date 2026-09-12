@@ -30,11 +30,15 @@ def main():
     ap.add_argument("--bs", type=int, default=2)
     ap.add_argument("--grad_acc", type=int, default=8)
     ap.add_argument("--merge", action="store_true")
+    ap.add_argument("--limit", type=int, default=0, help="debug: train on the first N examples")
+    ap.add_argument("--device_map", default="0", help='"0" for single GPU, "auto" to shard across visible GPUs')
     ap.add_argument("--targets", default="q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj",
                     help="comma list of module names, or all-linear")
     args = ap.parse_args()
 
     tok = AutoTokenizer.from_pretrained(args.model)
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
     ds = load_dataset("json", data_files={"train": f"{args.data}/train.jsonl", "valid": f"{args.data}/valid.jsonl"})
 
     # drop rows whose full chat exceeds max_len so no assistant target is truncated away
@@ -42,11 +46,15 @@ def main():
         ids = tok.apply_chat_template(ex["messages"], tokenize=True, add_generation_prompt=False)
         return len(ids) <= args.max_len
     ds = ds.filter(fits, num_proc=8)
+    if args.limit:
+        ds["train"] = ds["train"].select(range(min(args.limit, len(ds["train"]))))
+        ds["valid"] = ds["valid"].select(range(min(4, len(ds["valid"]))))
     # prompt/completion form so TRL masks the prompt (Qwen's template has no {% generation %} markers)
     ds = ds.map(lambda ex: {"prompt": ex["messages"][:-1], "completion": ex["messages"][-1:]}, remove_columns=["messages"])
     print({k: len(v) for k, v in ds.items()}, flush=True)
 
-    model = AutoModelForCausalLM.from_pretrained(args.model, dtype=torch.bfloat16, device_map={"": 0},
+    dm = "auto" if args.device_map == "auto" else {"": int(args.device_map)}
+    model = AutoModelForCausalLM.from_pretrained(args.model, dtype=torch.bfloat16, device_map=dm,
                                                  attn_implementation="sdpa")
     model.config.use_cache = False
     lora = LoraConfig(r=args.r, lora_alpha=2 * args.r, lora_dropout=0.05, task_type="CAUSAL_LM",
@@ -55,7 +63,8 @@ def main():
                     gradient_accumulation_steps=args.grad_acc, learning_rate=args.lr, lr_scheduler_type="cosine",
                     warmup_steps=10, logging_steps=10, save_strategy="epoch", eval_strategy="steps", eval_steps=100,
                     bf16=True, gradient_checkpointing=True, max_length=args.max_len, packing=False,
-                    completion_only_loss=True, report_to=[], dataloader_num_workers=2)
+                    completion_only_loss=True, report_to=[], dataloader_num_workers=2,
+                    loss_type="nll" if args.device_map == "auto" else "chunked_nll")  # TRL's chunked-CE patch breaks under accelerate hooks
     trainer = SFTTrainer(model=model, args=cfg, train_dataset=ds["train"], eval_dataset=ds["valid"],
                          processing_class=tok, peft_config=lora)
     trainer.train()
