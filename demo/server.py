@@ -106,13 +106,20 @@ def _step(job, text):
     job["steps"].append({"t": round(time.time(), 1), "text": text})
 
 
-def _llm(base_url, model, system, user, max_tokens=1500):
+def _llm(base_url, model, system, user, max_tokens=1500, tries=4):
     from openai import OpenAI
-    c = OpenAI(base_url=base_url, api_key="x", timeout=900)
-    r = c.chat.completions.create(model=model, temperature=0.0, max_tokens=max_tokens,
-                                  messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-                                  extra_body={"chat_template_kwargs": {"enable_thinking": False}})
-    return r.choices[0].message.content or ""
+    c = OpenAI(base_url=base_url, api_key="x", timeout=900, max_retries=0)
+    last = None
+    for i in range(tries):
+        try:
+            r = c.chat.completions.create(model=model, temperature=0.0, max_tokens=max_tokens,
+                                          messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+                                          extra_body={"chat_template_kwargs": {"enable_thinking": False}})
+            return r.choices[0].message.content or ""
+        except Exception as e:  # noqa: BLE001 - shared local servers throw transient 500s under load
+            last = e
+            time.sleep(2 * (i + 1))
+    raise last
 
 
 def _run_job(job, wav: Path):
@@ -154,18 +161,29 @@ def _run_job(job, wav: Path):
             cites = sorted({int(x) for m in CITE.findall(s) for x in m.replace(" ", "").split(",") if x})
             ev = sorted({(k, lines[k - 1]) for c in cites for k in range(max(1, c - 1), min(len(lines), c + 1) + 1)})
             claims.append({"claim": CITE.sub("", s).strip(), "cites": cites, "evidence": [f"{k}: {t}" for k, t in ev]})
-        for cl in claims:
-            txt = _llm(JUDGE_URL, JUDGE_MODEL, JUDGE_SYSTEM, f"SENTENCE:\n{cl['claim']}\n\nEVIDENCE:\n" + ("\n".join(cl["evidence"]) or "(no lines cited)"), 120)
+        from concurrent.futures import ThreadPoolExecutor
+
+        def _judge(cl):
+            try:
+                txt = _llm(JUDGE_URL, JUDGE_MODEL, JUDGE_SYSTEM, f"SENTENCE:\n{cl['claim']}\n\nEVIDENCE:\n" + ("\n".join(cl["evidence"]) or "(no lines cited)"), 120)
+            except Exception as e:  # noqa: BLE001
+                txt = f"ERROR {e}"
             first = txt.split("\n", 1)[0].upper()
             cl["label"] = "UNSUPPORTED" if "UNSUPPORTED" in first else "PARTIAL" if "PARTIAL" in first else "SUPPORTED" if "SUPPORTED" in first else "ERROR"
             cl["leak"] = bool(re.search(r"LEAK\s*=\s*yes", txt, re.I))
             cl["judge_raw"] = txt
+            return cl
+        with ThreadPoolExecutor(4) as ex:
+            list(ex.map(_judge, claims))
 
         # 4. attribution judge on both notes, against the diarized transcript
         _step(job, "Judging attribution on both notes")
         judges = {}
         for k, note in (("theirs", theirs_note), ("ours", CITE.sub("", ours_note))):
-            a = parse_json(_llm(JUDGE_URL, JUDGE_MODEL, ATTR_SYSTEM, f"TRANSCRIPT:\n{ours_dialogue}\n\nDRAFT NOTE:\n{note}", 500)) or {}
+            try:
+                a = parse_json(_llm(JUDGE_URL, JUDGE_MODEL, ATTR_SYSTEM, f"TRANSCRIPT:\n{ours_dialogue}\n\nDRAFT NOTE:\n{note}", 500)) or {}
+            except Exception:  # noqa: BLE001
+                a = {}
             judges[k] = {"attribution": {kk: a.get(kk, 0) for kk in "ABC"}, "attr_examples": a.get("examples", [])[:3]}
 
         # 5. medical-term counts (no reference for uploads; term overlap between the two transcripts)
