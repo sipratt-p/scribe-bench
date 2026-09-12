@@ -74,6 +74,12 @@ def score(pairs: list[tuple[str, str]], bert: bool, lex: set[str] = frozenset())
             tp += len(r & h); fp += len(h - r); fn += len(r - h)
         out["term_recall"] = round(100 * tp / max(tp + fn, 1), 2)
         out["term_precision"] = round(100 * tp / max(tp + fp, 1), 2)
+    # effort proxy: character edits needed to turn the draft into the reference, per 100 reference words
+    from rapidfuzz.distance import Levenshtein
+    ed = sum(Levenshtein.distance(h, r) for r, h in pairs)
+    rw = sum(len(r.split()) for r, _ in pairs)
+    out["edits_per_100w"] = round(100 * ed / max(rw, 1) / 1.0, 1)
+    out["len_ratio"] = round(sum(len(h.split()) for _, h in pairs) / max(rw, 1), 2)
     out["n"] = len(pairs)
     out["hyp_words"] = round(sum(len(h.split()) for _, h in pairs) / len(pairs))
     out["ref_words"] = round(sum(len(r.split()) for r, _ in pairs) / len(pairs))

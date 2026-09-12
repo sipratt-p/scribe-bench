@@ -13,6 +13,7 @@ dependencies = [
     "openai>=3.13.0",
     "pandas>=3.0.5",
     "pyannote-metrics>=4.1",
+    "rapidfuzz>=3.14.6",
     "rouge-score>=0.1.2",
     "soundfile>=0.14.0",
     "textgrid>=1.6.1",
