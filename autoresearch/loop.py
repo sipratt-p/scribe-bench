@@ -65,6 +65,12 @@ ROLE_SYSTEM = """Below is a transcript of a medical consultation with anonymous 
 
 DEV_N = 20
 
+# note-model endpoints the loop may choose between (judge stays fixed for comparability)
+NOTE_MODELS = {
+    "qwen27b": ("http://localhost:8004/v1", "qwen3.8-27b"),
+    "dsv4flash": ("http://100.90.251.52:8600/v1", "v4-flash"),
+}
+
 
 def h(*parts) -> str:
     return hashlib.sha1(json.dumps(parts, sort_keys=True).encode()).hexdigest()[:16]
@@ -110,6 +116,19 @@ def load_recs():
     return recs, ids[:DEV_N], ids[DEV_N:]
 
 
+_LLMS: dict[str, "LLM"] = {}
+
+
+def note_llm_for(cfg, default_llm):
+    name = cfg.get("note_model", "qwen27b")
+    if name == "qwen27b" or name not in NOTE_MODELS:
+        return default_llm
+    if name not in _LLMS:
+        url, model = NOTE_MODELS[name]
+        _LLMS[name] = LLM(url, model, workers=2)
+    return _LLMS[name]
+
+
 def transcript_for(cfg, rec, note_llm) -> str:
     """Return the dialogue text the note model will see for this config."""
     if cfg["asr_variant"] == "human":
@@ -137,6 +156,7 @@ def transcript_for(cfg, rec, note_llm) -> str:
 
 def note_for(cfg, rec, dialogue, note_llm) -> str:
     system = PROMPTS[cfg["prompt"]] + ("\n" + cfg["extra"] if cfg.get("extra") else "") + (CITE_SUFFIX if cfg.get("cite") else "")
+    system = system + f"\n<!-- note_model={cfg.get('note_model', 'qwen27b')} -->"  # keeps cache keys distinct per model
     body = number_lines(dialogue) if cfg.get("cite") else dialogue
     if cfg.get("scaffold"):
         props = cached(h("props", rec["id"], dialogue), lambda: note_llm(SCAFFOLD_SYSTEM, "TRANSCRIPT:\n" + number_lines(dialogue), 2500))
@@ -204,10 +224,12 @@ def composite(m: dict) -> float:
 def evaluate(cfg, ids, recs, note_llm, judge_llm) -> dict:
     rows = []
 
+    nm = note_llm_for(cfg, note_llm)
+
     def one(cid):
         rec = recs[cid]
         d = transcript_for(cfg, rec, note_llm)
-        n = note_for(cfg, rec, d, note_llm)
+        n = note_for(cfg, rec, d, nm)
         n = gate(cfg, rec, d, n, judge_llm)
         return score_note(rec, n, d, judge_llm)
     with ThreadPoolExecutor(6) as ex:
@@ -223,7 +245,7 @@ def evaluate(cfg, ids, recs, note_llm, judge_llm) -> dict:
 
 
 def note_side(cfg):
-    return {k: cfg.get(k) for k in ("prompt", "extra", "cite", "gate", "scaffold")}
+    return {k: cfg.get(k) for k in ("prompt", "extra", "cite", "gate", "scaffold", "note_model")}
 
 
 def log(md: str):
@@ -232,14 +254,14 @@ def log(md: str):
 
 
 PROPOSER_SYSTEM = """You are running an overnight research loop on an ambient clinical scribe. You propose the next experiment as a JSON config.
-Knobs: asr_variant (one of the listed cached variants), asr_correct (0/1), role_map ("none"|"llm"), prompt (one of the listed keys), extra (a short free-text instruction to append to the note prompt, or ""), cite (0/1), gate ("none"|"drop_flagged"; only meaningful with cite=1), scaffold (0/1: first extract cited atomic propositions, then write the note from them).
+Knobs: note_model (one of the listed note models), asr_variant (one of the listed cached variants), asr_correct (0/1), role_map ("none"|"llm"), prompt (one of the listed keys), extra (a short free-text instruction to append to the note prompt, or ""), cite (0/1), gate ("none"|"drop_flagged"; only meaningful with cite=1), scaffold (0/1: first extract cited atomic propositions, then write the note from them).
 Ideas from the literature you may draw on: source-grounded proposition scaffolds (CAP, BioNLP 2026); lexicon-guided LLM correction of ASR errors (Google 2024, npj 2026); speaker-role identification before note writing; explicit negatives; plan items in the clinician's own words; deleting unsupported sentences.
 Goal: maximise the composite score (0.3*term_recall + 0.3*term_precision + 0.2*ROUGE-L + 0.2*plan_recall - 40*misattributions_per_note) on ASR transcripts, and close the gap to the same config on the human transcript.
 Read the notebook of past results. Propose 3 configs that are different from everything tried, each a plausible improvement, favouring changes to the weakest metric. Answer with a JSON list of 3 config objects and nothing else."""
 
 
 def propose(notebook_tail: str, variants: list[str], tried: set[str], proposer_llm) -> list[dict]:
-    txt = proposer_llm(PROPOSER_SYSTEM, f"Cached asr_variants: {variants}\nPrompt keys: {list(PROMPTS)}\n\nNOTEBOOK (most recent last):\n{notebook_tail[-6000:]}", 900)
+    txt = proposer_llm(PROPOSER_SYSTEM, f"Cached asr_variants: {variants}\nNote models: {list(NOTE_MODELS)}\nPrompt keys: {list(PROMPTS)}\n\nNOTEBOOK (most recent last):\n{notebook_tail[-6000:]}", 900)
     m = re.search(r"\[.*\]", txt, re.S)
     out = []
     try:
@@ -248,7 +270,8 @@ def propose(notebook_tail: str, variants: list[str], tried: set[str], proposer_l
                  "role_map": c.get("role_map", "none") if c.get("role_map") in ("none", "llm") else "none",
                  "prompt": c.get("prompt") if c.get("prompt") in PROMPTS else "base", "extra": str(c.get("extra") or "")[:400],
                  "cite": int(bool(c.get("cite", 0))), "gate": c.get("gate") if c.get("gate") in ("none", "drop_flagged") else "none",
-                 "scaffold": int(bool(c.get("scaffold", 0)))}
+                 "scaffold": int(bool(c.get("scaffold", 0))),
+                 "note_model": c.get("note_model") if c.get("note_model") in NOTE_MODELS else "qwen27b"}
             if c["asr_variant"] in variants and h("cfg", c) not in tried:
                 out.append(c)
     except Exception:  # noqa: BLE001
@@ -266,7 +289,8 @@ def seed_queue(variants):
           {"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "attrib_strict", "extra": "", "cite": 1, "gate": "drop_flagged"},
           {"asr_variant": "moss_plain", "asr_correct": 1, "role_map": "llm", "prompt": "attrib_strict", "extra": "", "cite": 1, "gate": "drop_flagged"},
           {"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "attrib", "extra": "", "cite": 1, "gate": "none", "scaffold": 1},
-          {"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "attrib_strict", "extra": "", "cite": 1, "gate": "drop_flagged", "scaffold": 1}]
+          {"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "attrib_strict", "extra": "", "cite": 1, "gate": "drop_flagged", "scaffold": 1},
+          {"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "attrib", "extra": "", "cite": 0, "gate": "none", "note_model": "dsv4flash"}]
     for v in variants:
         if v != "moss_plain":
             q.append({"asr_variant": v, "asr_correct": 0, "role_map": "llm", "prompt": "attrib", "extra": "", "cite": 0, "gate": "none"})
@@ -275,9 +299,11 @@ def seed_queue(variants):
 
 def mutate(best, variants):
     c = dict(best)
-    k = random.choice(["asr_variant", "asr_correct", "role_map", "prompt", "cite", "gate", "extra", "scaffold"])
+    k = random.choice(["asr_variant", "asr_correct", "role_map", "prompt", "cite", "gate", "extra", "scaffold", "note_model"])
     if k == "scaffold":
         c[k] = 1 - int(c.get(k, 0)); return c
+    if k == "note_model":
+        c[k] = random.choice(list(NOTE_MODELS)); return c
     if k == "asr_variant":
         c[k] = random.choice(variants)
     elif k in ("asr_correct", "cite"):
@@ -344,7 +370,7 @@ def main():
                 else:
                     note = "dev gain did not hold on test"
             state["tried"][key] = {"cfg": cfg, "dev": dev_m, "human": hum, "gap": gap, "test": test_m, "minutes": round((time.time() - t0) / 60, 1)}
-            log(f"| {it} | {cfg['asr_variant']} | {cfg['asr_correct']} | {cfg['role_map']} | {cfg['prompt']}{' +scaffold' if cfg.get('scaffold') else ''} | {cfg['extra'][:40]} | {cfg['cite']} | {cfg['gate']} | "
+            log(f"| {it} | {cfg['asr_variant']} | {cfg['asr_correct']} | {cfg['role_map']} | {cfg['prompt']}{' +scaffold' if cfg.get('scaffold') else ''} [{cfg.get('note_model', 'qwen27b')}] | {cfg['extra'][:40]} | {cfg['cite']} | {cfg['gate']} | "
                 f"{dev_m['score']} (TR {dev_m['term_recall']}, TP {dev_m['term_precision']}, RL {dev_m['rougeL']}, plan {dev_m['plan_recall']}, mis {dev_m['misattrib']}) | "
                 f"{gap:+} (human {hum['score']}) | {test_m['score'] if test_m else ''} | {note} |")
         except Exception as e:  # noqa: BLE001
