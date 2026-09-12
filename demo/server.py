@@ -124,7 +124,7 @@ def _llm(base_url, model, system, user, max_tokens=1500, tries=4):
 
 def _run_job(job, wav: Path):
     from scribe_bench.notegen import PRIMOCK_SYSTEM, CITE_SUFFIX, number_lines
-    from scribe_bench.verifier import JUDGE_SYSTEM, SENT_SPLIT, CITE
+    from scribe_bench.verifier import JUDGE_SYSTEM, SENT_SPLIT, CITE, parse_verdict
     from scribe_bench.note_judge import ATTR_SYSTEM, parse_json
     from scribe_bench.textnorm import normalize
     try:
@@ -165,12 +165,10 @@ def _run_job(job, wav: Path):
 
         def _judge(cl):
             try:
-                txt = _llm(JUDGE_URL, JUDGE_MODEL, JUDGE_SYSTEM, f"SENTENCE:\n{cl['claim']}\n\nEVIDENCE:\n" + ("\n".join(cl["evidence"]) or "(no lines cited)"), 120)
+                txt = _llm(JUDGE_URL, JUDGE_MODEL, JUDGE_SYSTEM, f"SENTENCE:\n{cl['claim']}\n\nEVIDENCE:\n" + ("\n".join(cl["evidence"]) or "(no lines cited)"), 220)
             except Exception as e:  # noqa: BLE001
                 txt = f"ERROR {e}"
-            first = txt.split("\n", 1)[0].upper()
-            cl["label"] = "UNSUPPORTED" if "UNSUPPORTED" in first else "PARTIAL" if "PARTIAL" in first else "SUPPORTED" if "SUPPORTED" in first else "ERROR"
-            cl["leak"] = bool(re.search(r"LEAK\s*=\s*yes", txt, re.I))
+            cl["label"], cl["leak"] = parse_verdict(txt)
             cl["judge_raw"] = txt
             return cl
         with ThreadPoolExecutor(4) as ex:

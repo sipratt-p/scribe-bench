@@ -27,13 +27,22 @@ SENT_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z\[])|\n")
 
 JUDGE_SYSTEM = """You are a clinical documentation auditor. You are given one sentence from a draft clinical note and the transcript lines it cites (with a little surrounding context). Decide whether the transcript supports the sentence.
 
-Answer with exactly one label on the first line:
-SUPPORTED   - every clinical fact in the sentence is stated or directly implied in the evidence
-PARTIAL     - some facts are supported but at least one detail (number, side, duration, drug, negation) is not
-UNSUPPORTED - the central claim is not in the evidence, contradicts it, or describes a person other than the patient as if it were the patient
+First, in one or two sentences, compare each clinical fact in the sentence (drug, dose, number, side, duration, negation, who it is about) with the evidence.
+Then, on the LAST line, write exactly: VERDICT: <SUPPORTED|PARTIAL|UNSUPPORTED> LEAK=<yes|no>
+- SUPPORTED: every clinical fact in the sentence is stated or directly implied in the evidence
+- PARTIAL: some facts are supported but at least one detail (number, side, duration, drug, negation) is not
+- UNSUPPORTED: the central claim is not in the evidence, contradicts it, or describes a person other than the patient as if it were the patient
+- LEAK=yes if the sentence records health information about a person other than the patient (spouse, child, friend, relative's own diagnosis or medication) that is not the patient's own family-history risk."""
 
-On the second line answer LEAK=yes if the sentence records health information about a person other than the patient (spouse, child, friend, relative's own diagnosis or medication) that is not the patient's own family history risk; otherwise LEAK=no.
-Then one short line of justification."""
+
+def parse_verdict(txt: str) -> tuple[str, bool]:
+    """Verdict is on the last line; fall back to scanning the whole text."""
+    lines = [l for l in txt.strip().splitlines() if l.strip()]
+    tail = lines[-1].upper() if lines else ""
+    src = tail if "VERDICT" in tail else txt.upper()
+    label = "UNSUPPORTED" if "UNSUPPORTED" in src else "PARTIAL" if "PARTIAL" in src else "SUPPORTED" if "SUPPORTED" in src else "ERROR"
+    leak = bool(re.search(r"LEAK\s*=\s*YES", src))
+    return label, leak
 
 DRUGS = ["paracetamol", "ibuprofen", "amoxicillin", "omeprazole", "metformin", "amlodipine", "atorvastatin",
          "sertraline", "salbutamol", "ramipril", "codeine", "naproxen", "loratadine", "prednisolone"]
@@ -114,17 +123,14 @@ def judge(rows: list[dict], base_url: str, model: str, workers: int) -> list[dic
         ev = "\n".join(r["evidence"]) or "(no lines cited)"
         try:
             resp = client.chat.completions.create(
-                model=model, temperature=0.0, max_tokens=120,
+                model=model, temperature=0.0, max_tokens=220,
                 messages=[{"role": "system", "content": JUDGE_SYSTEM},
                           {"role": "user", "content": f"SENTENCE:\n{r['claim']}\n\nEVIDENCE:\n{ev}"}],
                 extra_body={"chat_template_kwargs": {"enable_thinking": False}})
             txt = resp.choices[0].message.content.strip()
         except Exception as e:  # noqa: BLE001
             txt = f"ERROR {e}"
-        first = txt.split("\n", 1)[0].upper()
-        label = "UNSUPPORTED" if "UNSUPPORTED" in first else "PARTIAL" if "PARTIAL" in first else \
-            "SUPPORTED" if "SUPPORTED" in first else "ERROR"
-        leak = bool(re.search(r"LEAK\s*=\s*yes", txt, re.I))
+        label, leak = parse_verdict(txt)
         return {**r, "label": label, "leak": leak, "judge_raw": txt}
 
     with ThreadPoolExecutor(workers) as ex:

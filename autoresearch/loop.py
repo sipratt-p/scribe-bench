@@ -35,7 +35,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from scribe_bench.notegen import PRIMOCK_SYSTEM, CITE_SUFFIX, number_lines  # noqa: E402
-from scribe_bench.verifier import JUDGE_SYSTEM, SENT_SPLIT, CITE  # noqa: E402
+from scribe_bench.verifier import JUDGE_SYSTEM, SENT_SPLIT, CITE, parse_verdict  # noqa: E402
 from scribe_bench.note_judge import ATTR_SYSTEM, COMPLETE_EXTRACT, COMPLETE_CHECK, parse_json  # noqa: E402
 from scribe_bench.note_score import load_lexicon, med_terms, strip_cites  # noqa: E402
 from scribe_bench.textnorm import normalize  # noqa: E402
@@ -182,9 +182,9 @@ def gate(cfg, rec, dialogue, note, judge_llm) -> str:
                 continue
             cites = sorted({int(x) for m in CITE.findall(s) for x in m.replace(" ", "").split(",") if x})
             ev = "\n".join(f"{k}: {lines[k - 1]}" for c in cites for k in range(max(1, c - 1), min(len(lines), c + 1) + 1)) or "(no lines cited)"
-            txt = judge_llm(JUDGE_SYSTEM, f"SENTENCE:\n{CITE.sub('', s).strip()}\n\nEVIDENCE:\n{ev}", 120)
-            first = txt.split("\n", 1)[0].upper()
-            bad = "UNSUPPORTED" in first or bool(re.search(r"LEAK\s*=\s*yes", txt, re.I))
+            txt = judge_llm(JUDGE_SYSTEM, f"SENTENCE:\n{CITE.sub('', s).strip()}\n\nEVIDENCE:\n{ev}", 220)
+            lab, leak = parse_verdict(txt)
+            bad = lab == "UNSUPPORTED" or leak
             if not bad:
                 kept.append(s)
         return "\n".join(kept)
