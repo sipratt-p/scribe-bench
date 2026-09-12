@@ -2582,6 +2582,45 @@
    "test": null,
    "test2": null,
    "minutes": 7.8
+  },
+  "466e3f41a9fd6225": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Extract the plan section strictly from the clinician's own words, preserving original phrasing for plan items.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.34,
+    "term_recall": 51.6,
+    "term_precision": 36.94,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 47.75,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.29,
+    "term_recall": 51.71,
+    "term_precision": 37.15,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 47.64,
+    "n": 20
+   },
+   "gap": 0.11,
+   "test": null,
+   "test2": null,
+   "minutes": 7.8
   }
  },
  "best": {
@@ -2617,7 +2656,7 @@
   "score": 45.01,
   "n": 37
  },
- "iters": 70,
+ "iters": 71,
  "best_test2": {
   "rougeL": 23.91,
   "term_recall": 52.7,

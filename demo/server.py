@@ -112,11 +112,24 @@ def experiments():
     .best{background:#DDEEF4;color:#0B3A4A;border-radius:6px;padding:10px 14px;margin:10px 0} pre{font-size:12px;white-space:pre-wrap;margin:6px 0 0;color:#0B3A4A}
     .legend{font-size:12px;color:#5C6B78;margin:8px 0} .legend span{display:inline-block;padding:1px 8px;border-radius:4px;margin-right:8px;color:#172029}
     a{color:#0F6B8A}
+    .guide{background:#FFFFFF;border:1px solid #CAD3DB;border-radius:6px;padding:8px 14px;margin:10px 0;max-width:100ch} .guide summary{cursor:pointer;font-weight:600} .guide p,.guide li{color:#172029;max-width:none} .guide ul{padding-left:18px;margin:4px 0}
     </style>"""
+    guide = """<details class='guide' open><summary>How to read this table</summary>
+<p>Each row is one experiment: one recipe for turning a recording into a clinical note, scored on the 20 &ldquo;dev&rdquo; visits.
+The loop keeps a recipe only if it also wins on the 37 held-out &ldquo;test&rdquo; visits and a second, independent judge agrees.</p>
+<ul>
+<li><b>asr</b> &mdash; which speech-to-text setting produced the transcript. <i>moss_plain</i> is the diarizing decoder with no hints; <i>moss_hot150</i> / <i>moss_hotcc</i> feed it a list of medical terms to listen for (&ldquo;hotwords&rdquo;); <i>canary_qwen</i> is NVIDIA&rsquo;s decoder; <i>nemotron_stream</i> is the streaming, non-diarizing model.</li>
+<li><b>corr</b> &mdash; 1 if a language model was asked to fix the transcript before note writing.</li>
+<li><b>role</b> &mdash; how the anonymous speaker labels (S01/S02) get turned into Doctor/Patient: <i>none</i>, a heuristic, or an <i>llm</i> pass.</li>
+<li><b>prompt [model]</b> &mdash; the note-writing instructions and which model wrote the note (<i>qwen27b</i> local, <i>dsv4flash</i> DeepSeek V4 Flash).</li>
+<li><b>extra</b> &mdash; any extra sentence appended to the prompt. <b>cite</b> &mdash; note must cite transcript line numbers. <b>gate</b> &mdash; a verifier that rewrites or drops unsupported claims. <b>scaf</b> &mdash; two-step write (facts first, then note).</li>
+<li><b>score</b> &mdash; one composite number, higher is better. It blends: <b>TR</b> term recall (share of the doctor&rsquo;s note terms we kept), <b>TP</b> term precision (share of our terms that are real, not invented), <b>RL</b> ROUGE-L (wording overlap with the human note), <b>plan</b> (share of plan items a judge could find), minus a penalty for <b>mis</b>, statements pinned on the wrong speaker per note.</li>
+<li><b>&Delta; vs best</b> &mdash; change against the best accepted recipe so far, in composite points. <b>test</b> / <b>judge 2</b> fill in only for rows good enough on dev to earn the confirmation runs.</li>
+</ul></details>"""
     legend = ("<div class='legend'><span style='background:#DDF1E6'>accepted</span><span style='background:#FBEFD2'>gain on dev, rejected on test or by judge 2</span>"
               "<span style='background:#F9E1DF'>error</span> Columns: dev composite (with term recall TR, term precision TP, ROUGE-L RL, follow-up recall, misattributions per note), "
               "ΔASR-vs-human = same note config on the human transcript, test composite when run. <a href='/'>← back to the demo</a></div>")
-    return "<!doctype html><html><head><meta charset='utf-8'><title>Scribe Bench Experiments</title>" + style + "</head><body>" + _md_table_to_html(md).replace("</h1>", "</h1>" + best + legend, 1) + "</body></html>"
+    return "<!doctype html><html><head><meta charset='utf-8'><title>Scribe Bench Experiments</title>" + style + "</head><body>" + _md_table_to_html(md).replace("</h1>", "</h1>" + guide + best + legend, 1) + "</body></html>"
 
 
 @app.get("/api/consultations")

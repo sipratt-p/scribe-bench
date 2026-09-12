@@ -74,3 +74,4 @@ Started 2026-09-12 00:51. Dev = 20 PriMock consultations, test = 37. Cached ASR 
 | 68 | moss_hotcc | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 45.39 (TR 44.2, TP 37.3, RL 27.02, plan 77.66, mis 0.0) | -0.84 (human 46.23) |  |  |
 | 69 | moss_hotcc | 0 | llm | base +scaffold [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 44.85 (TR 49.1, TP 34.37, RL 27.97, plan 81.05, mis 0.05) | -2.02 (human 46.87) |  |  |
 | 70 | moss_hot150 | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 48.22 (TR 52.81, TP 36.04, RL 29.12, plan 78.72, mis 0.0) | +0.01 (human 48.21) |  |  |
+| 71 | moss_hotcc | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 47.75 (TR 51.6, TP 36.94, RL 29.34, plan 76.6, mis 0.0) | +0.11 (human 47.64) |  |  |
