@@ -269,6 +269,7 @@ $("run").onclick = async () => {
   poll();
 };
 $("explain-btn").onclick = () => { document.body.classList.toggle("explain-on"); const on = document.body.classList.contains("explain-on"); $("explain-btn").textContent = (on?"▾":"▸")+" Explain the jargon"; $("explain-btn").classList.toggle("on", on); };
+if (location.search.includes("explain")) $("explain-btn").click();
 loadList().then(()=>$("load").click());
 </script>
 </body>
