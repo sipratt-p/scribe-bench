@@ -69,6 +69,7 @@ DEV_N = 20
 NOTE_MODELS = {
     "qwen27b": ("http://localhost:8004/v1", "qwen3.8-27b"),
     "dsv4flash": ("http://100.90.251.52:8600/v1", "v4-flash"),
+    "nano30b": ("http://localhost:8006/v1", "nemotron-nano"),
 }
 
 
@@ -125,7 +126,7 @@ def note_llm_for(cfg, default_llm):
         return default_llm
     if name not in _LLMS:
         url, model = NOTE_MODELS[name]
-        _LLMS[name] = LLM(url, model, workers=2)
+        _LLMS[name] = LLM(url, model, workers=2 if name == "dsv4flash" else 8)
     return _LLMS[name]
 
 
