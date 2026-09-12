@@ -1,0 +1,1 @@
+{"text": "Corpus (57 consultations): streaming ASR 11.8% WER / 12.7% medical-term miss / no speakers \u00b7 MOSS-TD pass 2 10.3% / 8.4% / 11.4% DER, 1.0% words misattributed \u00b7 notes from pass-2 transcripts keep more medical terms (51.1% vs 50.1%) \u00b7 citations +4\u20135 pts term precision \u00b7 verifier 98.7\u201399.6% recall on injected errors"}

@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scribe Bench Live</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg:#F4F6F8; --surface:#FFFFFF; --ink:#172029; --muted:#5C6B78; --line:#CAD3DB;
+    --accent:#0F6B8A; --accent-soft:#DDEEF4; --theirs:#8A5A0F; --theirs-soft:#F5EBD8;
+    --bad:#B3261E; --bad-soft:#F9E1DF; --ok:#1F7A4D; --ok-soft:#DDF1E6; --warn:#A8690A; --warn-soft:#FBEFD2;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace; --sans:"Public Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; --serif:"Newsreader",Georgia,serif;
+  }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0F151B; --surface:#161E26; --ink:#E4EAF0; --muted:#94A3B1; --line:#2E3A46; --accent:#52B7D6; --accent-soft:#12303B; --theirs:#D9A441; --theirs-soft:#33270F; --bad:#F28B82; --bad-soft:#3A1917; --ok:#6CCB93; --ok-soft:#12301F; --warn:#E3B04B; --warn-soft:#33270F; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:15px; line-height:1.5; padding-inline:clamp(16px,3vw,40px); padding-block:24px 60px; }
+  h1 { font-family:var(--serif); font-weight:500; font-size:34px; margin:0; }
+  h2 { font-family:var(--serif); font-weight:500; font-size:22px; margin:0 0 10px; }
+  h3 { font-size:13px; font-family:var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; font-weight:500; }
+  .top { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:20px; }
+  .top p { margin:4px 0 0; color:var(--muted); max-width:70ch; }
+  .controls { display:grid; grid-template-columns:1.2fr 1fr auto auto; gap:12px; align-items:end; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin-bottom:20px; }
+  label { display:block; font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  select, button, input[type=file] { font:inherit; }
+  select { width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); }
+  button { padding:9px 16px; border-radius:6px; border:1px solid var(--accent); background:var(--accent); color:#fff; cursor:pointer; font-weight:600; }
+  button.secondary { background:transparent; color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  audio { width:100%; margin-top:6px; }
+  .status { font-family:var(--mono); font-size:12px; color:var(--muted); min-height:18px; margin:-8px 0 16px; }
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .col { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:16px; min-width:0; }
+  .col.theirs { border-top:4px solid var(--theirs); } .col.ours { border-top:4px solid var(--accent); }
+  .col h2 small { display:block; font-family:var(--sans); font-size:13px; color:var(--muted); margin-top:2px; }
+  .stat-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:8px; margin:12px 0; }
+  .stat { border:1px solid var(--line); border-radius:6px; padding:8px 10px; }
+  .stat b { display:block; font-family:var(--mono); font-size:20px; font-weight:500; font-variant-numeric:tabular-nums; }
+  .stat span { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+  .transcript, .note { font-size:13.5px; line-height:1.55; max-height:340px; overflow:auto; border:1px solid var(--line); border-radius:6px; padding:10px 12px; white-space:pre-wrap; background:var(--bg); }
+  .transcript .spk { font-family:var(--mono); font-size:11px; color:var(--accent); margin-right:6px; }
+  .transcript .doc { color:var(--theirs); }
+  mark.miss { background:var(--bad-soft); color:var(--bad); padding:0 2px; border-radius:2px; }
+  mark.hit { background:var(--ok-soft); color:var(--ok); padding:0 2px; border-radius:2px; }
+  .cite { font-family:var(--mono); font-size:10.5px; color:var(--accent); }
+  .claim { border-left:3px solid var(--line); padding:4px 10px; margin:6px 0; font-size:13px; }
+  .claim.UNSUPPORTED { border-color:var(--bad); background:var(--bad-soft); } .claim.PARTIAL { border-color:var(--warn); background:var(--warn-soft); } .claim.leak { border-color:var(--bad); }
+  .claim .lab { font-family:var(--mono); font-size:10.5px; letter-spacing:.05em; }
+  .delta { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:16px; margin-top:16px; }
+  table { border-collapse:collapse; width:100%; font-size:13.5px; }
+  th, td { text-align:left; padding:7px 10px; border-top:1px solid var(--line); }
+  thead th { border-top:0; font-family:var(--mono); font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); font-weight:500; }
+  td.num { text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums; }
+  td.good { color:var(--ok); font-weight:600; } td.badc { color:var(--bad); font-weight:600; }
+  .learn { margin-top:28px; }
+  .learn ol { padding-left:20px; max-width:80ch; } .learn li { margin:8px 0; } .learn li b { color:var(--accent); }
+  .pill { display:inline-block; font-family:var(--mono); font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); margin-left:8px; }
+  .steps { font-family:var(--mono); font-size:12px; color:var(--muted); }
+  .steps div { padding:2px 0; }
+  details summary { cursor:pointer; color:var(--muted); font-size:13px; }
+  @media (max-width:900px) { .cols { grid-template-columns:1fr; } .controls { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="top">
+  <div>
+    <h1>Scribe Bench Live</h1>
+    <p>One recording, two ambient-scribe pipelines, scored on what a clinician would have to fix. Cached mode replays the real outputs from the 57-consultation run; live mode runs everything again on any audio.</p>
+  </div>
+  <div class="steps" id="corpus-summary"></div>
+</div>
+
+<div class="controls">
+  <div>
+    <label for="pick">Consultation (PriMock57, mock GP visits, 5–10 min)</label>
+    <select id="pick"></select>
+    <audio id="player" controls preload="none"></audio>
+  </div>
+  <div>
+    <label for="file">Or import a recording (wav, m4a, mp3)</label>
+    <input type="file" id="file" accept="audio/*">
+  </div>
+  <div><label>&nbsp;</label><button id="load">Show cached result</button></div>
+  <div><label>&nbsp;</label><button id="run" class="secondary">Run live</button></div>
+</div>
+<div class="status" id="status"></div>
+
+<div class="cols">
+  <div class="col theirs">
+    <h2>Their architecture <small>Streaming ASR (Nemotron 3.5 0.6B, 1.1 s chunks) → note. No speakers, no citations, no verifier.</small></h2>
+    <div class="stat-row" id="t-stats"></div>
+    <h3>Transcript <span class="pill" id="t-tlabel"></span></h3>
+    <div class="transcript" id="t-transcript"></div>
+    <h3 style="margin-top:12px">Draft note</h3>
+    <div class="note" id="t-note"></div>
+    <div id="t-judge"></div>
+  </div>
+  <div class="col ours">
+    <h2>Proposed <small>Second pass after the visit: diarized ASR (MOSS-TD 0.9B) → note with span citations → verifier flags unsupported claims and third-party leaks.</small></h2>
+    <div class="stat-row" id="o-stats"></div>
+    <h3>Transcript <span class="pill" id="o-tlabel"></span></h3>
+    <div class="transcript" id="o-transcript"></div>
+    <h3 style="margin-top:12px">Draft note, cited</h3>
+    <div class="note" id="o-note"></div>
+    <h3 style="margin-top:12px">Verifier</h3>
+    <div id="o-claims"></div>
+    <div id="o-judge"></div>
+  </div>
+</div>
+
+<div class="delta">
+  <h2>Delta on this recording</h2>
+  <div id="delta"></div>
+</div>
+
+<div class="delta learn">
+  <h2>Learnings from the full run</h2>
+  <ol>
+    <li><b>The decoder decides medical-term loss, not latency.</b> Running the streaming model offline changed nothing (11.8% WER either way). LLM-decoder ASR (MOSS-TD, Canary-Qwen) loses 8–10% of medical-lexicon terms; TDT/RNN-T decoders (Parakeet v3, Nemotron streaming) lose 12–15%, at the same overall WER. Pass 2 is "run an LLM-decoder model on the whole recording after the visit".</li>
+    <li><b>NVIDIA has the parts.</b> Canary-Qwen matches MOSS-TD on terms; Sortformer matches it on diarization (11.1 vs 11.4% DER, ~1% misattributed words). Nano Omni prompted as a transcriber through vLLM was not usable (27% WER, invented timestamps).</li>
+    <li><b>Chart hotwords didn't move it.</b> 150 lexicon hotwords changed MOSS-TD by 0.2 points. Biasing is not the lever on this audio.</li>
+    <li><b>Transcript quality barely reaches the note on overlap metrics.</b> Notes from the human transcript, MOSS-TD and Nemotron differ by 1–2 points of term recall. The note model absorbs ASR errors; what pass 2 changes is attribution, which overlap metrics never see.</li>
+    <li><b>Citations buy grounding cheaply.</b> Requiring a transcript line per sentence cost ~1 ROUGE-L and added 4–5 points of medical-term precision on every split. Every claim becomes checkable.</li>
+    <li><b>A small judge with the citation in front of it catches 99% of injected errors</b> (fabricated findings, third-party leaks, drug swaps) with 3.5–5.5% flags on clean claims. Misses are subtle negation and number edits, which is where clinician edit deltas should train a classifier.</li>
+    <li><b>Fine-tuning is the lever, and it has a cost.</b> One epoch of LoRA on 2,800 open pairs moved Qwen3.8-27B +9 ROUGE-L and +12 term precision, and doubled or tripled misattributions while dropping follow-up recall up to 9 points. Overlap metrics reward fluency; clinician-defined dimensions catch what fluency hides.</li>
+    <li><b>Scale bought safety, not fidelity.</b> Untuned Nemotron Ultra (550B) sits a point below untuned Qwen 27B on ROUGE-L and 8 below on term precision, with the cleanest attribution of any base model. Ordering that held everywhere: tuning &gt; base quality &gt; size.</li>
+    <li><b>Citations must be in the fine-tuning targets.</b> The tune erased citation behaviour (99.6% → 10% of sentences cited) because the training notes had none.</li>
+    <li><b>Evals should be built from the edit stream.</b> Every signed note is a labelled diff. Classify edits into safety, completeness, fit, effort, and you get the scorecard per specialty and per partner without annotators, and the same diffs become preference data. That is the whitepaper's LLM-judge programme with the training loop attached.</li>
+  </ol>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const LEX_CACHE = {};
+let current = null;
+
+function esc(s){ return (s||"").replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function norm(w){ return w.toLowerCase().replace(/[^a-z']/g,""); }
+
+function renderTranscript(el, segs, text, missed, refSpk){
+  const miss = new Set((missed||[]).map(norm));
+  const mark = t => t.split(/(\s+)/).map(w => miss.has(norm(w)) ? `<mark class="miss">${esc(w)}</mark>` : esc(w)).join("");
+  if (segs){
+    el.innerHTML = segs.map(s => `<div><span class="spk">${esc(s.speaker)} ${s.start!=null? (Math.round(s.start)+"s"):""}</span>${mark(s.text)}</div>`).join("");
+  } else {
+    el.innerHTML = `<div>${mark(text||"")}</div>`;
+  }
+}
+function renderNote(el, note, metrics){
+  let html = esc(note||"");
+  html = html.replace(/\[\[([\d,\s]+)\]\]/g, '<span class="cite">[[$1]]</span>');
+  if (metrics && metrics.terms_missing){
+    // highlight lexicon terms present (hits) for a quick read
+    const hits = new Set((metrics.terms_present||[]));
+  }
+  el.innerHTML = html;
+}
+function stat(label, value, cls){ return `<div class="stat ${cls||""}"><b>${value==null?"–":value}</b><span>${label}</span></div>`; }
+
+function renderSide(prefix, side, ref){
+  const asr = side.asr||{}, nm = side.note_metrics||{}, j = side.judge||{};
+  const attr = j.attribution ? (j.attribution.A||0)+(j.attribution.B||0)+(j.attribution.C||0) : null;
+  $(prefix+"-stats").innerHTML =
+    stat("WER", asr.wer!=null? asr.wer+"%":null) +
+    stat("med terms missed", asr.med_term_err!=null? asr.med_term_err+"%":null) +
+    (prefix==="o" ? stat("diarization err", asr.der!=null? asr.der+"%":null) + stat("words misattributed", asr.attr_err!=null? asr.attr_err+"%":null) : stat("speakers", "none") + stat("citations", "none")) +
+    stat("note ROUGE-L", nm.rougeL) + stat("note term precision", nm.term_precision!=null? nm.term_precision+"%":null) +
+    stat("misattributions", attr) + stat("follow-ups kept", j.plan_items!=null? Math.round(100*j.plan_found/Math.max(j.plan_items,1))+"%":null);
+  $(prefix+"-tlabel").textContent = side.wall_s!=null ? side.wall_s+" s" : (asr.hyp_words? asr.hyp_words+" words":"");
+  renderTranscript($(prefix+"-transcript"), side.segments, side.transcript_text, asr.missed_terms, ref);
+  renderNote($(prefix+"-note"), side.note, nm);
+  const ex = (j.attr_examples||[]).filter(Boolean);
+  $(prefix+"-judge").innerHTML = ex.length ? `<details style="margin-top:8px"><summary>Attribution judge flagged ${ex.length} sentence(s)</summary>${ex.map(e=>`<div class="claim UNSUPPORTED">${esc(e)}</div>`).join("")}</details>` : "";
+}
+function renderClaims(claims){
+  if (!claims){ $("o-claims").innerHTML = `<div class="steps">no verifier output cached for this consultation</div>`; return; }
+  const bad = claims.filter(c => c.label==="UNSUPPORTED" || c.label==="PARTIAL" || c.leak);
+  const head = `<div class="steps">${claims.length} claims checked · ${claims.filter(c=>c.label==="SUPPORTED"&&!c.leak).length} supported · ${bad.length} flagged</div>`;
+  $("o-claims").innerHTML = head + bad.slice(0,12).map(c => `<div class="claim ${c.label} ${c.leak?"leak":""}"><span class="lab">${c.label}${c.leak?" · THIRD-PARTY":""}</span> ${esc(c.claim)}<div class="steps">${esc((c.judge_raw||"").split("\n").slice(-1)[0])}</div></div>`).join("") +
+    (bad.length>12? `<div class="steps">… ${bad.length-12} more</div>`:"");
+}
+function renderDelta(d){
+  const t = d.theirs||{}, o = d.ours||{};
+  const rows = [];
+  const add = (label, a, b, lowerBetter, unit) => { if (a==null && b==null) return; const better = (a==null||b==null)? null : (lowerBetter ? b<a : b>a); rows.push(`<tr><td>${label}</td><td class="num">${a==null?"–":a+(unit||"")}</td><td class="num ${better===true?"good":better===false?"badc":""}">${b==null?"–":b+(unit||"")}</td></tr>`); };
+  const ta=t.asr||{}, oa=o.asr||{}, tn=t.note_metrics||{}, on=o.note_metrics||{}, tj=t.judge||{}, oj=o.judge||{};
+  add("Transcript WER", ta.wer, oa.wer, true, "%");
+  add("Medical terms lost in transcript", ta.med_term_err, oa.med_term_err, true, "%");
+  add("Speaker attribution available", "no", oa.der!=null? "yes ("+oa.der+"% DER)":"yes", null);
+  add("Note ROUGE-L vs clinician's note", tn.rougeL, on.rougeL, false);
+  add("Note medical-term precision", tn.term_precision, on.term_precision, false, "%");
+  add("Note medical-term recall", tn.term_recall, on.term_recall, false, "%");
+  const ma = j => j.attribution ? (j.attribution.A||0)+(j.attribution.B||0)+(j.attribution.C||0) : null;
+  add("Misattributions (judge)", ma(tj), ma(oj), true);
+  add("Follow-ups and referrals kept", tj.plan_items!=null? Math.round(100*tj.plan_found/Math.max(tj.plan_items,1)) : null, oj.plan_items!=null? Math.round(100*oj.plan_found/Math.max(oj.plan_items,1)) : null, false, "%");
+  add("Claims checkable before the clinician sees the draft", "0", o.claims? o.claims.length : null, false);
+  add("Claims flagged by the verifier", "n/a", o.claims? o.claims.filter(c=>c.label!=="SUPPORTED"||c.leak).length : null, null);
+  if (t.terms_only_here) add("Medical terms only this transcript caught", t.terms_only_here.length, o.terms_only_here.length, false);
+  $("delta").innerHTML = `<table><thead><tr><th>Measure</th><th class="num">Theirs</th><th class="num">Proposed</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
+}
+function show(d){
+  current = d;
+  $("player").src = d.audio;
+  renderSide("t", d.theirs, d.reference);
+  renderSide("o", d.ours, d.reference);
+  renderClaims(d.ours.claims);
+  renderDelta(d);
+}
+async function loadList(){
+  const list = await (await fetch("/api/consultations")).json();
+  $("pick").innerHTML = list.map(c => `<option value="${c.id}">${c.id.replace("_consultation"," #")} · ${esc(c.complaint||"").slice(0,60)} · ${Math.round((c.duration_s||0)/60)} min</option>`).join("");
+  const s = await (await fetch("/api/summary")).json();
+  if (s.text) $("corpus-summary").innerHTML = s.text;
+}
+$("load").onclick = async () => {
+  $("status").textContent = "loading cached result…";
+  const d = await (await fetch("/api/consultation/"+$("pick").value)).json();
+  show(d); $("status").textContent = "cached outputs from the 11 Sep 2026 run";
+};
+$("run").onclick = async () => {
+  let id = $("pick").value;
+  if ($("file").files[0]){
+    $("status").textContent = "uploading…";
+    const fd = new FormData(); fd.append("file", $("file").files[0]);
+    const up = await (await fetch("/api/upload", {method:"POST", body:fd})).json();
+    id = up.id; $("player").src = up.audio;
+  }
+  $("run").disabled = true;
+  const j = await (await fetch("/api/run", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({id})})).json();
+  const poll = async () => {
+    const st = await (await fetch("/api/job/"+j.job)).json();
+    $("status").innerHTML = st.steps.map(s=>s.text).slice(-1)[0] || st.status;
+    if (st.status==="done"){
+      const base = (current && current.id===id) ? current : {id, audio:"/api/audio/"+id, reference:null};
+      const d = {...base, theirs:{...st.result.theirs, label:"live"}, ours:{...st.result.ours, label:"live"}};
+      if (base.theirs && base.theirs.asr){ /* keep reference-based ASR metrics if this is a PriMock file */ }
+      show(d); $("status").textContent = "live run complete"; $("run").disabled = false;
+    } else if (st.status==="error"){ $("status").textContent = "error: "+st.error; $("run").disabled = false; }
+    else setTimeout(poll, 2000);
+  };
+  poll();
+};
+loadList().then(()=>$("load").click());
+</script>
+</body>
+</html>

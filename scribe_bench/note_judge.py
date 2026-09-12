@@ -51,7 +51,7 @@ def parse_json(t: str):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("corpus", choices=["aci"])
+    ap.add_argument("corpus", choices=["aci", "primock"])
     ap.add_argument("root")
     ap.add_argument("run_dir")
     ap.add_argument("--split", default="test1")
@@ -65,8 +65,15 @@ def main():
     from openai import OpenAI
     from scribe_bench.acibench import load_split
     client = OpenAI(base_url=args.base_url, api_key="x")
-    enc = load_split(Path(args.root), args.split)
-    run = Path(args.run_dir) / args.split / args.variant
+    if args.corpus == "aci":
+        enc = load_split(Path(args.root), args.split)
+        run = Path(args.run_dir) / args.split / args.variant
+    else:  # primock: judge against the human speaker-tagged dialogue and the clinician's note
+        enc = {}
+        for p in Path(args.root).glob("*.json"):
+            r = json.loads(p.read_text())
+            enc[r["id"]] = {"variants": {"humantrans": r["dialogue"]}, "note": r["note"]["note"]}
+        run = Path(args.run_dir) / "primock" / args.variant
     jobs = []
     for p in sorted(run.glob("*.json"))[: args.limit or None]:
         if p.stem in enc:
