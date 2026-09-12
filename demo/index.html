@@ -203,8 +203,10 @@ function renderSide(prefix, side, ref){
 }
 function renderClaims(claims){
   if (!claims){ $("o-claims").innerHTML = `<div class="steps">no verifier output cached for this consultation</div>`; return; }
-  const bad = claims.filter(c => c.label==="UNSUPPORTED" || c.label==="PARTIAL" || c.leak);
-  const head = `<div class="steps">${claims.length} claims checked · ${claims.filter(c=>c.label==="SUPPORTED"&&!c.leak).length} supported · ${bad.length} flagged</div>`;
+  const checked = claims.filter(c => c.label!=="ERROR");
+  const bad = checked.filter(c => c.label==="UNSUPPORTED" || c.label==="PARTIAL" || c.leak);
+  const unchecked = claims.length - checked.length;
+  const head = `<div class="steps">${checked.length} claims checked · ${checked.filter(c=>c.label==="SUPPORTED"&&!c.leak).length} supported · ${bad.length} flagged${unchecked? ` · ${unchecked} not yet checked (judge unavailable)`:""}</div>`;
   $("o-claims").innerHTML = head + bad.slice(0,12).map(c => `<div class="claim ${c.label} ${c.leak?"leak":""}"><span class="lab">${c.label}${c.leak?" · THIRD-PARTY":""}</span> ${esc(c.claim)}<div class="steps">${esc((c.judge_raw||"").split("\n").slice(-1)[0])}</div></div>`).join("") +
     (bad.length>12? `<div class="steps">… ${bad.length-12} more</div>`:"");
 }
@@ -223,7 +225,7 @@ function renderDelta(d){
   add("Misattributions (judge)", ma(tj), ma(oj), true);
   add("Follow-ups and referrals kept", tj.plan_items!=null? Math.round(100*tj.plan_found/Math.max(tj.plan_items,1)) : null, oj.plan_items!=null? Math.round(100*oj.plan_found/Math.max(oj.plan_items,1)) : null, false, "%");
   add("Claims checkable before the clinician sees the draft", "0", o.claims? o.claims.length : null, false);
-  add("Claims flagged by the verifier", "n/a", o.claims? o.claims.filter(c=>c.label!=="SUPPORTED"||c.leak).length : null, null);
+  add("Claims flagged by the verifier", "n/a", o.claims? o.claims.filter(c=>c.label!=="ERROR"&&(c.label!=="SUPPORTED"||c.leak)).length : null, null);
   if (t.terms_only_here) add("Medical terms only this transcript caught", t.terms_only_here.length, o.terms_only_here.length, false);
   $("delta").innerHTML = `<table><thead><tr><th>Measure</th><th class="num">Theirs</th><th class="num">Proposed</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
 }

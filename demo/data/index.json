@@ -4,398 +4,398 @@
   "complaint": "I've been having really bad diarrhea for the last 3 days",
   "duration_s": 456.9,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation02",
   "complaint": "I have sore, red skin",
   "duration_s": 553.8,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation03",
   "complaint": "I have terrible headache",
   "duration_s": 542.3,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation04",
   "complaint": "I don't feel well, I have a cough and runny nose",
   "duration_s": 613.8,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation05",
   "complaint": "Lower abdominal pain",
   "duration_s": 576.2,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation06",
   "complaint": "hard to breathe",
   "duration_s": 656.1,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation07",
   "complaint": "I have a cough and cold",
   "duration_s": 855.0,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation08",
   "complaint": "I have dry, itchy skin",
   "duration_s": 464.7,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation09",
   "complaint": "It hurts when I pee",
   "duration_s": 534.2,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation10",
   "complaint": "It hurts when I pee",
   "duration_s": 616.7,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation11",
   "complaint": "pouring diarrhoea from my bottom",
   "duration_s": 801.5,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation12",
   "complaint": "I've been having really bad diarrhoea for the last 3 days",
   "duration_s": 470.3,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation13",
   "complaint": "I've had a blinding headache for a few days",
   "duration_s": 622.8,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation14",
   "complaint": "I have a cough and cold",
   "duration_s": 603.2,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day1_consultation15",
   "complaint": "I have sore, cracked skin on my hands",
   "duration_s": 490.9,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day2_consultation01",
   "complaint": "I don't hear as well as I used to",
   "duration_s": 327.0,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day2_consultation02",
   "complaint": "I have a strange swelling on my elbow",
   "duration_s": 539.4,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day2_consultation03",
   "complaint": "I can't hear very well and my face is a bit numb",
   "duration_s": 448.8,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day2_consultation04",
   "complaint": "I feel breathless",
   "duration_s": 576.8,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day2_consultation05",
   "complaint": "My asthma is not responding to my inhalers",
   "duration_s": 634.5,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day2_consultation06",
   "complaint": "I\u2019m having difficulty breathing",
   "duration_s": 597.0,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day2_consultation07",
   "complaint": "I'm having chest discomfort",
   "duration_s": 457.4,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day2_consultation08",
   "complaint": "I've been feeling very hot and sweaty for the past week",
   "duration_s": 632.1,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day2_consultation09",
   "complaint": "I can't move my left arm",
   "duration_s": 430.2,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day2_consultation10",
   "complaint": "I've got a really bad headache",
   "duration_s": 578.4,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day3_consultation01",
   "complaint": "lips swelling after eating a sandwich",
   "duration_s": 507.7,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day3_consultation02",
   "complaint": "feeling hot and having severe headache",
   "duration_s": 441.3,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day3_consultation03",
   "complaint": "I don't have much appetite or energy lately",
   "duration_s": 695.4,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day3_consultation04",
   "complaint": "my chest feels very tight",
   "duration_s": 431.9,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day3_consultation05",
   "complaint": "I've been feeling dizzy",
   "duration_s": 409.3,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day3_consultation06",
   "complaint": "I'm having difficulty breathing",
   "duration_s": 225.5,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day3_consultation07",
   "complaint": "I have sore red skin",
   "duration_s": 456.8,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day3_consultation08",
   "complaint": "I have a cough and a cold",
   "duration_s": 343.5,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day3_consultation09",
   "complaint": "I have pain in my jaw",
   "duration_s": 710.9,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day3_consultation10",
   "complaint": "I have really bad diarrhea",
   "duration_s": 559.5,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day4_consultation01",
   "complaint": "I'm having chest discomfort",
   "duration_s": 510.4,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day4_consultation02",
   "complaint": "I'm feeling hot and have severe headaches",
   "duration_s": 502.8,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day4_consultation03",
   "complaint": "I'm feeling short of breath",
   "duration_s": 380.1,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day4_consultation04",
   "complaint": "I'm wheezy",
   "duration_s": 393.3,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day4_consultation05",
   "complaint": "I've had bad diarrhea for 3 days",
   "duration_s": 581.1,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day4_consultation06",
   "complaint": "my chest hurts and it's been hard to breathe",
   "duration_s": 605.0,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day4_consultation07",
   "complaint": "I have a cold",
   "duration_s": 625.5,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day4_consultation08",
   "complaint": "lately, I haven't had much appetite or energy",
   "duration_s": 718.3,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day4_consultation09",
   "complaint": "I have pain in my jaw",
   "duration_s": 627.8,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day4_consultation10",
   "complaint": "I have really bad diarrhea",
   "duration_s": 742.5,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day5_consultation01",
   "complaint": "I have a headache",
   "duration_s": 452.9,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day5_consultation02",
   "complaint": "It hurts when I pee",
   "duration_s": 445.6,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day5_consultation03",
   "complaint": "I'm feeling very anxious",
   "duration_s": 776.3,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day5_consultation04",
   "complaint": "Lower stomach pain",
   "duration_s": 541.5,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day5_consultation05",
   "complaint": "My tummy hurts",
   "duration_s": 408.3,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day5_consultation06",
   "complaint": "Diarrhoea",
   "duration_s": 614.2,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day5_consultation07",
   "complaint": "Cough and a cold",
   "duration_s": 489.2,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day5_consultation08",
   "complaint": "I'm wheezy",
   "duration_s": 562.5,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day5_consultation09",
   "complaint": "Tired all the time",
   "duration_s": 579.0,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day5_consultation10",
   "complaint": "I have a blinding headache",
   "duration_s": 585.7,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day5_consultation11",
   "complaint": "I have a pouring diarrhea",
   "duration_s": 665.7,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  },
  {
   "id": "day5_consultation12",
   "complaint": "Headache",
   "duration_s": 324.6,
   "has_ours_note": true,
-  "has_claims": false
+  "has_claims": true
  }
 ]
