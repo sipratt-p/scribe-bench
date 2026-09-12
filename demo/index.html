@@ -58,6 +58,12 @@
   .steps { font-family:var(--mono); font-size:12px; color:var(--muted); }
   .steps div { padding:2px 0; }
   details summary { cursor:pointer; color:var(--muted); font-size:13px; }
+  .explain { display:none; font-size:12.5px; color:var(--muted); background:var(--accent-soft); border-left:3px solid var(--accent); padding:6px 10px; border-radius:4px; margin:6px 0 10px; line-height:1.45; }
+  .explain::before { content:"▸ "; color:var(--accent); }
+  body.explain-on .explain { display:block; }
+  .stat { position:relative; }
+  body.explain-on .stat[data-x]::after { content:attr(data-x); display:block; font-size:11px; color:var(--muted); text-transform:none; letter-spacing:0; margin-top:4px; line-height:1.35; }
+  #explain-btn.on { background:var(--accent-soft); color:var(--accent); }
   @media (max-width:900px) { .cols { grid-template-columns:1fr; } .controls { grid-template-columns:1fr; } }
 </style>
 </head>
@@ -82,14 +88,18 @@
   </div>
   <div><label>&nbsp;</label><button id="load">Show cached result</button></div>
   <div><label>&nbsp;</label><button id="run" class="secondary">Run live</button></div>
+  <div style="grid-column:1/-1"><button id="explain-btn" class="secondary" style="padding:6px 12px">▸ Explain the jargon</button> <span class="steps">for people who know tech but not this field</span></div>
 </div>
+<div class="explain">This page compares two ways of turning a recorded doctor visit into the clinical note the doctor has to sign. Left is how the streaming, real-time route behaves; right adds a second, slower pass after the visit and checks the draft before the doctor sees it. Every number is measured against the human transcript and the note the real clinician wrote for that same visit.</div>
 <div class="status" id="status"></div>
 
 <div class="cols">
   <div class="col theirs">
     <h2>Their architecture <small>Streaming ASR (Nemotron 3.5 0.6B, 1.1 s chunks) → note. No speakers, no citations, no verifier.</small></h2>
+    <div class="explain">A small, fast speech model listens as the visit happens and emits words within about a second. It is trained to be fast, so it has no idea who is speaking and tends to drop the rare words, which in medicine are the drug names and findings. The note is then written straight from that text.</div>
     <div class="stat-row" id="t-stats"></div>
     <h3>Transcript <span class="pill" id="t-tlabel"></span></h3>
+    <div class="explain">Red words are medical terms the human transcript contains that this transcript lost. Everything else is compared word by word to what was actually said.</div>
     <div class="transcript" id="t-transcript"></div>
     <h3 style="margin-top:12px">Draft note</h3>
     <div class="note" id="t-note"></div>
@@ -97,12 +107,16 @@
   </div>
   <div class="col ours">
     <h2>Proposed <small>Second pass after the visit: diarized ASR (MOSS-TD 0.9B) → note with span citations → verifier flags unsupported claims and third-party leaks.</small></h2>
+    <div class="explain">After the visit ends there is no rush, so a different kind of speech model re-transcribes the whole recording at once. It uses a language model as its decoder, which is why it keeps rare medical words, and it labels who said what (S01, S02). The note is written from that transcript with a rule: every sentence must point at the line it came from. A separate small model then checks each sentence against the lines it points at.</div>
     <div class="stat-row" id="o-stats"></div>
     <h3>Transcript <span class="pill" id="o-tlabel"></span></h3>
+    <div class="explain">Speaker labels and start times per turn. "Diarization error" measures how much of the audio got the wrong speaker; "words misattributed" is the share of words assigned to the wrong person.</div>
     <div class="transcript" id="o-transcript"></div>
     <h3 style="margin-top:12px">Draft note, cited</h3>
+    <div class="explain">The blue [[numbers]] are transcript line numbers. A clinician, or a checker, can jump from any sentence to the evidence for it. Without them the note is a black box.</div>
     <div class="note" id="o-note"></div>
     <h3 style="margin-top:12px">Verifier</h3>
+    <div class="explain">Each sentence is shown to a small judge model together with the transcript lines it cites. SUPPORTED means the evidence backs it; PARTIAL means a detail (a number, a side, a drug, a "no") isn't in the evidence; UNSUPPORTED means the claim isn't there at all. THIRD-PARTY means the note recorded someone else's health information (a spouse, a child) as if it were the patient's. Only flagged sentences are listed.</div>
     <div id="o-claims"></div>
     <div id="o-judge"></div>
   </div>
@@ -110,11 +124,13 @@
 
 <div class="delta">
   <h2>Delta on this recording</h2>
+  <div class="explain">Green is the better number for the doctor. ROUGE-L is word-overlap with the note the real clinician wrote, a rough fluency and coverage score. Term precision is the share of medical terms in the draft that the clinician's note also contains: low precision means the draft mentions things the doctor would not have written. Misattributions and follow-ups come from a judge model reading the note against the transcript, the same style of evaluation Abridge describes in its evaluation whitepaper.</div>
   <div id="delta"></div>
 </div>
 
 <div class="delta learn">
   <h2>Learnings from the full run</h2>
+  <div class="explain">In plain terms: the fast transcriber drops the rare words; a slower re-transcription after the visit keeps them and knows who spoke; making the note cite its evidence lets a cheap checker catch invented claims; training the note model on more examples makes it read better but also more likely to mix up who said what; and a bigger model on its own doesn't fix that. So the evaluation, not the model, is the product decision.</div>
   <ol>
     <li><b>The decoder decides medical-term loss, not latency.</b> Running the streaming model offline changed nothing (11.8% WER either way). LLM-decoder ASR (MOSS-TD, Canary-Qwen) loses 8–10% of medical-lexicon terms; TDT/RNN-T decoders (Parakeet v3, Nemotron streaming) lose 12–15%, at the same overall WER. Pass 2 is "run an LLM-decoder model on the whole recording after the visit".</li>
     <li><b>NVIDIA has the parts.</b> Canary-Qwen matches MOSS-TD on terms; Sortformer matches it on diarization (11.1 vs 11.4% DER, ~1% misattributed words). Nano Omni prompted as a transcriber through vLLM was not usable (27% WER, invented timestamps).</li>
@@ -155,7 +171,19 @@ function renderNote(el, note, metrics){
   }
   el.innerHTML = html;
 }
-function stat(label, value, cls){ return `<div class="stat ${cls||""}"><b>${value==null?"–":value}</b><span>${label}</span></div>`; }
+const XPLAIN = {
+  "WER": "Word error rate: share of words wrong, missing or added versus what was actually said. Lower is better.",
+  "med terms missed": "Of the medical words in the human transcript (drug names, symptoms, findings), the share this transcript lost.",
+  "speakers": "Whether the transcript knows who said what.",
+  "citations": "Whether each note sentence points at the transcript line it came from.",
+  "diarization err": "Share of speech time assigned to the wrong speaker. Under ~10% is good for two people.",
+  "words misattributed": "Share of words put in the wrong person's mouth.",
+  "note ROUGE-L": "Word overlap with the real clinician's note. Rough fluency and coverage score, 0 to 100.",
+  "note term precision": "Of the medical terms in this draft, the share the clinician also wrote. Low means the draft says things the doctor wouldn't.",
+  "misattributions": "Sentences where the judge found the note attributed a statement to the wrong person or recorded someone else's history as the patient's.",
+  "follow-ups kept": "Of the follow-ups, referrals and orders in the clinician's plan, the share this draft includes.",
+};
+function stat(label, value, cls){ return `<div class="stat ${cls||""}" data-x="${(XPLAIN[label]||"").replace(/"/g,"&quot;")}"><b>${value==null?"–":value}</b><span>${label}</span></div>`; }
 
 function renderSide(prefix, side, ref){
   const asr = side.asr||{}, nm = side.note_metrics||{}, j = side.judge||{};
@@ -240,6 +268,7 @@ $("run").onclick = async () => {
   };
   poll();
 };
+$("explain-btn").onclick = () => { document.body.classList.toggle("explain-on"); const on = document.body.classList.contains("explain-on"); $("explain-btn").textContent = (on?"▾":"▸")+" Explain the jargon"; $("explain-btn").classList.toggle("on", on); };
 loadList().then(()=>$("load").click());
 </script>
 </body>

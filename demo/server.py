@@ -126,7 +126,8 @@ def _run_job(job, wav: Path):
         _step(job, "Uploading audio to the GPU box and running pass 1 (streaming ASR) and pass 2 (diarized ASR)")
         remote = f"/tmp/scribe_live_{job['id']}.wav"
         subprocess.run(["scp", "-q", str(wav), f"{GPU_HOST}:{remote}"], check=True)
-        cmd = (f"cd {GPU_PROJECT} && source .venv/bin/activate && CUDA_VISIBLE_DEVICES=${{SCRIBE_GPU:-0}} "
+        gpu = os.environ.get("SCRIBE_GPU", "0")
+        cmd = (f"cd {GPU_PROJECT} && source .venv/bin/activate && CUDA_VISIBLE_DEVICES={gpu} "
                f"python -m scribe_bench.live_asr {remote} --out {remote}.json > {remote}.log 2>&1; cat {remote}.json")
         r = subprocess.run(["ssh", "-o", "BatchMode=yes", GPU_HOST, cmd], capture_output=True, text=True, timeout=1800)
         asr = json.loads(r.stdout)
