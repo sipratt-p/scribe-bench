@@ -1,0 +1,2632 @@
+{
+ "tried": {
+  "20116f060a2cb621": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "none",
+    "prompt": "base",
+    "extra": "",
+    "cite": 0,
+    "gate": "none"
+   },
+   "dev": {
+    "rougeL": 28.13,
+    "term_recall": 51.86,
+    "term_precision": 33.41,
+    "misattrib": 0.05,
+    "plan_items": 93,
+    "plan_found": 70,
+    "plan_recall": 75.27,
+    "score": 44.26,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.09,
+    "term_recall": 58.41,
+    "term_precision": 35.6,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 69,
+    "plan_recall": 73.4,
+    "score": 48.5,
+    "n": 20
+   },
+   "gap": -4.24,
+   "test": {
+    "rougeL": 20.6,
+    "term_recall": 54.35,
+    "term_precision": 25.78,
+    "misattrib": 0.11,
+    "plan_items": 152,
+    "plan_found": 120,
+    "plan_recall": 78.95,
+    "score": 39.62,
+    "n": 37
+   },
+   "test2": {
+    "rougeL": 20.6,
+    "term_recall": 54.35,
+    "term_precision": 25.78,
+    "misattrib": 0.03,
+    "plan_items": 138,
+    "plan_found": 122,
+    "plan_recall": 88.41,
+    "score": 44.76,
+    "n": 37
+   },
+   "minutes": 8.2
+  },
+  "b3769b7c84d523a9": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "",
+    "cite": 0,
+    "gate": "none"
+   },
+   "dev": {
+    "rougeL": 26.35,
+    "term_recall": 52.71,
+    "term_precision": 30.84,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 67,
+    "plan_recall": 71.28,
+    "score": 44.59,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.58,
+    "term_recall": 53.16,
+    "term_precision": 31.36,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 71,
+    "plan_recall": 74.74,
+    "score": 45.62,
+    "n": 20
+   },
+   "gap": -1.03,
+   "test": null,
+   "test2": null,
+   "minutes": 2.9
+  },
+  "96eb5441bca169d3": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "",
+    "cite": 0,
+    "gate": "none"
+   },
+   "dev": {
+    "rougeL": 27.66,
+    "term_recall": 51.44,
+    "term_precision": 31.54,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 45.74,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.09,
+    "term_recall": 58.41,
+    "term_precision": 35.6,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 69,
+    "plan_recall": 73.4,
+    "score": 48.5,
+    "n": 20
+   },
+   "gap": -2.76,
+   "test": {
+    "rougeL": 21.44,
+    "term_recall": 50.34,
+    "term_precision": 24.84,
+    "misattrib": 0.03,
+    "plan_items": 151,
+    "plan_found": 121,
+    "plan_recall": 80.13,
+    "score": 41.79,
+    "n": 37
+   },
+   "test2": {
+    "rougeL": 21.44,
+    "term_recall": 50.34,
+    "term_precision": 24.84,
+    "misattrib": 0.0,
+    "plan_items": 137,
+    "plan_found": 122,
+    "plan_recall": 89.05,
+    "score": 44.65,
+    "n": 37
+   },
+   "minutes": 0.0
+  },
+  "d9340061eadf36bf": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "",
+    "cite": 0,
+    "gate": "none"
+   },
+   "dev": {
+    "rougeL": 26.37,
+    "term_recall": 52.87,
+    "term_precision": 30.81,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 66,
+    "plan_recall": 70.21,
+    "score": 44.42,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.58,
+    "term_recall": 53.16,
+    "term_precision": 31.36,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 71,
+    "plan_recall": 74.74,
+    "score": 45.62,
+    "n": 20
+   },
+   "gap": -1.2,
+   "test": null,
+   "test2": null,
+   "minutes": 4.7
+  },
+  "e5e754f8f52b2d87": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "",
+    "cite": 1,
+    "gate": "none"
+   },
+   "dev": {
+    "rougeL": 25.65,
+    "term_recall": 53.55,
+    "term_precision": 33.95,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 69,
+    "plan_recall": 73.4,
+    "score": 44.06,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.27,
+    "term_recall": 55.28,
+    "term_precision": 34.42,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 47.48,
+    "n": 20
+   },
+   "gap": -3.42,
+   "test": null,
+   "test2": null,
+   "minutes": 3.5
+  },
+  "ef39afd1920422d7": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "",
+    "cite": 1,
+    "gate": "drop_flagged"
+   },
+   "dev": {
+    "rougeL": 25.36,
+    "term_recall": 47.83,
+    "term_precision": 38.11,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 60,
+    "plan_recall": 63.83,
+    "score": 41.62,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.89,
+    "term_recall": 53.91,
+    "term_precision": 35.89,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 66,
+    "plan_recall": 70.21,
+    "score": 46.36,
+    "n": 20
+   },
+   "gap": -4.74,
+   "test": null,
+   "test2": null,
+   "minutes": 11.0
+  },
+  "02872fc4a23823f7": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "",
+    "cite": 1,
+    "gate": "drop_flagged"
+   },
+   "dev": {
+    "rougeL": 22.85,
+    "term_recall": 42.31,
+    "term_precision": 36.56,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 54,
+    "plan_recall": 57.45,
+    "score": 39.72,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 22.98,
+    "term_recall": 42.74,
+    "term_precision": 35.84,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 53,
+    "plan_recall": 56.38,
+    "score": 39.44,
+    "n": 20
+   },
+   "gap": 0.28,
+   "test": null,
+   "test2": null,
+   "minutes": 12.7
+  },
+  "cdc532897b725dbc": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "",
+    "cite": 1,
+    "gate": "drop_flagged"
+   },
+   "dev": {
+    "rougeL": 22.51,
+    "term_recall": 43.49,
+    "term_precision": 34.16,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 56,
+    "plan_recall": 59.57,
+    "score": 39.71,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 22.98,
+    "term_recall": 42.74,
+    "term_precision": 35.84,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 53,
+    "plan_recall": 56.38,
+    "score": 39.44,
+    "n": 20
+   },
+   "gap": 0.27,
+   "test": null,
+   "test2": null,
+   "minutes": 3.8
+  },
+  "f84edbcfc9ff491a": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "",
+    "cite": 1,
+    "gate": "none",
+    "scaffold": 1
+   },
+   "dev": {
+    "rougeL": 24.52,
+    "term_recall": 49.78,
+    "term_precision": 32.96,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 69,
+    "plan_recall": 73.4,
+    "score": 44.41,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 23.24,
+    "term_recall": 48.72,
+    "term_precision": 32.37,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 70,
+    "plan_recall": 74.47,
+    "score": 43.87,
+    "n": 20
+   },
+   "gap": 0.54,
+   "test": null,
+   "test2": null,
+   "minutes": 8.6
+  },
+  "bc5478bac62bf863": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "",
+    "cite": 1,
+    "gate": "drop_flagged",
+    "scaffold": 1
+   },
+   "dev": {
+    "rougeL": 22.56,
+    "term_recall": 45.41,
+    "term_precision": 36.54,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 62,
+    "plan_recall": 65.96,
+    "score": 40.29,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 22.65,
+    "term_recall": 47.01,
+    "term_precision": 38.05,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 62,
+    "plan_recall": 65.96,
+    "score": 43.24,
+    "n": 20
+   },
+   "gap": -2.95,
+   "test": null,
+   "test2": null,
+   "minutes": 14.0
+  },
+  "004c65b6b0fc8acb": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "",
+    "cite": 0,
+    "gate": "none",
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.92,
+    "term_recall": 50.85,
+    "term_precision": 34.21,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 76,
+    "plan_recall": 80.0,
+    "score": 47.3,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.88,
+    "term_recall": 53.88,
+    "term_precision": 36.59,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 48.66,
+    "n": 20
+   },
+   "gap": -1.36,
+   "test": {
+    "rougeL": 22.79,
+    "term_recall": 51.6,
+    "term_precision": 30.18,
+    "misattrib": 0.03,
+    "plan_items": 153,
+    "plan_found": 125,
+    "plan_recall": 81.7,
+    "score": 44.35,
+    "n": 37
+   },
+   "test2": {
+    "rougeL": 22.79,
+    "term_recall": 51.6,
+    "term_precision": 30.18,
+    "misattrib": 0.0,
+    "plan_items": 139,
+    "plan_found": 119,
+    "plan_recall": 85.61,
+    "score": 46.22,
+    "n": 37
+   },
+   "minutes": 20.2
+  },
+  "4c17b917612d3776": {
+   "cfg": {
+    "asr_variant": "canary_qwen",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "",
+    "cite": 0,
+    "gate": "none"
+   },
+   "dev": {
+    "rougeL": 26.39,
+    "term_recall": 52.06,
+    "term_precision": 29.61,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 43.1,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.58,
+    "term_recall": 53.16,
+    "term_precision": 31.36,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 71,
+    "plan_recall": 74.74,
+    "score": 45.62,
+    "n": 20
+   },
+   "gap": -2.52,
+   "test": null,
+   "test2": null,
+   "minutes": 1.5
+  },
+  "951fcdf76eec7335": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "",
+    "cite": 0,
+    "gate": "none"
+   },
+   "dev": {
+    "rougeL": 26.62,
+    "term_recall": 51.88,
+    "term_precision": 31.08,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 69,
+    "plan_recall": 73.4,
+    "score": 44.89,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.58,
+    "term_recall": 53.16,
+    "term_precision": 31.36,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 71,
+    "plan_recall": 74.74,
+    "score": 45.62,
+    "n": 20
+   },
+   "gap": -0.73,
+   "test": null,
+   "test2": null,
+   "minutes": 1.6
+  },
+  "4c23e4e4bdb09f85": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "",
+    "cite": 0,
+    "gate": "none"
+   },
+   "dev": {
+    "rougeL": 27.63,
+    "term_recall": 54.75,
+    "term_precision": 33.28,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 69,
+    "plan_recall": 73.4,
+    "score": 44.61,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.58,
+    "term_recall": 53.16,
+    "term_precision": 31.36,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 71,
+    "plan_recall": 74.74,
+    "score": 45.62,
+    "n": 20
+   },
+   "gap": -1.01,
+   "test": null,
+   "test2": null,
+   "minutes": 1.6
+  },
+  "b5a017fd719e5d28": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.1,
+    "term_recall": 54.32,
+    "term_precision": 36.32,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 76,
+    "plan_recall": 80.0,
+    "score": 46.81,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.88,
+    "term_recall": 53.88,
+    "term_precision": 36.59,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 48.66,
+    "n": 20
+   },
+   "gap": -1.85,
+   "test": null,
+   "test2": null,
+   "minutes": 4.0
+  },
+  "e54fd3407542350b": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.7,
+    "term_recall": 52.73,
+    "term_precision": 35.77,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 78,
+    "plan_recall": 82.11,
+    "score": 46.71,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.88,
+    "term_recall": 53.88,
+    "term_precision": 36.59,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 48.66,
+    "n": 20
+   },
+   "gap": -1.95,
+   "test": null,
+   "test2": null,
+   "minutes": 2.0
+  },
+  "e11bb05817221613": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "Ensure all plan items are verbatim quote",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 25.18,
+    "term_recall": 50.22,
+    "term_precision": 35.55,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 77,
+    "plan_recall": 81.91,
+    "score": 45.15,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 24.31,
+    "term_recall": 52.67,
+    "term_precision": 36.64,
+    "misattrib": 0.0,
+    "plan_items": 93,
+    "plan_found": 79,
+    "plan_recall": 84.95,
+    "score": 48.64,
+    "n": 20
+   },
+   "gap": -3.49,
+   "test": null,
+   "test2": null,
+   "minutes": 5.6
+  },
+  "2e32e212519db827": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "Ensure all plan items are verbatim quote",
+    "cite": 1,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 21.97,
+    "term_recall": 49.39,
+    "term_precision": 36.27,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 80,
+    "plan_recall": 84.21,
+    "score": 44.93,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 21.62,
+    "term_recall": 48.13,
+    "term_precision": 36.59,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 43.53,
+    "n": 20
+   },
+   "gap": 1.4,
+   "test": null,
+   "test2": null,
+   "minutes": 19.9
+  },
+  "87eebd2de25d7fb6": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.43,
+    "term_recall": 48.34,
+    "term_precision": 36.55,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 44.88,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.05,
+    "term_recall": 51.91,
+    "term_precision": 37.96,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 47.93,
+    "n": 20
+   },
+   "gap": -3.05,
+   "test": null,
+   "test2": null,
+   "minutes": 4.6
+  },
+  "a273bae186ac387d": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "flashnext"
+   },
+   "dev": {
+    "rougeL": 25.46,
+    "term_recall": 52.81,
+    "term_precision": 31.53,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 66,
+    "plan_recall": 69.47,
+    "score": 44.29,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 24.78,
+    "term_recall": 55.2,
+    "term_precision": 32.59,
+    "misattrib": 0.0,
+    "plan_items": 93,
+    "plan_found": 66,
+    "plan_recall": 70.97,
+    "score": 45.49,
+    "n": 20
+   },
+   "gap": -1.2,
+   "test": null,
+   "test2": null,
+   "minutes": 1.4
+  },
+  "5efdf0d308fdc77a": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "flashnext"
+   },
+   "dev": {
+    "rougeL": 25.14,
+    "term_recall": 52.48,
+    "term_precision": 32.47,
+    "misattrib": 0.0,
+    "plan_items": 96,
+    "plan_found": 64,
+    "plan_recall": 66.67,
+    "score": 43.85,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 24.27,
+    "term_recall": 54.64,
+    "term_precision": 32.66,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 62,
+    "plan_recall": 65.26,
+    "score": 44.1,
+    "n": 20
+   },
+   "gap": -0.25,
+   "test": null,
+   "test2": null,
+   "minutes": 1.4
+  },
+  "2ad6b6d82af95ccf": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "qwen27b"
+   },
+   "dev": {
+    "rougeL": 28.14,
+    "term_recall": 53.89,
+    "term_precision": 36.37,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 70,
+    "plan_recall": 74.47,
+    "score": 47.6,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 27.11,
+    "term_recall": 50.68,
+    "term_precision": 33.33,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 69,
+    "plan_recall": 73.4,
+    "score": 45.31,
+    "n": 20
+   },
+   "gap": 2.29,
+   "test": {
+    "rougeL": 21.65,
+    "term_recall": 52.32,
+    "term_precision": 26.74,
+    "misattrib": 0.11,
+    "plan_items": 151,
+    "plan_found": 123,
+    "plan_recall": 81.46,
+    "score": 40.02,
+    "n": 37
+   },
+   "test2": null,
+   "minutes": 5.6
+  },
+  "115d91b329243e43": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.85,
+    "term_recall": 50.34,
+    "term_precision": 35.27,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 75,
+    "plan_recall": 79.79,
+    "score": 47.61,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.7,
+    "term_recall": 50.19,
+    "term_precision": 34.8,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 44.76,
+    "n": 20
+   },
+   "gap": 2.85,
+   "test": {
+    "rougeL": 22.81,
+    "term_recall": 54.02,
+    "term_precision": 31.08,
+    "misattrib": 0.03,
+    "plan_items": 153,
+    "plan_found": 119,
+    "plan_recall": 77.78,
+    "score": 44.57,
+    "n": 37
+   },
+   "test2": {
+    "rougeL": 22.81,
+    "term_recall": 54.02,
+    "term_precision": 31.08,
+    "misattrib": 0.03,
+    "plan_items": 139,
+    "plan_found": 121,
+    "plan_recall": 87.05,
+    "score": 46.42,
+    "n": 37
+   },
+   "minutes": 11.8
+  },
+  "62a119f07d53ba55": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.05,
+    "term_recall": 50.82,
+    "term_precision": 36.99,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 47.31,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.05,
+    "term_recall": 51.91,
+    "term_precision": 37.96,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 47.93,
+    "n": 20
+   },
+   "gap": -0.62,
+   "test": null,
+   "test2": null,
+   "minutes": 0.0
+  },
+  "8b0e00673cc90986": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib",
+    "extra": "Ensure all plan items are verbatim quotes of the clinician's plan.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 26.74,
+    "term_recall": 48.59,
+    "term_precision": 36.12,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 78,
+    "plan_recall": 82.11,
+    "score": 45.18,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 27.32,
+    "term_recall": 50.15,
+    "term_precision": 36.43,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 76,
+    "plan_recall": 80.85,
+    "score": 47.61,
+    "n": 20
+   },
+   "gap": -2.43,
+   "test": null,
+   "test2": null,
+   "minutes": 8.3
+  },
+  "75118868c8a0f7f5": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. If a medical term is ambiguous or potentially a transcription error, omit it rather than guessing. Do not include speculative diagnoses.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.43,
+    "term_recall": 52.62,
+    "term_precision": 36.08,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 75,
+    "plan_recall": 79.79,
+    "score": 48.45,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.52,
+    "term_recall": 53.78,
+    "term_precision": 37.0,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 48.3,
+    "n": 20
+   },
+   "gap": 0.15,
+   "test": {
+    "rougeL": 22.93,
+    "term_recall": 52.03,
+    "term_precision": 31.84,
+    "misattrib": 0.03,
+    "plan_items": 153,
+    "plan_found": 122,
+    "plan_recall": 79.74,
+    "score": 44.61,
+    "n": 37
+   },
+   "test2": {
+    "rougeL": 22.93,
+    "term_recall": 52.03,
+    "term_precision": 31.84,
+    "misattrib": 0.03,
+    "plan_items": 139,
+    "plan_found": 118,
+    "plan_recall": 84.89,
+    "score": 45.64,
+    "n": 37
+   },
+   "minutes": 19.7
+  },
+  "fac5d0a6b3e5576f": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Extract the plan section strictly from the clinician's final instructions. Use the clinician's exact wording for plan items. Do not paraphrase or add implied actions.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.61,
+    "term_recall": 51.11,
+    "term_precision": 41.19,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 71,
+    "plan_recall": 75.53,
+    "score": 48.32,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.5,
+    "term_recall": 51.09,
+    "term_precision": 38.81,
+    "misattrib": 0.0,
+    "plan_items": 93,
+    "plan_found": 73,
+    "plan_recall": 78.49,
+    "score": 48.37,
+    "n": 20
+   },
+   "gap": -0.05,
+   "test": {
+    "rougeL": 23.41,
+    "term_recall": 52.13,
+    "term_precision": 33.69,
+    "misattrib": 0.05,
+    "plan_items": 153,
+    "plan_found": 115,
+    "plan_recall": 75.16,
+    "score": 43.3,
+    "n": 37
+   },
+   "test2": null,
+   "minutes": 14.3
+  },
+  "a3c075e26b82be9d": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Focus on capturing all distinct medical terms and findings mentioned. Ensure the note is comprehensive in terminology coverage while maintaining high precision by avoiding redundant or vague statements.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.76,
+    "term_recall": 53.56,
+    "term_precision": 34.61,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 45.52,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.8,
+    "term_recall": 53.45,
+    "term_precision": 35.02,
+    "misattrib": 0.0,
+    "plan_items": 93,
+    "plan_found": 74,
+    "plan_recall": 79.57,
+    "score": 48.22,
+    "n": 20
+   },
+   "gap": -2.7,
+   "test": null,
+   "test2": null,
+   "minutes": 8.0
+  },
+  "d28e1f0c2801dffe": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. If a medical term is uncertain or potentially a mishearing, omit it rather than guessing. Do not include speculative diagnoses.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.9,
+    "term_recall": 51.53,
+    "term_precision": 35.15,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 75,
+    "plan_recall": 79.79,
+    "score": 45.74,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.77,
+    "term_recall": 50.67,
+    "term_precision": 35.71,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 46.83,
+    "n": 20
+   },
+   "gap": -1.09,
+   "test": null,
+   "test2": null,
+   "minutes": 7.8
+  },
+  "ffdbde083750c02b": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. If a medical term is uncertain or potentially a mishearing, omit it rather than guessing. Do not include speculative diagnoses.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.33,
+    "term_recall": 50.93,
+    "term_precision": 35.77,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 45.47,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.77,
+    "term_recall": 50.67,
+    "term_precision": 35.71,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 46.83,
+    "n": 20
+   },
+   "gap": -1.36,
+   "test": null,
+   "test2": null,
+   "minutes": 3.8
+  },
+  "49e15f5976dfabd0": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. If a medical term is uncertain or potentially a mishearing, omit it rather than guessing. Do not include speculative diagnoses.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.96,
+    "term_recall": 50.65,
+    "term_precision": 35.92,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 78,
+    "plan_recall": 82.11,
+    "score": 48.19,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.36,
+    "term_recall": 50.09,
+    "term_precision": 35.73,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 47.0,
+    "n": 20
+   },
+   "gap": 1.19,
+   "test": {
+    "rougeL": 22.82,
+    "term_recall": 51.86,
+    "term_precision": 32.31,
+    "misattrib": 0.05,
+    "plan_items": 153,
+    "plan_found": 129,
+    "plan_recall": 84.31,
+    "score": 44.52,
+    "n": 37
+   },
+   "test2": null,
+   "minutes": 28.9
+  },
+  "5f8e94659417d6f1": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "",
+    "cite": 0,
+    "gate": "drop_flagged",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.85,
+    "term_recall": 50.34,
+    "term_precision": 35.27,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 75,
+    "plan_recall": 79.79,
+    "score": 47.61,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.7,
+    "term_recall": 50.19,
+    "term_precision": 34.8,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 44.76,
+    "n": 20
+   },
+   "gap": 2.85,
+   "test": {
+    "rougeL": 22.81,
+    "term_recall": 54.02,
+    "term_precision": 31.08,
+    "misattrib": 0.03,
+    "plan_items": 153,
+    "plan_found": 119,
+    "plan_recall": 77.78,
+    "score": 44.57,
+    "n": 37
+   },
+   "test2": null,
+   "minutes": 0.0
+  },
+  "b38a061893da5a15": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Include only terms explicitly stated in the transcript. Do not infer or add medical terms not present in the source.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.29,
+    "term_recall": 47.4,
+    "term_precision": 35.34,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 45.85,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.94,
+    "term_recall": 52.22,
+    "term_precision": 37.1,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 48.32,
+    "n": 20
+   },
+   "gap": -2.47,
+   "test": null,
+   "test2": null,
+   "minutes": 7.9
+  },
+  "f782b8ab4b1f49c5": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Extract the plan section strictly from the clinician's direct statements. Use the clinician's exact wording for all plan items. Do not paraphrase or summarize plan actions.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 26.02,
+    "term_recall": 50.01,
+    "term_precision": 39.23,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 47.29,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.95,
+    "term_recall": 52.17,
+    "term_precision": 39.01,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 71,
+    "plan_recall": 75.53,
+    "score": 48.25,
+    "n": 20
+   },
+   "gap": -0.96,
+   "test": null,
+   "test2": null,
+   "minutes": 8.0
+  },
+  "e4244eeb3b4b7d14": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Extract the plan section strictly from the clinician's direct statements. Use the clinician's exact wording for all plan items.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.15,
+    "term_recall": 49.86,
+    "term_precision": 37.1,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 45.66,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.26,
+    "term_recall": 52.56,
+    "term_precision": 37.37,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 48.42,
+    "n": 20
+   },
+   "gap": -2.76,
+   "test": null,
+   "test2": null,
+   "minutes": 7.8
+  },
+  "49596b74582981a4": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "qwen27b"
+   },
+   "dev": {
+    "rougeL": 27.66,
+    "term_recall": 51.44,
+    "term_precision": 31.54,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 45.74,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.09,
+    "term_recall": 58.41,
+    "term_precision": 35.6,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 69,
+    "plan_recall": 73.4,
+    "score": 48.5,
+    "n": 20
+   },
+   "gap": -2.76,
+   "test": null,
+   "test2": null,
+   "minutes": 0.0
+  },
+  "65fb6e9dc4f3ef5b": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. If a medical term is uncertain or potentially a transcription error, omit it rather than guessing. Do not include speculative diagnoses.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.7,
+    "term_recall": 49.69,
+    "term_precision": 35.33,
+    "misattrib": 0.1,
+    "plan_items": 94,
+    "plan_found": 71,
+    "plan_recall": 75.53,
+    "score": 42.35,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.71,
+    "term_recall": 54.32,
+    "term_precision": 36.63,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 71,
+    "plan_recall": 74.74,
+    "score": 46.18,
+    "n": 20
+   },
+   "gap": -3.83,
+   "test": null,
+   "test2": null,
+   "minutes": 7.8
+  },
+  "12896bc3492b4096": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Extract the plan section strictly from the clinician's explicit statements. Do not infer or add plan items that are not directly stated. Use the clinician's exact wording for plan items.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.0,
+    "term_recall": 49.62,
+    "term_precision": 37.77,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 47.38,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 30.08,
+    "term_recall": 51.36,
+    "term_precision": 39.07,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 77,
+    "plan_recall": 81.05,
+    "score": 47.35,
+    "n": 20
+   },
+   "gap": 0.03,
+   "test": null,
+   "test2": null,
+   "minutes": 7.7
+  },
+  "505500af14f46812": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly state 'no plan' if no plan items are mentioned. Do not hallucinate follow-up instructions or medications.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.74,
+    "term_recall": 53.32,
+    "term_precision": 36.35,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 48.44,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.17,
+    "term_recall": 52.7,
+    "term_precision": 37.46,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 48.2,
+    "n": 20
+   },
+   "gap": 0.24,
+   "test": {
+    "rougeL": 23.91,
+    "term_recall": 52.7,
+    "term_precision": 30.9,
+    "misattrib": 0.03,
+    "plan_items": 154,
+    "plan_found": 125,
+    "plan_recall": 81.17,
+    "score": 45.01,
+    "n": 37
+   },
+   "test2": {
+    "rougeL": 23.91,
+    "term_recall": 52.7,
+    "term_precision": 30.9,
+    "misattrib": 0.0,
+    "plan_items": 137,
+    "plan_found": 116,
+    "plan_recall": 84.67,
+    "score": 46.8,
+    "n": 37
+   },
+   "minutes": 19.7
+  },
+  "9c0af9ebef85a705": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly omit any medical terms or plan items that are not clearly supported by the transcript. Do not infer missing details.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.61,
+    "term_recall": 49.84,
+    "term_precision": 36.18,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 47.1,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.76,
+    "term_recall": 52.8,
+    "term_precision": 37.18,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 46.26,
+    "n": 20
+   },
+   "gap": 0.84,
+   "test": null,
+   "test2": null,
+   "minutes": 7.7
+  },
+  "d0427b12a2c236e5": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly omit any medical terms or plan items that are not clearly supported by the transcript. Do not infer missing details.",
+    "cite": 1,
+    "gate": "drop_flagged",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.02,
+    "term_recall": 40.83,
+    "term_precision": 37.92,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 66,
+    "plan_recall": 70.21,
+    "score": 41.07,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 27.83,
+    "term_recall": 45.32,
+    "term_precision": 36.55,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 67,
+    "plan_recall": 71.28,
+    "score": 42.38,
+    "n": 20
+   },
+   "gap": -1.31,
+   "test": null,
+   "test2": null,
+   "minutes": 15.8
+  },
+  "ec9781c03afada85": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly omit any medical terms or plan items that are not clearly supported by the transcript. Do not infer missing details.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.49,
+    "term_recall": 52.45,
+    "term_precision": 37.32,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 48.37,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.03,
+    "term_recall": 51.49,
+    "term_precision": 36.43,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 70,
+    "plan_recall": 73.68,
+    "score": 46.92,
+    "n": 20
+   },
+   "gap": 1.45,
+   "test": {
+    "rougeL": 22.62,
+    "term_recall": 51.97,
+    "term_precision": 34.52,
+    "misattrib": 0.11,
+    "plan_items": 153,
+    "plan_found": 127,
+    "plan_recall": 83.01,
+    "score": 42.75,
+    "n": 37
+   },
+   "test2": null,
+   "minutes": 17.3
+  },
+  "81e504722bd12bf1": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Ensure all plan items are verbatim quotes from the transcript.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 26.74,
+    "term_recall": 48.9,
+    "term_precision": 38.68,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 44.99,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.79,
+    "term_recall": 49.04,
+    "term_precision": 35.53,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 71,
+    "plan_recall": 74.74,
+    "score": 45.68,
+    "n": 20
+   },
+   "gap": -0.69,
+   "test": null,
+   "test2": null,
+   "minutes": 8.1
+  },
+  "048129dabecd32fe": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly list any medical terms that are uncertain or potentially misheard as 'unclear' rather than guessing.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.53,
+    "term_recall": 54.66,
+    "term_precision": 35.28,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 77,
+    "plan_recall": 81.05,
+    "score": 48.9,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.3,
+    "term_recall": 54.49,
+    "term_precision": 35.41,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 48.21,
+    "n": 20
+   },
+   "gap": 0.69,
+   "test": {
+    "rougeL": 22.24,
+    "term_recall": 50.92,
+    "term_precision": 28.69,
+    "misattrib": 0.05,
+    "plan_items": 154,
+    "plan_found": 123,
+    "plan_recall": 79.87,
+    "score": 42.14,
+    "n": 37
+   },
+   "test2": null,
+   "minutes": 14.7
+  },
+  "b28de8bd9dda0d82": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Extract the plan section strictly from the clinician's direct statements, ignoring patient questions.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 30.29,
+    "term_recall": 49.07,
+    "term_precision": 34.15,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 44.18,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.65,
+    "term_recall": 51.08,
+    "term_precision": 34.41,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 47.16,
+    "n": 20
+   },
+   "gap": -2.98,
+   "test": null,
+   "test2": null,
+   "minutes": 7.8
+  },
+  "51a49cc52272147a": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly correct ASR errors using medical context.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.23,
+    "term_recall": 54.31,
+    "term_precision": 34.79,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 77,
+    "plan_recall": 81.91,
+    "score": 48.76,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.44,
+    "term_recall": 51.89,
+    "term_precision": 35.52,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 47.28,
+    "n": 20
+   },
+   "gap": 1.48,
+   "test": {
+    "rougeL": 22.59,
+    "term_recall": 51.88,
+    "term_precision": 27.95,
+    "misattrib": 0.11,
+    "plan_items": 152,
+    "plan_found": 122,
+    "plan_recall": 80.26,
+    "score": 40.19,
+    "n": 37
+   },
+   "test2": null,
+   "minutes": 19.1
+  },
+  "af476ff0bce17a5c": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Prioritize high-precision terminology. Ensure all plan items are verbatim quotes from the clinician.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 24.94,
+    "term_recall": 50.37,
+    "term_precision": 34.59,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 77,
+    "plan_recall": 81.91,
+    "score": 46.86,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 25.49,
+    "term_recall": 53.21,
+    "term_precision": 37.22,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 81,
+    "plan_recall": 86.17,
+    "score": 49.46,
+    "n": 20
+   },
+   "gap": -2.6,
+   "test": null,
+   "test2": null,
+   "minutes": 8.9
+  },
+  "21129dbadba220e6": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Extract atomic propositions first, then write the note.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.23,
+    "term_recall": 49.06,
+    "term_precision": 34.81,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 44.34,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.41,
+    "term_recall": 51.3,
+    "term_precision": 37.83,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 47.58,
+    "n": 20
+   },
+   "gap": -3.24,
+   "test": null,
+   "test2": null,
+   "minutes": 9.6
+  },
+  "5734ec316b8ad81c": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly list any medical terms that are uncertain or potentially misheard as 'unclear' rather than guessing. Do not include speculative diagnoses.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.93,
+    "term_recall": 53.26,
+    "term_precision": 35.4,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 45.72,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.61,
+    "term_recall": 52.5,
+    "term_precision": 35.74,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 47.94,
+    "n": 20
+   },
+   "gap": -2.22,
+   "test": null,
+   "test2": null,
+   "minutes": 8.0
+  },
+  "b584dcc9a78de75e": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Ensure all plan items are verbatim quotes from the clinician's speech. If a plan item is not explicitly stated, omit it.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 25.12,
+    "term_recall": 48.23,
+    "term_precision": 38.09,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 44.67,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.49,
+    "term_recall": 48.44,
+    "term_precision": 37.74,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 46.52,
+    "n": 20
+   },
+   "gap": -1.85,
+   "test": null,
+   "test2": null,
+   "minutes": 8.4
+  },
+  "86fc3fb076ef6040": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Focus on capturing all distinct medical terms mentioned. If a term is repeated, list it only once.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.51,
+    "term_recall": 55.46,
+    "term_precision": 34.79,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 46.36,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.91,
+    "term_recall": 52.52,
+    "term_precision": 36.09,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 47.72,
+    "n": 20
+   },
+   "gap": -1.36,
+   "test": null,
+   "test2": null,
+   "minutes": 7.9
+  },
+  "cdb9358599c363ce": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly omit any clinical details or plan items that are not explicitly stated in the transcript to maximize precision.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.33,
+    "term_recall": 48.67,
+    "term_precision": 35.91,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 71,
+    "plan_recall": 74.74,
+    "score": 46.19,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.37,
+    "term_recall": 50.43,
+    "term_precision": 35.21,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 46.9,
+    "n": 20
+   },
+   "gap": -0.71,
+   "test": null,
+   "test2": null,
+   "minutes": 8.0
+  },
+  "c888e31925b5acbf": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly state 'no plan' if no plan items are mentioned. Do not hallucinate follow-up instructions or medications.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "qwen27b"
+   },
+   "dev": {
+    "rougeL": 29.07,
+    "term_recall": 53.07,
+    "term_precision": 32.73,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 70,
+    "plan_recall": 74.47,
+    "score": 46.45,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.47,
+    "term_recall": 53.86,
+    "term_precision": 34.92,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 69,
+    "plan_recall": 73.4,
+    "score": 47.01,
+    "n": 20
+   },
+   "gap": -0.56,
+   "test": null,
+   "test2": null,
+   "minutes": 2.3
+  },
+  "e0da3246f048f16d": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly state 'no plan' if no plan items are mentioned. Do not hallucinate follow-up instructions or medications.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.27,
+    "term_recall": 50.89,
+    "term_precision": 36.75,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 47.26,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.17,
+    "term_recall": 52.7,
+    "term_precision": 37.46,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 48.2,
+    "n": 20
+   },
+   "gap": -0.94,
+   "test": null,
+   "test2": null,
+   "minutes": 3.8
+  },
+  "e62dfdcdb0105af8": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "none",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly state 'no plan' if no plan items are mentioned. Do not hallucinate follow-up instructions or medications.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.85,
+    "term_recall": 50.04,
+    "term_precision": 37.03,
+    "misattrib": 0.0,
+    "plan_items": 97,
+    "plan_found": 76,
+    "plan_recall": 78.35,
+    "score": 47.56,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.17,
+    "term_recall": 52.7,
+    "term_precision": 37.46,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 48.2,
+    "n": 20
+   },
+   "gap": -0.64,
+   "test": null,
+   "test2": null,
+   "minutes": 3.7
+  },
+  "23b8bae55f4cef69": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly state 'no plan' if no plan items are mentioned. Do not hallucinate follow-up instructions or medications.",
+    "cite": 1,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.07,
+    "term_recall": 45.46,
+    "term_precision": 38.32,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 44.48,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.04,
+    "term_recall": 50.04,
+    "term_precision": 38.02,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 47.59,
+    "n": 20
+   },
+   "gap": -3.11,
+   "test": null,
+   "test2": null,
+   "minutes": 9.7
+  },
+  "a5b49eaaf714242f": {
+   "cfg": {
+    "asr_variant": "moss_plain",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly state 'no plan' if no plan items are mentioned. Do not hallucinate follow-up instructions or medications.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "qwen27b"
+   },
+   "dev": {
+    "rougeL": 28.16,
+    "term_recall": 52.35,
+    "term_precision": 33.46,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 46.91,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.47,
+    "term_recall": 53.86,
+    "term_precision": 34.92,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 69,
+    "plan_recall": 73.4,
+    "score": 47.01,
+    "n": 20
+   },
+   "gap": -0.1,
+   "test": null,
+   "test2": null,
+   "minutes": 1.1
+  },
+  "1e113ebd080b0b4d": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Do not hallucinate follow-up instructions or medications.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.97,
+    "term_recall": 50.86,
+    "term_precision": 38.63,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 46.01,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.37,
+    "term_recall": 53.15,
+    "term_precision": 38.89,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 48.81,
+    "n": 20
+   },
+   "gap": -2.8,
+   "test": null,
+   "test2": null,
+   "minutes": 7.6
+  },
+  "69d5bc860c62c9b1": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.9,
+    "term_recall": 52.41,
+    "term_precision": 35.08,
+    "misattrib": 0.1,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 43.82,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.01,
+    "term_recall": 53.92,
+    "term_precision": 36.48,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 71,
+    "plan_recall": 75.53,
+    "score": 48.03,
+    "n": 20
+   },
+   "gap": -4.21,
+   "test": null,
+   "test2": null,
+   "minutes": 7.8
+  },
+  "b4e38fccb9d1e5e8": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Ensure all plan items are verbatim quotes from the clinician's speech to maximize plan recall and ROUGE-L.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.02,
+    "term_recall": 44.2,
+    "term_precision": 37.3,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 45.39,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.81,
+    "term_recall": 51.0,
+    "term_precision": 41.43,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 70,
+    "plan_recall": 73.68,
+    "score": 46.23,
+    "n": 20
+   },
+   "gap": -0.84,
+   "test": null,
+   "test2": null,
+   "minutes": 7.9
+  },
+  "314c2f6032e5f639": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Extract atomic propositions first, then write the note strictly from these grounded facts to prevent hallucination.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.97,
+    "term_recall": 49.1,
+    "term_precision": 34.37,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 77,
+    "plan_recall": 81.05,
+    "score": 44.85,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 27.44,
+    "term_recall": 50.75,
+    "term_precision": 35.25,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 46.87,
+    "n": 20
+   },
+   "gap": -2.02,
+   "test": null,
+   "test2": null,
+   "minutes": 9.7
+  },
+  "432b7db8abfcb43f": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly omit any clinical details not explicitly stated in the transcript to maximize precision.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.12,
+    "term_recall": 52.81,
+    "term_precision": 36.04,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 48.22,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.46,
+    "term_recall": 52.38,
+    "term_precision": 36.05,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 48.21,
+    "n": 20
+   },
+   "gap": 0.01,
+   "test": null,
+   "test2": null,
+   "minutes": 7.8
+  }
+ },
+ "best": {
+  "asr_variant": "moss_hotcc",
+  "asr_correct": 0,
+  "role_map": "llm",
+  "prompt": "base",
+  "extra": "Prioritize high-precision terminology. Explicitly state 'no plan' if no plan items are mentioned. Do not hallucinate follow-up instructions or medications.",
+  "cite": 0,
+  "gate": "none",
+  "scaffold": 0,
+  "note_model": "dsv4flash"
+ },
+ "best_dev": {
+  "rougeL": 28.74,
+  "term_recall": 53.32,
+  "term_precision": 36.35,
+  "misattrib": 0.0,
+  "plan_items": 95,
+  "plan_found": 75,
+  "plan_recall": 78.95,
+  "score": 48.44,
+  "n": 20
+ },
+ "best_test": {
+  "rougeL": 23.91,
+  "term_recall": 52.7,
+  "term_precision": 30.9,
+  "misattrib": 0.03,
+  "plan_items": 154,
+  "plan_found": 125,
+  "plan_recall": 81.17,
+  "score": 45.01,
+  "n": 37
+ },
+ "iters": 70,
+ "best_test2": {
+  "rougeL": 23.91,
+  "term_recall": 52.7,
+  "term_precision": 30.9,
+  "misattrib": 0.0,
+  "plan_items": 137,
+  "plan_found": 116,
+  "plan_recall": 84.67,
+  "score": 46.8,
+  "n": 37
+ }
+}

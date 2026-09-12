@@ -44,6 +44,81 @@ def index():
     return (ROOT / "demo/index.html").read_text()
 
 
+NOTEBOOK_REMOTE = os.environ.get("SCRIBE_NOTEBOOK_REMOTE", "beast:~/projects/scribe-bench/autoresearch/notebook.md")
+STATE_REMOTE = os.environ.get("SCRIBE_STATE_REMOTE", "beast:~/projects/scribe-bench/autoresearch/state.json")
+
+
+def _sync_notebook():
+    dst = ROOT / "autoresearch/notebook.md"
+    try:
+        subprocess.run(["scp", "-q", NOTEBOOK_REMOTE, str(dst)], timeout=30, check=False)
+        subprocess.run(["scp", "-q", STATE_REMOTE, str(ROOT / "autoresearch/state.json")], timeout=30, check=False)
+    except Exception:  # noqa: BLE001
+        pass
+    return dst.read_text() if dst.exists() else "# no notebook yet\n"
+
+
+def _md_table_to_html(md: str) -> str:
+    out, in_table, header_done = [], False, False
+    for line in md.splitlines():
+        if line.startswith("|"):
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if all(set(c) <= set("-: ") for c in cells):
+                continue
+            tag = "th" if not in_table else "td"
+            cls = ""
+            row_txt = " ".join(cells)
+            if "ACCEPTED" in row_txt:
+                cls = ' class="accepted"'
+            elif "ERROR" in row_txt:
+                cls = ' class="err"'
+            elif "did not hold" in row_txt or "disagreed" in row_txt:
+                cls = ' class="rejected"'
+            esc = lambda t: t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            out.append(("<table><thead>" if not in_table else "") + f"<tr{cls}>" + "".join(f"<{tag}>{esc(c)}</{tag}>" for c in cells) + "</tr>" + ("</thead><tbody>" if not in_table else ""))
+            in_table = True
+        else:
+            if in_table:
+                out.append("</tbody></table>")
+                in_table = False
+            t = line.strip()
+            if t.startswith("# "):
+                out.append(f"<h1>{t[2:]}</h1>")
+            elif t:
+                out.append(f"<p>{t.replace('&', '&amp;').replace('<', '&lt;')}</p>")
+    if in_table:
+        out.append("</tbody></table>")
+    return "\n".join(out)
+
+
+@app.get("/experiments", response_class=HTMLResponse)
+def experiments():
+    md = _sync_notebook()
+    best = ""
+    sp = ROOT / "autoresearch/state.json"
+    if sp.exists():
+        st = json.loads(sp.read_text())
+        if st.get("best"):
+            best = (f"<div class='best'><b>Accepted best</b> · dev {st['best_dev']['score']} · test {st['best_test']['score']}"
+                    f"{' · judge 2 ' + str(st['best_test2']['score']) if st.get('best_test2') else ''}"
+                    f"<pre>{json.dumps(st['best'], indent=1)}</pre></div>")
+    style = """<style>
+    body{font-family:-apple-system,'Public Sans',Helvetica,Arial,sans-serif;font-size:13.5px;line-height:1.45;margin:0;padding:24px 32px;background:#F4F6F8;color:#172029}
+    @media (prefers-color-scheme:dark){body{background:#0F151B;color:#E4EAF0} table{background:#161E26} th,td{border-color:#2E3A46} .best{background:#12303B} tr.accepted td{background:#12301F} tr.rejected td{background:#33270F} tr.err td{background:#3A1917}}
+    h1{font-family:Newsreader,Georgia,serif;font-weight:500;font-size:28px;margin:0 0 6px} p{max-width:90ch;color:#5C6B78}
+    table{border-collapse:collapse;width:100%;background:#fff;font-size:12.5px;margin-top:14px} th,td{border-top:1px solid #CAD3DB;padding:6px 8px;text-align:left;vertical-align:top}
+    th{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#5C6B78}
+    tr.accepted td{background:#DDF1E6} tr.rejected td{background:#FBEFD2} tr.err td{background:#F9E1DF}
+    .best{background:#DDEEF4;border-radius:6px;padding:10px 14px;margin:10px 0} pre{font-size:12px;white-space:pre-wrap;margin:6px 0 0}
+    .legend{font-size:12px;color:#5C6B78;margin:8px 0} .legend span{display:inline-block;padding:1px 8px;border-radius:4px;margin-right:8px}
+    a{color:#0F6B8A}
+    </style>"""
+    legend = ("<div class='legend'><span style='background:#DDF1E6'>accepted</span><span style='background:#FBEFD2'>gain on dev, rejected on test or by judge 2</span>"
+              "<span style='background:#F9E1DF'>error</span> Columns: dev composite (with term recall TR, term precision TP, ROUGE-L RL, follow-up recall, misattributions per note), "
+              "ΔASR-vs-human = same note config on the human transcript, test composite when run. <a href='/'>← back to the demo</a></div>")
+    return "<!doctype html><html><head><meta charset='utf-8'><title>Scribe Bench Experiments</title>" + style + "</head><body>" + _md_table_to_html(md).replace("</h1>", "</h1>" + best + legend, 1) + "</body></html>"
+
+
 @app.get("/api/consultations")
 def consultations():
     return json.loads((DATA / "index.json").read_text())
