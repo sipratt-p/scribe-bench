@@ -103,14 +103,14 @@ def experiments():
                     f"{' · judge 2 ' + str(st['best_test2']['score']) if st.get('best_test2') else ''}"
                     f"<pre>{json.dumps(st['best'], indent=1)}</pre></div>")
     style = """<style>
+    :root{color-scheme:light}
     body{font-family:-apple-system,'Public Sans',Helvetica,Arial,sans-serif;font-size:13.5px;line-height:1.45;margin:0;padding:24px 32px;background:#F4F6F8;color:#172029}
-    @media (prefers-color-scheme:dark){body{background:#0F151B;color:#E4EAF0} table{background:#161E26} th,td{border-color:#2E3A46} .best{background:#12303B} tr.accepted td{background:#12301F} tr.rejected td{background:#33270F} tr.err td{background:#3A1917}}
-    h1{font-family:Newsreader,Georgia,serif;font-weight:500;font-size:28px;margin:0 0 6px} p{max-width:90ch;color:#5C6B78}
-    table{border-collapse:collapse;width:100%;background:#fff;font-size:12.5px;margin-top:14px} th,td{border-top:1px solid #CAD3DB;padding:6px 8px;text-align:left;vertical-align:top}
+    h1{font-family:Newsreader,Georgia,serif;font-weight:500;font-size:28px;margin:0 0 6px;color:#172029} p{max-width:90ch;color:#5C6B78}
+    table{border-collapse:collapse;width:100%;background:#FFFFFF;font-size:12.5px;margin-top:14px;color:#172029} th,td{border-top:1px solid #CAD3DB;padding:6px 8px;text-align:left;vertical-align:top;color:#172029}
     th{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#5C6B78}
-    tr.accepted td{background:#DDF1E6} tr.rejected td{background:#FBEFD2} tr.err td{background:#F9E1DF}
-    .best{background:#DDEEF4;border-radius:6px;padding:10px 14px;margin:10px 0} pre{font-size:12px;white-space:pre-wrap;margin:6px 0 0}
-    .legend{font-size:12px;color:#5C6B78;margin:8px 0} .legend span{display:inline-block;padding:1px 8px;border-radius:4px;margin-right:8px}
+    tr.accepted td{background:#DDF1E6;color:#0F3D24;font-weight:600} tr.rejected td{background:#FBEFD2;color:#4A3208} tr.err td{background:#F9E1DF;color:#5A1712}
+    .best{background:#DDEEF4;color:#0B3A4A;border-radius:6px;padding:10px 14px;margin:10px 0} pre{font-size:12px;white-space:pre-wrap;margin:6px 0 0;color:#0B3A4A}
+    .legend{font-size:12px;color:#5C6B78;margin:8px 0} .legend span{display:inline-block;padding:1px 8px;border-radius:4px;margin-right:8px;color:#172029}
     a{color:#0F6B8A}
     </style>"""
     legend = ("<div class='legend'><span style='background:#DDF1E6'>accepted</span><span style='background:#FBEFD2'>gain on dev, rejected on test or by judge 2</span>"
