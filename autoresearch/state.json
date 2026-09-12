@@ -2621,6 +2621,45 @@
    "test": null,
    "test2": null,
    "minutes": 7.8
+  },
+  "3d792e164f70c5b5": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Use the provided speaker roles to strictly attribute statements to the correct speaker; do not infer speaker identity.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.12,
+    "term_recall": 49.77,
+    "term_precision": 34.56,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 46.44,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.5,
+    "term_recall": 52.18,
+    "term_precision": 34.4,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 47.25,
+    "n": 20
+   },
+   "gap": -0.81,
+   "test": null,
+   "test2": null,
+   "minutes": 8.0
   }
  },
  "best": {
@@ -2656,7 +2695,7 @@
   "score": 45.01,
   "n": 37
  },
- "iters": 71,
+ "iters": 72,
  "best_test2": {
   "rougeL": 23.91,
   "term_recall": 52.7,
