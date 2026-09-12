@@ -3,7 +3,7 @@
 **Tag: transferred** (citation precision gain on ACI test1/2/3 and PriMock; grounding halving on PriMock held-out).
 
 ## What citations do
-Requiring every note sentence to end with `[[line]]` citations to the numbered transcript:
+Requiring every note sentence to end with double-bracket line citations to the numbered transcript:
 - ACI-Bench (Qwen 27B): ~−1 ROUGE-L, +4–5 term precision on every split. Points at evidence → invents fewer terms.
 - PriMock held-out (DeepSeek V4 Flash, loop best config): term precision 30.9 → 32.9; **unsupported sentences 11.4% → 6.8%**; 88.8% of sentences cited; **84.0%** of sentences supported by the exact lines they cite. Cost: plan recall 81.2 → 76.0, ROUGE-L 23.9 → 22.7, term recall 52.7 → 51.9 (dev showed −8 recall; test −0.8, so the dev drop was partly small-sample).
 - Fine-tuning erases citation behaviour unless the targets carry citations (99.6% → 9–16% cited after SFT) ([[fine-tuning-findings]]).

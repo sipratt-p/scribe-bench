@@ -1,6 +1,6 @@
 # Vanilla vs best: the head-to-head
 
-Same 57 PriMock consultations, same scorer. **Vanilla** = Nemotron streaming transcript (no speakers) → untuned Qwen3.8-27B, plain prompt. **v1** = MOSS-TD diarized transcript, anonymous labels, same writer. **Best** = MOSS-TD + complaint hotwords, LLM role map, precision-first extra, DeepSeek V4 Flash writer (loop iteration 47). **Best cited** = same with `[[line]]` citations required.
+Same 57 PriMock consultations, same scorer. **Vanilla** = Nemotron streaming transcript (no speakers) → untuned Qwen3.8-27B, plain prompt. **v1** = MOSS-TD diarized transcript, anonymous labels, same writer. **Best** = MOSS-TD + complaint hotwords, LLM role map, precision-first extra, DeepSeek V4 Flash writer (loop iteration 47). **Best cited** = same with double-bracket line citations required.
 
 ## Transcript layer (57)
 | | Vanilla | Best |

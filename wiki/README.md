@@ -2,7 +2,7 @@
 
 A Karpathy-style LLM wiki: the raw material (run outputs, notebooks, scripts, the artifact, the workshop doc) stays
 immutable under `runs/`, `autoresearch/`, `RESULTS.md` and the scratchpad; this directory is the *compiled* knowledge
-base, rewritten by the agent whenever a raw source changes. Pages are markdown with `[[wikilinks]]`, one topic per page,
+base, rewritten by the agent whenever a raw source changes. Pages are markdown with double-bracket wikilinks, one topic per page,
 each with a summary at the top, the numbers that matter, and a **Sources** section pointing at the raw files so every
 claim can be re-derived.
 

@@ -70,3 +70,7 @@ python -m scribe_bench.verifier extract runs/notes_cite/test1/humantrans transcr
 python -m scribe_bench.verifier perturb claims.jsonl perturbed.jsonl --rate 0.25
 python -m scribe_bench.verifier judge perturbed.jsonl judged.jsonl --base_url http://localhost:8500/v1 --model gemma4-vision
 ```
+
+## Wiki
+
+A compiled, Karpathy-style knowledge base of everything measured here lives in [`wiki/index.md`](wiki/index.md). Raw outputs under `runs/` and `autoresearch/` are the sources; the wiki is rewritten from them.
