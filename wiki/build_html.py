@@ -4,7 +4,7 @@ import re, sys, html
 from pathlib import Path
 import markdown
 W = Path(__file__).parent
-order = ["index","overview","interview-narrative","log","decoder-finding","role-mapping","citations-and-verifiability",
+order = ["index","glossary","overview","interview-narrative","log","decoder-finding","role-mapping","citations-and-verifiability",
          "fine-tuning-findings","verifier","plan-recall-gap","vanilla-vs-best","fairness","metrics","judges","autoresearch-loop",
          "expert-iteration","benchmark-maxing-vs-quality","two-pass-asr","models","datasets","infrastructure","abridge",
          "nvidia-engagement","deliverables","open-questions","sources","README"]

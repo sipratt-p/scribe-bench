@@ -3,6 +3,7 @@
 Ambient clinical scribe evaluation harness, built 11–12 Sep 2026 for the Abridge interview (Sun 13 Sep, 2pm). Everything measured locally on open data; ~$49 of rented H200 time in total.
 
 ## Start here
+- [[glossary]] — acronyms and jargon in plain language, grouped by topic
 - [[overview]] — what was built, the one-paragraph result, and how to read the rest
 - [[interview-narrative]] — how to say it to an interviewer, with what not to claim
 - [[log]] — dated timeline of the work
