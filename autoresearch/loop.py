@@ -46,6 +46,7 @@ VARIANTS = ROOT / "runs/asr_variants"
 NOTEBOOK = ROOT / "autoresearch/notebook.md"
 STATE = ROOT / "autoresearch/state.json"
 STOP = ROOT / "autoresearch/STOP"
+MANUAL = ROOT / "autoresearch/queue.jsonl"  # one config per line; consumed before proposer/mutation
 LEX = load_lexicon(str(ROOT / "data/lexicon.txt"))
 LEX_LIST = [t.strip() for t in (ROOT / "data/lexicon.txt").read_text().splitlines() if t.strip()]
 
@@ -348,6 +349,10 @@ def main():
     human_cache: dict[str, dict] = {}
     it = state["iters"]
     while it < args.max_iters and datetime.now() < deadline and not STOP.exists():
+        if MANUAL.exists():
+            manual = [json.loads(l) for l in MANUAL.read_text().splitlines() if l.strip()]
+            MANUAL.unlink()
+            queue = manual + queue
         if not queue:
             props = propose(NOTEBOOK.read_text(), variants, set(state["tried"]), note_llm)
             queue = props or [mutate(state["best"] or seed_queue(variants)[0], variants)]
