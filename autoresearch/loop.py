@@ -370,7 +370,7 @@ def main():
             gap = round(dev_m["score"] - hum["score"], 2)
             note = ""
             test_m = None
-            improved = state["best_dev"] is None or dev_m["score"] > state["best_dev"]["score"] + 0.5
+            improved = state["best_dev"] is None or dev_m["score"] >= state["best_dev"]["score"] - 0.1  # near-ties go to test; judge 2 + morning review guard against noise
             test_m2 = None
             if improved:
                 test_m = evaluate(cfg, test, recs, note_llm, judge_llm)

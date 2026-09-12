@@ -1,8 +1,4 @@
+{"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "base", "extra": "", "cite": 0, "gate": "none", "scaffold": 1, "note_model": "qwen27b"}
 {"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "base", "extra": "", "cite": 0, "gate": "none", "scaffold": 0, "note_model": "dsv4flash"}
 {"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "base", "extra": "", "cite": 0, "gate": "none", "scaffold": 1, "note_model": "dsv4flash"}
-{"asr_variant": "moss_hotcc", "asr_correct": 0, "role_map": "llm", "prompt": "base", "extra": "", "cite": 0, "gate": "none", "scaffold": 1, "note_model": "dsv4flash"}
-{"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "base", "extra": "", "cite": 0, "gate": "none", "scaffold": 0, "note_model": "flashnext"}
-{"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "attrib", "extra": "", "cite": 0, "gate": "none", "scaffold": 0, "note_model": "flashnext"}
-{"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "base", "extra": "", "cite": 0, "gate": "none", "scaffold": 1, "note_model": "flashnext"}
-{"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "base", "extra": "", "cite": 0, "gate": "none", "scaffold": 1, "note_model": "qwen27b"}
-{"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "base", "extra": "State who reported each symptom. Keep every plan item, follow-up timing and safety-netting instruction the clinician gave, in the clinician's words.", "cite": 0, "gate": "none", "scaffold": 0, "note_model": "dsv4flash"}
+{"asr_variant": "moss_plain", "asr_correct": 0, "role_map": "llm", "prompt": "attrib", "extra": "Ensure all plan items are verbatim quotes of the clinician's plan.", "cite": 0, "gate": "none", "scaffold": 0, "note_model": "dsv4flash"}
