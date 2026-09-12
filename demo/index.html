@@ -141,6 +141,7 @@
     <li><b>Fine-tuning is the lever, and it has a cost.</b> One epoch of LoRA on 2,800 open pairs moved Qwen3.8-27B +9 ROUGE-L and +12 term precision, and doubled or tripled misattributions while dropping follow-up recall up to 9 points. Overlap metrics reward fluency; clinician-defined dimensions catch what fluency hides.</li>
     <li><b>Scale bought safety, not fidelity.</b> Untuned Nemotron Ultra (550B) sits a point below untuned Qwen 27B on ROUGE-L and 8 below on term precision, with the cleanest attribution of any base model. Ordering that held everywhere: tuning &gt; base quality &gt; size.</li>
     <li><b>Citations must be in the fine-tuning targets.</b> The tune erased citation behaviour (99.6% → 10% of sentences cited) because the training notes had none.</li>
+    <li><b>Anonymous speaker labels don't fix attribution in the note.</b> On PriMock57, notes written from the diarized pass-2 transcript had the same misattribution rate as notes from the undiarized streaming transcript (0.19 per note); notes from the human transcript had 0.05. The note model needs to know which speaker is the clinician, not just that there are two: map S01/S02 to roles before generation.</li>
     <li><b>Evals should be built from the edit stream.</b> Every signed note is a labelled diff. Classify edits into safety, completeness, fit, effort, and you get the scorecard per specialty and per partner without annotators, and the same diffs become preference data. That is the whitepaper's LLM-judge programme with the training loop attached.</li>
   </ol>
 </div>
