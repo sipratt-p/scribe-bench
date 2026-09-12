@@ -188,10 +188,11 @@ def gate(cfg, rec, dialogue, note, judge_llm) -> str:
             if not bad:
                 kept.append(s)
         return "\n".join(kept)
-    return cached(h("gate", rec["id"], note), _judge)
+    return cached(h("gate", getattr(judge_llm, "model", "j"), rec["id"], note), _judge)
 
 
 def score_note(rec, note, dialogue_for_judge, judge_llm) -> dict:
+    jtag = getattr(judge_llm, "model", "j")
     from rouge_score import rouge_scorer
     ref = rec["note"]["note"]
     hyp = strip_cites(note)
@@ -212,7 +213,7 @@ def score_note(rec, note, dialogue_for_judge, judge_llm) -> dict:
             f = parse_json(judge_llm(COMPLETE_CHECK, f"ITEMS:\n{listing}\n\nDRAFT NOTE:\n{hyp}", 300)) or {}
             found = sum(1 for i in range(len(items)) if str(f.get(str(i + 1))).lower() == "true")
         return {"misattrib": mis, "plan_items": len(items), "plan_found": found}
-    j = cached(h("score", rec["id"], hyp), _judge)
+    j = cached(h("score", jtag, rec["id"], hyp), _judge)
     return {"rougeL": rl, "term_recall": tr, "term_precision": tp, **j}
 
 
@@ -326,12 +327,15 @@ def main():
     ap.add_argument("--note_model", default="qwen3.8-27b")
     ap.add_argument("--judge_url", default="http://100.83.231.108:8005/v1")
     ap.add_argument("--judge_model", default="gemma-4-26b-a4b-it")
+    ap.add_argument("--judge2_url", default="http://100.90.251.52:8600/v1", help="second judge for the accept step; '' to disable")
+    ap.add_argument("--judge2_model", default="v4-flash")
     ap.add_argument("--deadline", default="2026-09-13 08:30")
     ap.add_argument("--max_iters", type=int, default=200)
     args = ap.parse_args()
     deadline = datetime.fromisoformat(args.deadline)
     note_llm = LLM(args.note_url, args.note_model, workers=8)
     judge_llm = LLM(args.judge_url, args.judge_model, workers=8)
+    judge2_llm = LLM(args.judge2_url, args.judge2_model, workers=4) if args.judge2_url else None
     recs, dev, test = load_recs()
     variants = sorted(p.name for p in VARIANTS.iterdir() if p.is_dir() and len(list(p.glob("*.json"))) >= len(recs))
     state = json.loads(STATE.read_text()) if STATE.exists() else {"tried": {}, "best": None, "best_dev": None, "best_test": None, "iters": 0}
@@ -362,14 +366,23 @@ def main():
             note = ""
             test_m = None
             improved = state["best_dev"] is None or dev_m["score"] > state["best_dev"]["score"] + 0.5
+            test_m2 = None
             if improved:
                 test_m = evaluate(cfg, test, recs, note_llm, judge_llm)
-                if state["best_test"] is None or test_m["score"] > state["best_test"]["score"]:
-                    state.update(best=cfg, best_dev=dev_m, best_test=test_m)
-                    note = "ACCEPTED as best"
+                ok1 = state["best_test"] is None or test_m["score"] > state["best_test"]["score"]
+                ok2 = True
+                if judge2_llm is not None and ok1:
+                    test_m2 = evaluate(cfg, test, recs, note_llm, judge2_llm)
+                    prev2 = (state.get("best_test2") or {}).get("score")
+                    ok2 = prev2 is None or test_m2["score"] > prev2
+                if ok1 and ok2:
+                    state.update(best=cfg, best_dev=dev_m, best_test=test_m, best_test2=test_m2)
+                    note = "ACCEPTED as best" + (f" (judge2 {test_m2['score']})" if test_m2 else "")
+                elif ok1:
+                    note = f"dev+test gain, but judge 2 disagreed ({test_m2['score']} vs {prev2})"
                 else:
                     note = "dev gain did not hold on test"
-            state["tried"][key] = {"cfg": cfg, "dev": dev_m, "human": hum, "gap": gap, "test": test_m, "minutes": round((time.time() - t0) / 60, 1)}
+            state["tried"][key] = {"cfg": cfg, "dev": dev_m, "human": hum, "gap": gap, "test": test_m, "test2": test_m2, "minutes": round((time.time() - t0) / 60, 1)}
             log(f"| {it} | {cfg['asr_variant']} | {cfg['asr_correct']} | {cfg['role_map']} | {cfg['prompt']}{' +scaffold' if cfg.get('scaffold') else ''} [{cfg.get('note_model', 'qwen27b')}] | {cfg['extra'][:40]} | {cfg['cite']} | {cfg['gate']} | "
                 f"{dev_m['score']} (TR {dev_m['term_recall']}, TP {dev_m['term_precision']}, RL {dev_m['rougeL']}, plan {dev_m['plan_recall']}, mis {dev_m['misattrib']}) | "
                 f"{gap:+} (human {hum['score']}) | {test_m['score'] if test_m else ''} | {note} |")
