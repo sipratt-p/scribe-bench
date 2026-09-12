@@ -91,12 +91,12 @@
   <div><label>&nbsp;</label><button id="run" class="secondary">Run live</button></div>
   <div style="grid-column:1/-1"><button id="explain-btn" class="secondary" style="padding:6px 12px">▸ Explain the jargon</button> <span class="steps">for people who know tech but not this field</span></div>
 </div>
-<div class="explain">This page compares two ways of turning a recorded doctor visit into the clinical note the doctor has to sign. Left is how the streaming, real-time route behaves; right adds a second, slower pass after the visit and checks the draft before the doctor sees it. Every number is measured against the human transcript and the note the real clinician wrote for that same visit.</div>
+<div class="explain">This page compares two ways of turning a recorded doctor visit into the clinical note the doctor has to sign. Left is a vanilla, unoptimized pipeline: the streaming, real-time transcript written straight into a note; right adds a second, slower pass after the visit and checks the draft before the doctor sees it. Every number is measured against the human transcript and the note the real clinician wrote for that same visit.</div>
 <div class="status" id="status"></div>
 
 <div class="cols">
   <div class="col theirs">
-    <h2>Their architecture <small>Streaming ASR (Nemotron 3.5 0.6B, 1.1 s chunks) → note. No speakers, no citations, no verifier.</small></h2>
+    <h2>Vanilla pipeline <small>Unoptimized: streaming ASR (Nemotron 3.5 0.6B, 1.1 s chunks) → note. No speakers, no citations, no verifier.</small></h2>
     <div class="explain">A small, fast speech model listens as the visit happens and emits words within about a second. It is trained to be fast, so it has no idea who is speaking and tends to drop the rare words, which in medicine are the drug names and findings. The note is then written straight from that text.</div>
     <div class="stat-row" id="t-stats"></div>
     <h3>Transcript <span class="pill" id="t-tlabel"></span></h3>
@@ -237,7 +237,7 @@ function renderDelta(d){
   add("Claims checkable before the clinician sees the draft", "0", o.claims? o.claims.length : null, false);
   add("Claims flagged by the verifier", "n/a", o.claims? o.claims.filter(c=>c.label!=="ERROR"&&(c.label!=="SUPPORTED"||c.leak)).length : null, null);
   if (t.terms_only_here) add("Medical terms only this transcript caught", t.terms_only_here.length, o.terms_only_here.length, false);
-  $("delta").innerHTML = `<table><thead><tr><th>Measure</th><th class="num">Theirs</th><th class="num">Proposed</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
+  $("delta").innerHTML = `<table><thead><tr><th>Measure</th><th class="num">Vanilla</th><th class="num">Proposed</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
 }
 function oursVariant(d){
   const v = document.querySelector('input[name=ov]:checked').value;

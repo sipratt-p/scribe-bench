@@ -232,7 +232,7 @@ def _run_job(job, wav: Path):
         _step(job, f"Pass 1 done in {asr['pass1']['wall_s']} s, pass 2 done in {asr['pass2']['wall_s']} s ({len(ours_segs)} speaker turns)")
 
         # 2. notes
-        _step(job, "Writing the note from the streaming transcript (their pipeline)")
+        _step(job, "Writing the note from the streaming transcript (vanilla pipeline)")
         theirs_note = _llm(NOTE_URL, NOTE_MODEL, PRIMOCK_SYSTEM, "TRANSCRIPT:\n" + theirs_text + "\n\nWrite the note now.")
         _step(job, "Writing the cited note from the diarized transcript (proposed pipeline)")
         ours_note = _llm(NOTE_URL, NOTE_MODEL, PRIMOCK_SYSTEM + CITE_SUFFIX,

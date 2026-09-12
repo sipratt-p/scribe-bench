@@ -2,7 +2,7 @@
 
 Two ambient-scribe pipelines on the same recording, side by side, with the delta a clinician would feel.
 
-- **Theirs**: streaming ASR (Nemotron 3.5 0.6B) → note. No speakers, no citations, no verifier.
+- **Vanilla** (internal key `theirs`): unoptimized streaming ASR (Nemotron 3.5 0.6B) → note. No speakers, no citations, no verifier.
 - **Proposed**: second pass after the visit (MOSS-TD 0.9B, diarized) → note with span citations → verifier.
 
 ## Start (cached mode, no GPU needed)
