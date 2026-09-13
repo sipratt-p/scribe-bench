@@ -1,13 +1,3 @@
-# Paper draft (workshop): What an LLM-judged evaluation of ambient clinical scribes can and cannot see
-
-**Status:** first full draft, 13 Sep 2026. Target: a health-ML workshop (ML4H, CHIL, or a NeurIPS/ICLR health workshop), 4–8 pages plus appendix. Every number below is in [[sources]]; intervals are in `runs/paper_stats.md`. Nothing here has been read by a clinician, and the paper says so in the title's spirit and the limitations' letter.
-
----
-
-## Title
-**What an LLM-judged evaluation of ambient clinical scribes can and cannot see: an open harness and two case studies**
-
-Alternative: *Measuring the scribe, not the model: an open evaluation harness for ambient clinical documentation with LLM judges*
 
 ## Abstract (≈200 words)
 Ambient clinical scribes turn a recorded consultation into a draft note, and are increasingly evaluated on clinician-defined dimensions scored by LLM judges. We release an open harness that reproduces that style of evaluation on public data (PriMock57 audio, ACI-Bench notes, a 7,092-term primary-care lexicon) and use it for two studies. Study 1 evaluates the after-visit pipeline. Across seven open speech recognizers, word error rate varies within a point while medical-term loss varies twofold, separating language-model decoders (8.4% [7.1, 9.7]) from classic decoders (12.5–15.1%); the effect replicates on a synthetic second corpus. Speaker diarization alone does not change the note; naming the clinician before writing cuts misattributions by two thirds under one judge, a result three judges then fail to agree on. An overnight search over 131 pipeline variants gains term precision (+4.5 [+2.3, +6.7]) but its composite gain (+4.2 [−0.3, +8.8]) is not resolved at n = 37, and the search removed span citations because its objective had no verifiability term; re-scored with one, citations halve unsupported sentences (+5.3 grounded [+3.2, +7.8]). A quarter of reference plan items were never spoken, exposing a ground-truth flaw in completeness metrics. Study 2 evaluates an in-visit decision-support view on the same visits: prompt rules reduce red flags from 61 to 3 (all judged genuine) without losing diagnosis coverage (56/57), while guideline retrieval adds volume, not agreement. Three judges agree on ranking (ρ = 0.80 between the two scoring the composite) but not on attribution: pairwise κ from −0.02 to +0.29, no note flagged by all three, and the third judge reverses the direction of the attribution difference between pipelines; a reinforcement-learning pass the first two disagree on in sign. We argue these evaluations are useful for ordering pipelines and for catching objective failures, and unsafe as absolute quality claims without clinician calibration.
@@ -123,232 +113,27 @@ Mock consultations, UK primary care, 57 recordings; terse reference notes make a
 PriMock57 is released under CC BY 4.0 (repository LICENSE.md); ACI-Bench under CC BY 4.0 with a citation requirement (Yim et al. 2023); MTS-Dialog under CC BY 4.0; MedSynth's repository and dataset card state no license as of 13 Sep 2026; the harness uses only its term strings (facts, not creative expression) to build the lexicon, and we will ask the authors for a licence statement before release. The lexicon derived from MTS-Dialog and MedSynth is released under CC BY 4.0 with attribution to both. Guideline pages fetched for the live view come from nhs.uk, whose content is released under the Open Government Licence v3 with the attribution "Contains information from NHS England, licensed under the current version of the Open Government Licence"; patient.info professional articles were read at run time and are not redistributed; Wikipedia extracts are CC BY-SA and are used only as model context. All consultations are role-played by clinicians and actors; no patient data, no protected health information, no clinical use. No IRB review was required.
 
 ## 7. Reproducibility
-Code, lexicon, splits, prompts, run notebooks and cached model outputs are in the repository; every table's source file is listed in [[sources]]. All models are open weights; the two workstation GPUs and about $49 of cloud time suffice to rerun everything except the 550B base-model run.
+Code, lexicon, splits, prompts, run notebooks and cached model outputs are in the repository; every table's source file is listed in the repository. All models are open weights; the two workstation GPUs and about $49 of cloud time suffice to rerun everything except the 550B base-model run.
 
 ## Figures and tables (list)
-1. Table 1: ASR matrix (WER, term miss with CIs, DER, speakers) — from [[decoder-finding]].
+1. Table 1: ASR matrix (WER, term miss with CIs, DER, speakers) — from decoder-finding.
 2. Figure 1: term miss vs WER scatter, decoder family coloured — drawn, below.
 3. Table 2: held-out note metrics for vanilla / v1 / best / cited with bootstrap CIs — from `runs/paper_stats.md`.
 4. Figure 2: the search's dev-vs-test trajectory — drawn, below.
 5. Table 3: live-view versions with CIs — from `runs/paper_stats.md`.
 6. Figure 3: per-visit red flags and contradictions, v2 vs v5 — drawn, below.
 7. Table 4: three-judge agreement. 8. Table 5: ACI-Bench fine-tuning with per-encounter CIs.
-8. Appendix A: run log ([[live-experiments]], [[autoresearch-loop]]); Appendix B: prompts; Appendix C: verifier benchmark ([[verifier]]); Appendix D: fairness ([[fairness]]).
+8. Appendix A: run log (the run log, the search log); Appendix B: prompts; Appendix C: verifier benchmark (Appendix C); Appendix D: fairness (Appendix D).
 
-## Figure 1. Medical-term miss rate against word error rate, seven open ASR systems
-<div style="overflow-x:auto"><svg viewBox="0 0 560 340" role="img" aria-label="Medical-term miss rate against word error rate for seven ASR systems; language-model decoders sit below classic decoders at similar WER" style="max-width:100%;height:auto;font-family:IBM Plex Mono,Menlo,monospace;font-size:11px">
-<line x1="52" y1="296.0" x2="544" y2="296.0" stroke="currentColor" stroke-opacity=".15"/><text x="46" y="300.0" text-anchor="end" fill="currentColor">7%</text>
-<line x1="52" y1="233.8" x2="544" y2="233.8" stroke="currentColor" stroke-opacity=".15"/><text x="46" y="237.8" text-anchor="end" fill="currentColor">9%</text>
-<line x1="52" y1="171.6" x2="544" y2="171.6" stroke="currentColor" stroke-opacity=".15"/><text x="46" y="175.6" text-anchor="end" fill="currentColor">11%</text>
-<line x1="52" y1="109.3" x2="544" y2="109.3" stroke="currentColor" stroke-opacity=".15"/><text x="46" y="113.3" text-anchor="end" fill="currentColor">13%</text>
-<line x1="52" y1="47.1" x2="544" y2="47.1" stroke="currentColor" stroke-opacity=".15"/><text x="46" y="51.1" text-anchor="end" fill="currentColor">15%</text>
-<text x="134.0" y="310" text-anchor="middle" fill="currentColor">10%</text>
-<text x="298.0" y="310" text-anchor="middle" fill="currentColor">11%</text>
-<text x="462.0" y="310" text-anchor="middle" fill="currentColor">12%</text>
-<text x="298" y="334" text-anchor="middle" fill="currentColor">word error rate</text>
-<text transform="rotate(-90)" x="-156" y="14" text-anchor="middle" fill="currentColor">medical-term miss rate</text>
-<circle cx="201.2" cy="258.4" r="5" fill="#1E7B4F"/>
-<text x="209.2" y="262.4" text-anchor="start" fill="currentColor">MOSS-TD +150 hotwords</text>
-<circle cx="189.8" cy="252.8" r="5" fill="#1E7B4F"/>
-<text x="197.8" y="280.8" text-anchor="start" fill="currentColor">MOSS-TD plain</text>
-<circle cx="224.2" cy="247.5" r="5" fill="#1E7B4F"/>
-<text x="232.2" y="299.5" text-anchor="start" fill="currentColor">MOSS-TD complaint hotwords</text>
-<circle cx="389.8" cy="215.4" r="5" fill="#1E7B4F"/>
-<text x="397.8" y="219.4" text-anchor="start" fill="currentColor">Canary-Qwen 2.5B</text>
-<circle cx="427.6" cy="126.1" r="5" fill="#8A5A0F"/>
-<text x="419.6" y="130.1" text-anchor="end" fill="currentColor">Nemotron 3.5 offline</text>
-<circle cx="425.9" cy="119.0" r="5" fill="#8A5A0F"/>
-<text x="417.9" y="147.0" text-anchor="end" fill="currentColor">Nemotron 3.5 streaming</text>
-<circle cx="332.4" cy="43.7" r="5" fill="#8A5A0F"/>
-<text x="340.4" y="47.7" text-anchor="start" fill="currentColor">Sortformer + Parakeet v3</text>
-<circle cx="332.4" cy="43.7" r="5" fill="#8A5A0F"/>
-<text x="340.4" y="59.7" text-anchor="start" fill="currentColor">Parakeet-TDT v3</text>
-<text x="544" y="28" text-anchor="end" fill="currentColor">green = language-model decoder · amber = transducer decoder</text></svg></div>
+![Medical-term miss rate against word error rate, seven open ASR systems](figs/fig1_decoder.pdf){width=100%}
 
 *Eight configurations of seven systems on the 57 PriMock57 recordings. WER spans about two points; medical-term loss spans about seven. Colour is decoder family.*
 
-## Figure 2. Overnight search: dev composite per iteration, held-out test where run
-<div style="overflow-x:auto"><svg viewBox="0 0 760 300" role="img" aria-label="Overnight search: dev-set composite per iteration, held-out test composite where run, accepted points marked" style="max-width:100%;height:auto;font-family:IBM Plex Mono,Menlo,monospace;font-size:11px">
-<line x1="48" y1="264.0" x2="744" y2="264.0" stroke="currentColor" stroke-opacity=".15"/><text x="42" y="268.0" text-anchor="end" fill="currentColor">36</text>
-<line x1="48" y1="202.0" x2="744" y2="202.0" stroke="currentColor" stroke-opacity=".15"/><text x="42" y="206.0" text-anchor="end" fill="currentColor">40</text>
-<line x1="48" y1="140.0" x2="744" y2="140.0" stroke="currentColor" stroke-opacity=".15"/><text x="42" y="144.0" text-anchor="end" fill="currentColor">44</text>
-<line x1="48" y1="78.0" x2="744" y2="78.0" stroke="currentColor" stroke-opacity=".15"/><text x="42" y="82.0" text-anchor="end" fill="currentColor">48</text>
-<line x1="48" y1="16.0" x2="744" y2="16.0" stroke="currentColor" stroke-opacity=".15"/><text x="42" y="20.0" text-anchor="end" fill="currentColor">52</text>
-<text x="48.0" y="278" text-anchor="middle" fill="currentColor">0</text>
-<text x="234.3" y="278" text-anchor="middle" fill="currentColor">20</text>
-<text x="430.3" y="278" text-anchor="middle" fill="currentColor">40</text>
-<text x="626.4" y="278" text-anchor="middle" fill="currentColor">60</text>
-<text x="396" y="296" text-anchor="middle" fill="currentColor">iteration</text>
-<polyline points="48.0,136.0 57.8,113.0 67.6,130.9 77.4,113.0 87.2,133.5 97.0,139.1 106.8,176.9 116.6,206.3 126.4,206.5 136.2,133.6 146.0,197.5 155.8,88.9 165.6,153.9 175.4,126.2 185.2,130.5 195.0,96.4 204.8,98.0 214.6,86.4 224.5,89.0 234.3,122.2 244.1,125.6 253.9,84.0 263.7,88.7 273.5,126.4 283.3,135.5 293.1,142.3 312.7,84.2 322.5,85.8 332.3,84.2 342.1,84.0 351.9,88.7 361.7,121.7 371.5,71.0 381.3,73.0 391.1,116.4 400.9,113.0 410.7,117.2 420.5,75.1 430.3,84.0 440.1,111.3 449.9,89.0 459.7,114.3 469.5,113.0 479.3,165.6 489.1,87.6 498.9,71.2 508.7,91.9 518.5,185.4 528.3,72.3 538.1,124.7 547.9,64.1 557.7,137.2 567.5,66.2 577.4,95.7 587.2,134.7 597.0,113.3 606.8,129.6 616.6,103.4 626.4,106.1 636.2,102.0 646.0,89.5 655.8,84.8 665.6,132.6 675.4,94.9 685.2,108.8 695.0,142.8 704.8,118.5 714.6,126.8 724.4,74.6 734.2,81.9 744.0,102.2" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width="1"/>
-<line x1="48.0" y1="136.0" x2="48.0" y2="207.9" stroke="#1E7B4F" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="48.0" cy="207.9" r="4" fill="#1E7B4F"/>
-<circle cx="48.0" cy="136.0" r="4" fill="none" stroke="#1E7B4F" stroke-width="2"/>
-<line x1="57.8" y1="113.0" x2="57.8" y2="174.3" stroke="#B3261E" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="57.8" cy="174.3" r="4" fill="#B3261E"/>
-<line x1="77.4" y1="113.0" x2="77.4" y2="174.3" stroke="#1E7B4F" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="77.4" cy="174.3" r="4" fill="#1E7B4F"/>
-<circle cx="77.4" cy="113.0" r="4" fill="none" stroke="#1E7B4F" stroke-width="2"/>
-<line x1="155.8" y1="88.9" x2="155.8" y2="134.6" stroke="#1E7B4F" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="155.8" cy="134.6" r="4" fill="#1E7B4F"/>
-<circle cx="155.8" cy="88.9" r="4" fill="none" stroke="#1E7B4F" stroke-width="2"/>
-<line x1="332.3" y1="84.2" x2="332.3" y2="201.7" stroke="#B3261E" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="332.3" cy="201.7" r="4" fill="#B3261E"/>
-<line x1="342.1" y1="84.0" x2="342.1" y2="131.2" stroke="#1E7B4F" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="342.1" cy="131.2" r="4" fill="#1E7B4F"/>
-<circle cx="342.1" cy="84.0" r="4" fill="none" stroke="#1E7B4F" stroke-width="2"/>
-<line x1="371.5" y1="71.0" x2="371.5" y2="130.5" stroke="#B3261E" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="371.5" cy="130.5" r="4" fill="#B3261E"/>
-<line x1="381.3" y1="73.0" x2="381.3" y2="150.9" stroke="#B3261E" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="381.3" cy="150.9" r="4" fill="#B3261E"/>
-<line x1="420.5" y1="75.1" x2="420.5" y2="131.9" stroke="#B3261E" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="420.5" cy="131.9" r="4" fill="#B3261E"/>
-<line x1="430.3" y1="84.0" x2="430.3" y2="131.2" stroke="#B3261E" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="430.3" cy="131.2" r="4" fill="#B3261E"/>
-<line x1="498.9" y1="71.2" x2="498.9" y2="124.3" stroke="#1E7B4F" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="498.9" cy="124.3" r="4" fill="#1E7B4F"/>
-<circle cx="498.9" cy="71.2" r="4" fill="none" stroke="#1E7B4F" stroke-width="2"/>
-<line x1="528.3" y1="72.3" x2="528.3" y2="159.4" stroke="#B3261E" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="528.3" cy="159.4" r="4" fill="#B3261E"/>
-<line x1="547.9" y1="64.1" x2="547.9" y2="168.8" stroke="#B3261E" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="547.9" cy="168.8" r="4" fill="#B3261E"/>
-<line x1="567.5" y1="66.2" x2="567.5" y2="199.1" stroke="#B3261E" stroke-width="1.5" stroke-dasharray="2 2"/>
-<circle cx="567.5" cy="199.1" r="4" fill="#B3261E"/>
-<text x="744" y="28" text-anchor="end" fill="currentColor">grey: dev composite (20 visits) · dots: held-out test (37) · green = accepted, red = dev gain that failed test</text></svg></div>
+![Overnight search: dev composite per iteration, held-out test where run](figs/fig2_loop.pdf){width=100%}
 
 *Grey line: dev-set composite (20 visits) for each of 71 logged iterations. Dots: held-out test composite (37 visits) for the 14 iterations that earned a test run; green = accepted, red = a dev gain that failed the gate. Five acceptances, all before iteration 50.*
 
-## Figure 3. Per-visit red flags and contradicting suggestions, first prompt vs v5
-<div style="overflow-x:auto"><svg viewBox="0 0 760 260" role="img" aria-label="Per-visit red flags raised, first prompt versus v5, 57 visits; contradicting plan suggestions marked below" style="max-width:100%;height:auto;font-family:IBM Plex Mono,Menlo,monospace;font-size:11px">
-<rect x="41.0" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="46.6" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="53.4" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="58.9" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="65.7" y="156.0" width="5.6" height="56.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="71.3" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="78.1" y="184.0" width="5.6" height="28.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="83.6" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="90.4" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="96.0" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="102.8" y="184.0" width="5.6" height="28.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="108.3" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="115.1" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="120.7" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="127.5" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="133.0" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="139.8" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="145.4" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<text x="142.5" y="226" text-anchor="middle" fill="#B3261E" font-size="9">×</text>
-<rect x="152.2" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="157.7" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="164.5" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="170.1" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="176.9" y="156.0" width="5.6" height="56.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="182.4" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<text x="179.6" y="226" text-anchor="middle" fill="#B3261E" font-size="9">×</text>
-<rect x="189.2" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="194.8" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="201.6" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="207.1" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="213.9" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="219.5" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="226.3" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="231.8" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<text x="229.0" y="226" text-anchor="middle" fill="#B3261E" font-size="9">×××</text>
-<text x="234.5" y="238" text-anchor="middle" fill="#B3261E" font-size="9">×</text>
-<rect x="238.6" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="244.2" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="251.0" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="256.5" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="263.3" y="100.0" width="5.6" height="112.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="268.9" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="275.7" y="184.0" width="5.6" height="28.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="281.2" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="288.0" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="293.6" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="300.4" y="16.0" width="5.6" height="196.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="305.9" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="312.7" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="318.3" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="325.1" y="72.0" width="5.6" height="140.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="330.6" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="337.4" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="343.0" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="349.8" y="44.0" width="5.6" height="168.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="355.3" y="156.0" width="5.6" height="56.0" fill="#1E7B4F"/>
-<rect x="362.1" y="184.0" width="5.6" height="28.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="367.7" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<text x="364.8" y="226" text-anchor="middle" fill="#B3261E" font-size="9">×××</text>
-<rect x="374.5" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="380.0" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="386.8" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="392.4" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="399.2" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="404.7" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="411.5" y="100.0" width="5.6" height="112.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="417.1" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<text x="414.2" y="226" text-anchor="middle" fill="#B3261E" font-size="9">×</text>
-<text x="419.8" y="238" text-anchor="middle" fill="#B3261E" font-size="9">××</text>
-<rect x="423.9" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="429.4" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="436.2" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="441.8" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="448.6" y="156.0" width="5.6" height="56.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="454.1" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="460.9" y="184.0" width="5.6" height="28.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="466.5" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<text x="463.6" y="226" text-anchor="middle" fill="#B3261E" font-size="9">×</text>
-<rect x="473.3" y="72.0" width="5.6" height="140.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="478.8" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="485.6" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="491.2" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="498.0" y="128.0" width="5.6" height="84.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="503.5" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="510.3" y="184.0" width="5.6" height="28.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="515.9" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="522.7" y="184.0" width="5.6" height="28.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="528.2" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="535.0" y="156.0" width="5.6" height="56.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="540.6" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="547.4" y="128.0" width="5.6" height="84.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="552.9" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="559.7" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="565.3" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="572.1" y="184.0" width="5.6" height="28.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="577.6" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="584.4" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="590.0" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="596.8" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="602.3" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="609.1" y="184.0" width="5.6" height="28.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="614.7" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<text x="611.8" y="226" text-anchor="middle" fill="#B3261E" font-size="9">×</text>
-<rect x="621.5" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="627.0" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="633.8" y="156.0" width="5.6" height="56.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="639.4" y="184.0" width="5.6" height="28.0" fill="#1E7B4F"/>
-<rect x="646.2" y="156.0" width="5.6" height="56.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="651.8" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="658.5" y="184.0" width="5.6" height="28.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="664.1" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<text x="661.2" y="226" text-anchor="middle" fill="#B3261E" font-size="9">×</text>
-<rect x="670.9" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="676.5" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="683.2" y="184.0" width="5.6" height="28.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="688.8" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="695.6" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="701.2" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="707.9" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="713.5" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="720.3" y="184.0" width="5.6" height="28.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="725.9" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<rect x="732.6" y="212.0" width="5.6" height="0.0" fill="#8A5A0F" fill-opacity=".55"/>
-<rect x="738.2" y="212.0" width="5.6" height="0.0" fill="#1E7B4F"/>
-<text x="735.4" y="226" text-anchor="middle" fill="#B3261E" font-size="9">×</text>
-<text x="34" y="216.0" text-anchor="end" fill="currentColor">0</text>
-<text x="34" y="160.0" text-anchor="end" fill="currentColor">2</text>
-<text x="34" y="104.0" text-anchor="end" fill="currentColor">4</text>
-<text x="34" y="48.0" text-anchor="end" fill="currentColor">6</text>
-<text x="40" y="256" fill="currentColor">57 visits, sorted by id · amber = first prompt (v2), green = v5 · × = contradicting plan suggestions (top row v2, bottom row v5)</text></svg></div>
+![Per-visit red flags and contradicting suggestions, first prompt vs v5](figs/fig3_live.pdf){width=100%}
 
 *Bars: unique red flags raised per visit (amber = v2, green = v5). Crosses: contradicting plan suggestions at the end of the visit (top row v2, bottom row v5). v5 raises flags in two visits, both genuine.*
 
