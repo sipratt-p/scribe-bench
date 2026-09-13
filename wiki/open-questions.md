@@ -9,3 +9,4 @@
 7. **Third-party PHI leakage**: every model leaked; only the verifier catches it. A dedicated leak classifier on edit deltas.
 8. **Demo v2 column**: switch to the cited best config (currently uncited loop best) once the plan metric is fixed ([[deliverables]]).
 9. **Loop stop line** 13 Sep 08:30: re-judge the accepted config on a sample, aggregate `RESULTS.md`, morning Telegram summary.
+10. **Live decision support, next**: re-run the 57-visit eval with the v3 prompt (lookups, revisions) to see whether guideline material changes the 13 contradictions and the 7 red-flag false alarms; get a clinician to read the 61 red flags and 13 contradictions; make plan suggestions conditional on differential confidence ([[live-synthesis]]).

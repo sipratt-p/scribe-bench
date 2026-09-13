@@ -39,7 +39,32 @@ Example, visit #05 (GP: "?UTI, also need to exclude pregnancy"): live top-1 = UT
 
 Reasoning cost measured: thinking off 214 tok/s, thinking on / low 244 tok/s with ~180 reasoning tokens (+0.5 s per tick, no throughput loss thanks to the DSpark draft). But on the long synthesis prompts thinking starved the JSON output at a 900-token budget, so synthesis runs with thinking off by default (`SCRIBE_LIVE_THINK=1` turns it on with a 2,200 budget).
 
-Headless evaluation over all 57 visits: `autoresearch/live_eval.py` → `runs/live_synth/eval_summary.md`. Metrics: diagnosis in top-3/top-1 ever and median time, share of visits where the view had the diagnosis before the GP said it (and the median lead), suggested-question hit rate, red-flag precision, plan-suggestion agree/extra/contradict, premature-complaint rate, stability, mishearing-flag precision against the human transcript, latency. Results land here when the run finishes.
+## Results: 57 visits, v2 prompt (no lookups, no revisions), DeepSeek V4 Flash, 20 s ticks (12 Sep 22:20)
+`autoresearch/live_eval.py` → `runs/live_synth/eval_summary.md`; 1,566 snapshots. Judge = the same DeepSeek; diagnosis and plan ground truth = the GP's note; timing ground truth = the human transcript.
+
+| Metric | Value | Reading |
+|---|---|---|
+| Reference diagnosis ever in the live top-3 | 52 / 57 | misses: impacted ear wax, possible MS, hypothyroid (never said aloud), constipation/PID/STI/UTI, "likely migraine" (#5-09) |
+| Ever top-1 | 35 / 57 | |
+| Median time to top-3 | 1:20 | |
+| Had it before the GP said it | 48 / 51 | median lead **4:54** |
+| Suggested questions later asked by the GP | 219 unique, **80.8%** | |
+| Red flags raised (unique) | 61 across 26 visits, **88.5%** judged genuine | 7 false alarms in 57 visits |
+| Plan suggestions at the end | 158: 37 agree, 108 extra, **13 contradict** | the contradictions cluster in 4 visits (ear wax ×3, rash-with-travel ×3, and singles) |
+| Premature complaint (first tick wrong) | 7.0% of visits | |
+| Top-1 diagnosis flips per visit | 0.19 | vanished items per visit 1.63 |
+| Mishearing flags | 26 total, 57.7% precise against the human transcript | sparse by design |
+| Latency | mean 5.1 s, p95 7.3 s (4 visits in parallel) | ~2–3 s single-stream |
+
+Reading
+- **The differential is early and mostly right**: in 48 of 51 visits where the GP stated a diagnosis aloud, the view had it in its top-3 first, typically five minutes ahead. The GP's stated diagnosis is often just the working impression the model reaches from the same history, so "ahead" mostly means "the model reads the history faster than the GP finishes taking it"; it is still what an in-visit assistant should do.
+- **Questions are useful**: four in five suggested questions were ones the GP went on to ask. That is a measure of relevance, not of adding anything the GP would not have thought of.
+- **Red flags: 88% precision** but 7 false alarms over 57 visits is roughly one per eight visits, which is the alert-fatigue number a clinician would push back on first.
+- **Plan suggestions are the weak spot**: 68% "extra" (reasonable, not in the note) and 8% contradicting the GP. The contradictions concentrate in the visits where the differential was wrong (ear wax, rash with travel), so plan suggestions inherit differential errors. A wrong differential plus confident guideline suggestions is the harm mode.
+- **Stability is fine**: 0.19 top-1 flips per visit and 7% premature complaints; the "never guess from small talk" rule works most of the time.
+- Not measured yet: the v3 lookups' and revisions' effect (run again with the v3 prompt), and any clinician's view of the red flags and contradictions.
+
+Sunday demo picks: #day2-07 (acute cardiac event: top-3 at 1:00 vs GP 5:42, red flags, 6/6 questions asked, plan 2 agree), #day4-03 (PE: top-3 at 1:00 vs GP 5:38), #day2-09 (suspected stroke: 1:00 vs 3:49). Failure to show honestly: #day2-01 (ear wax never in the differential, three contradicting suggestions).
 
 ## Caveats
 - The "live" transcript is real streaming output replayed, not streaming inference; timing is proportional word placement over utterance timestamps.

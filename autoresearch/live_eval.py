@@ -145,7 +145,7 @@ def main():
     ap.add_argument("--model", default="dsflash")
     ap.add_argument("--workers", type=int, default=4)
     args = ap.parse_args()
-    ids = sorted(p.stem for p in DATA.glob("*.json"))
+    ids = sorted(p.stem for p in DATA.glob("*.json") if "consultation" in p.stem)
     if args.ids == "dev":
         ids = ids[:20]
     elif args.ids == "test":
