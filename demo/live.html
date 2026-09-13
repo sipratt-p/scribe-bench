@@ -39,7 +39,7 @@
   .complaint { font-family:var(--serif); font-size:18px; margin:4px 0 2px; }
   .gaps li { color:var(--muted); } .red li { color:var(--ink); }
   .tier { font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; padding:1px 6px; border-radius:3px; margin-right:4px; }
-  .tier.now { background:var(--bad-soft); color:var(--bad); } .tier.today { background:var(--warn-soft); color:var(--warn); }
+  .tier.now { background:var(--bad-soft); color:var(--bad); } .tier.today { background:var(--warn-soft); color:var(--warn); } .tier.ok { background:var(--ok-soft); color:var(--ok); }
   .dxcard .lk.tc { color:var(--bad); }
   .sug li { color:var(--live); } .sug li .basis { font-family:var(--mono); font-size:10.5px; color:var(--muted); margin-left:6px; }
   .dxcard { border:1px solid var(--line); border-radius:4px; padding:6px 8px; margin:4px 0; } .dxcard.new { background:var(--live-soft); }
@@ -200,7 +200,8 @@ function start(){
       if (actCount++ === 0) $("activity").innerHTML = "";
       const src = (d.sources||[]).slice(0,2).map(u => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.split("/")[2])}</a>`).join(" ");
       const row = document.createElement("div"); row.className = `task-${d.task} ${d.status}`;
-      row.innerHTML = `<span>${mmss(d.t)}</span><span>${esc(d.task)} ${esc(d.status)}</span><span>${esc(d.detail)}${src?" · "+src:""}</span><span>${d.ms!=null?(d.ms/1000).toFixed(1)+" s":""}</span>`;
+      const tier = d.tier==="wikipedia" ? ' <span class="tier today">low trust</span>' : (d.tier==="nhs" ? ' <span class="tier ok">NHS</span>' : (d.tier==="patientinfo" ? ' <span class="tier ok">patient.info pro</span>' : ""));
+      row.innerHTML = `<span>${mmss(d.t)}</span><span>${esc(d.task)} ${esc(d.status)}</span><span>${esc(d.detail)}${tier}${src?" · "+src:""}</span><span>${d.ms!=null?(d.ms/1000).toFixed(1)+" s":""}</span>`;
       $("activity").prepend(row); while ($("activity").childElementCount > 60) $("activity").lastElementChild.remove();
     }
     else if (d.event === "scoring"){ $("synmeta").textContent = "visit over · scoring the live timeline against the clinician's note…"; }

@@ -303,19 +303,41 @@ NHS_OVERRIDE = {  # pages that exist but are not listed under this name in the A
     "lrti": ("Chest infection", "/conditions/chest-infection/"), "chest infection": ("Chest infection", "/conditions/chest-infection/"),
     "acute coronary syndrome": ("Heart attack", "/conditions/heart-attack/"), "acs": ("Heart attack", "/conditions/heart-attack/"),
     "uti": ("Urinary tract infections (UTIs)", "/conditions/urinary-tract-infections-utis/"),
+    "urticaria": ("Hives (urticaria)", "/conditions/hives/"), "panic": ("Panic disorder", "/conditions/panic-disorder/"),
+    "anxiety": ("Generalised anxiety disorder", "/conditions/generalised-anxiety-disorder/"), "sleep apnoea": ("Sleep apnoea", "/conditions/sleep-apnoea/"),
+    "patellofemoral": ("Knee pain", "/conditions/knee-pain/"), "patellar tendinopathy": ("Knee pain", "/conditions/knee-pain/"),
+    "radiculopathy": ("Sciatica", "/conditions/sciatica/"), "musculoskeletal chest pain": ("Chest pain", "/conditions/chest-pain/"),
+    "post-viral": ("Flu", "/conditions/flu/"), "viral illness": ("Flu", "/conditions/flu/"), "adjustment disorder": ("Stress", "/conditions/stress/"),
 }
 
 
 def nhs_match(dx: str, model: str) -> tuple[str, str] | None:
-    """Fuzzy shortlist from the NHS A-Z (token and character matching, abbreviations expanded), then one short model call to pick the same condition or none."""
-    from rapidfuzz import fuzz, process, utils
-    az = nhs_az()
-    if not az:
-        return None
     low = dx.lower()
     for key, hit in NHS_OVERRIDE.items():
         if re.search(r"\b" + re.escape(key) + r"\b", low):
             return hit
+    return index_match(dx, nhs_az(), model)
+
+
+PATIENTINFO_AZ = ROOT / "data/patientinfo_doctor_az.json"
+_PI: dict | None = None
+
+
+def patientinfo_az() -> dict:
+    global _PI
+    if _PI is None:
+        try:
+            _PI = json.loads(PATIENTINFO_AZ.read_text())
+        except OSError:
+            _PI = {}
+    return _PI
+
+
+def index_match(dx: str, az: dict, model: str) -> tuple[str, str] | None:
+    """Fuzzy shortlist from a name->url index (token and character matching, abbreviations expanded), then one short model call to pick the same condition or none."""
+    from rapidfuzz import fuzz, process, utils
+    if not az:
+        return None
     q = re.sub(r"\(.*?\)", " ", dx).replace("/", " ")
     q = re.sub(r"\b(acute|chronic|possible|probable|likely|suspected|early|mild|moderate|severe|viral|bacterial|flare|flare-up|exacerbation|reaction|localised|localized|allergic|of|to|the|type)\b", " ", q, flags=re.I)
     q = " ".join(ABBREV.get(w.lower(), w) for w in q.split())
@@ -345,8 +367,35 @@ def nhs_match(dx: str, model: str) -> tuple[str, str] | None:
     return None
 
 
+def wiki_lookup(dx: str) -> tuple[str, str, str] | None:
+    """Low-trust fallback tier: Wikipedia search + plain-text extract. Returns (title, url, text) or None."""
+    import urllib.parse
+    import urllib.request
+    ua = UA + " scribe-bench/0.1 (research)"
+    q = re.sub(r"\(.*?\)", " ", dx).split("/")[0].strip()
+    try:
+        r = urllib.request.urlopen(urllib.request.Request("https://en.wikipedia.org/w/api.php?action=opensearch&format=json&limit=3&search=" + urllib.parse.quote(q), headers={"User-Agent": ua}), timeout=10)
+        titles = json.loads(r.read())[1]
+        if not titles:
+            r = urllib.request.urlopen(urllib.request.Request("https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&srlimit=3&srsearch=" + urllib.parse.quote(q + " medicine"), headers={"User-Agent": ua}), timeout=10)
+            titles = [x["title"] for x in json.loads(r.read())["query"]["search"]]
+        if not titles:
+            return None
+        from rapidfuzz import fuzz, utils
+        title = titles[0]
+        if fuzz.token_set_ratio(q, title, processor=utils.default_process) < 60 and fuzz.partial_ratio(q, title, processor=utils.default_process) < 75:
+            return None  # search returned something else (e.g. a related disease): better no material than wrong material
+        r = urllib.request.urlopen(urllib.request.Request("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&format=json&redirects=1&titles=" + urllib.parse.quote(title), headers={"User-Agent": ua}), timeout=10)
+        page = next(iter(json.loads(r.read())["query"]["pages"].values()))
+        text = (page.get("extract") or "")[:7000]
+        return (page.get("title", title), "https://en.wikipedia.org/wiki/" + urllib.parse.quote(page.get("title", title).replace(" ", "_")), text) if text else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def lookup(dx: str, model: str) -> dict:
-    """NHS condition page for one differential entry (matched through the NHS A-Z, no third-party search), cached on disk."""
+    """Tiered lookup for one differential entry, cached on disk: NHS condition page (matched through the NHS A-Z, no
+    third-party search) first; Wikipedia as a clearly labelled low-trust fallback."""
     slug = _slug(dx)
     if not slug:
         return {}
@@ -365,13 +414,36 @@ def lookup(dx: str, model: str) -> dict:
             if txt:
                 material.append(f"[NHS] {name} <{base + sub}>\n{txt}")
                 sources.append(base + sub)
+    tier = "nhs" if material else None
+    pi_hit = None
+    if not material:
+        from rapidfuzz import fuzz, utils
+        q = re.sub(r"\(.*?\)", " ", dx).split("/")[0].strip()
+        pi_hit = index_match(dx, patientinfo_az(), model)
+        pi_score = fuzz.token_set_ratio(q, pi_hit[0], processor=utils.default_process) if pi_hit else 0
+        w = wiki_lookup(dx)
+        w_score = fuzz.token_set_ratio(q, w[0], processor=utils.default_process) if w else 0
+        # professional article preferred unless its title is a much weaker match than an exact Wikipedia title
+        if pi_hit and (pi_score >= 80 or pi_score + 15 >= w_score):
+            url = pi_hit[1] if pi_hit[1].startswith("http") else "https://patient.info" + pi_hit[1]
+            txt = _fetch_text(url, cap=7000)
+            if txt:
+                material.append(f"[patient.info professional] {pi_hit[0]} <{url}>\n{txt}")
+                sources.append(url)
+                tier = "patientinfo"
+        if not material and w:
+            material.append(f"[Wikipedia, low trust] {w[0]} <{w[1]}>\n{w[2]}")
+            sources.append(w[1])
+            tier = "wikipedia"
+            pi_hit = None
     if not material:
         out = {"condition": dx, "empty": True, "ms": int(1000 * (time.time() - t0))}
         p.write_text(json.dumps(out))
         return out
     js = parse_json(_llm(LOOKUP_SYSTEM, f"CONDITION: {dx}\n\nMATERIAL:\n" + "\n\n".join(material)[:14000], 700, model=model)) or {}
     js.setdefault("condition", dx)
-    js["nhs_entry"] = hit[0]
+    js["tier"] = tier
+    js["nhs_entry"] = hit[0] if hit else (pi_hit[0] if pi_hit else None)
     js["sources"] = [u for u in (js.get("sources") or sources) if u][:4]
     js["ms"] = int(1000 * (time.time() - t0))
     js["n_material"] = len(material)
@@ -381,11 +453,13 @@ def lookup(dx: str, model: str) -> dict:
 
 def reference_block(refs: dict, dxs: list[str]) -> str:
     parts = []
-    for dx in dxs[:3]:
+    for dx in dxs[:5]:
         r = refs.get(_slug(dx))
         if r and not r.get("empty"):
-            parts.append(json.dumps({k: r.get(k) for k in ("condition", "key_questions", "red_flags", "first_line", "safety_netting", "sources")}))
-    return ("\n\nREFERENCE MATERIAL (NHS / NICE CKS lookups for the current differential; use it for next_question, red_flags, *_suggested, and cite the source in \"basis\"):\n" + "\n".join(parts)) if parts else ""
+            d = {k: r.get(k) for k in ("condition", "key_questions", "red_flags", "first_line", "safety_netting", "sources")}
+            d["source_tier"] = r.get("tier", "nhs")
+            parts.append(json.dumps(d))
+    return ("\n\nREFERENCE MATERIAL (lookups for the current differential; source_tier \"nhs\" (patient-facing NHS page) and \"patientinfo\" (professional reference article) are trustworthy, \"wikipedia\" is background only and must not drive an urgent suggestion; use it for next_question, red_flags, *_suggested, and cite the source in \"basis\"):\n" + "\n".join(parts)) if parts else ""
 
 
 HOLD_S = 90.0
@@ -518,9 +592,9 @@ def live_stream(cid: str, speed: float = 4.0, interval: float = 20.0, model: str
         if r.get("empty"):
             act(t, "lookup", "empty", f"{dx}: nothing usable", int(1000 * (time.time() - t0)))
         else:
-            act(t, "lookup", "done", f"{dx}: {len(r.get('key_questions') or [])} questions, {len(r.get('red_flags') or [])} red flags, "
-                f"{len(r.get('first_line') or [])} first-line, {len(r.get('safety_netting') or [])} safety-net · {', '.join(u.split('/')[2] for u in (r.get('sources') or [])[:2])}",
-                int(1000 * (time.time() - t0)), sources=r.get("sources"), dx=dx)
+            act(t, "lookup", "done", f"{dx} → {r.get('nhs_entry') or 'Wikipedia (low trust)'}: {len(r.get('key_questions') or [])} questions, {len(r.get('red_flags') or [])} red flags, "
+                f"{len(r.get('first_line') or [])} first-line, {len(r.get('safety_netting') or [])} safety-net",
+                int(1000 * (time.time() - t0)), sources=r.get("sources"), dx=dx, tier=r.get("tier", "nhs"))
 
     def synthesize(upto_t: float):
         with lock:
