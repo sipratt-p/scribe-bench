@@ -17,9 +17,10 @@ Pretend the doctor is talking to the patient right now, with weights we run loca
 | Model | Prefill | Decode |
 |---|---|---|
 | Qwen3.8-27B dense FP8, vLLM GPU 0 | 3,780 tok in 0.16 s ≈ 23k tok/s | ≈ 47 tok/s |
-| Qwen3.8-Flash-Next NVFP4, 1 GPU | pending | pending |
+| Qwen3.8-Flash-Next NVFP4, 1 GPU (PLE CPU offload) | 3,780 tok in 0.55 s ≈ 6.9k tok/s | ≈ 37 tok/s |
+| DeepSeek V4 Flash NVFP4, TP2, DSpark draft, util 0.80 | pending | pending |
 
-Prefill is not the bottleneck; a ~500-token JSON synthesis at 47 tok/s is. Two fixes: a faster-decoding MoE, and smaller per-tick outputs.
+Prefill is not the bottleneck; a ~500-token JSON synthesis at 47 tok/s is. The single-GPU Flash-Next config is *slower* than dense Qwen (the PLE offload path is a fit-it-at-all config, not a throughput config), so it was torn down. Seth's fastest local model is DeepSeek V4 Flash on both GPUs with the DSpark draft; the evening of 12 Sep the loop was stopped early (nothing accepted since #47), scribe-qwen38 stopped, and DS Flash launched from `~/projects/dsv4-flash-nvfp4-sm120/fraserprice_nop2p.sh` (non-thinking, no-P2P variant; the P2P variant wedges after weight load on this kernel) with `GPU_MEM_UTIL=0.80` so ~19 GB per GPU stays free for the demo's live ASR pass. Launch needs `hf` on PATH (`~/ml-env/bin`), or the script's `set -e` dies on a pip install.
 
 ## Caveats
 - The "live" transcript is real streaming output replayed, not streaming inference; timing is proportional word placement over utterance timestamps.

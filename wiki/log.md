@@ -29,3 +29,4 @@ All times Pacific. Numbers on this page are pointers; the pages they link to car
 - 17:40 expert-iteration run finished: dev 46.2 → 51.0, test 41.5 → 40.5 (judge 1) / 44.3 → 45.9 (judge 2); style transferred, content did not; no hacking signatures ([[expert-iteration]]).
 - Vanilla vs best restated: margin 2.4–4.2 by judge; vanilla best on spoken plan items ([[vanilla-vs-best]]).
 - 19:30–20:30 live-synthesis experiment built as a separate page (`/live`): streaming replay on the audio timeline, rolling local-model synthesis, mishearing flags, end-of-visit comparison; Flash-Next single-GPU server started on GPU 1 for a faster decoder ([[live-synthesis]]).
+- 19:50 Flash-Next 1-GPU measured (6.9k prefill / 37 decode tok/s) and dropped; loop stopped at #131 with Seth's GPU go-ahead; scribe-qwen38 stopped; DeepSeek V4 Flash launched on both GPUs at util 0.80 for the live page and Sunday's live mode ([[infrastructure]], [[live-synthesis]]).

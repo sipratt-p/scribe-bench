@@ -2,8 +2,9 @@
 
 ## beast (2× RTX PRO 6000 Blackwell, 96 GB each, 249 GB RAM)
 - `~/projects/scribe-bench` mirror of the repo; `.venv` (uv; torch 2.14 cu130, transformers 5.17, peft 0.20, fla 0.5.2).
-- GPU0: vLLM `scribe-qwen38` Qwen3.8-27B-FP8 on :8004 (writer, judge 1, role map). Do not restart casually: the loop, demo, verif_eval and RL judging all depend on it.
-- GPU1: MOSS-TD variants, NeMo runs, RL policy (`expert_iter`); Flash-Next script (:8003) when needed.
+- **State from 12 Sep 20:00**: both GPUs serve DeepSeek V4 Flash (`ds4-flash-dspark`, :8000, TP2, util 0.80, non-thinking no-P2P script; per-request `chat_template_kwargs: {"thinking": false}`). `scribe-qwen38` (Qwen3.8-27B-FP8 vLLM :8004, GPU0) is *stopped*, restart with `docker start scribe-qwen38` after stopping DS Flash; it is what the loop, verif_eval, plan_gap and expert_iter judging expect. Flash-Next single-GPU (:8003) measured slower than dense Qwen and was removed.
+- Earlier layout: GPU0 scribe-qwen38 (writer, judge 1, role map); GPU1 MOSS-TD variants, NeMo runs, RL policy (`expert_iter`).
+- H3 Studio (:8300) auto-restores the DS engine when its render queue drains unless launched with `H3_NO_ENGINE_RESTORE=1`; that is what relaunched a hung `ds4-flash-dspark` at 19:22 on 12 Sep while GPU0 was busy. `~/scripts/free-gpus.sh --stop` frees everything.
 - Models under `~/models` (== `~/Models`; HF snapshots are symlinks, use `stat -L`).
 - Logs: `runs/autoresearch_loop.log`, `runs/expert_iter.log`, `runs/plan_recall.log`, `runs/verif_eval.log`.
 - RunPod API key: `~/.runpod/api_key`.

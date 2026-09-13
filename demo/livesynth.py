@@ -28,9 +28,12 @@ DATA = ROOT / "demo/data"
 OUT = ROOT / "runs/live_synth"
 BEAST = os.environ.get("SCRIBE_BEAST_IP", "100.83.231.108")
 MODELS = {
+    "dsflash": (f"http://{BEAST}:8000/v1", "DeepSeek-V4-Flash-Abliterated", "DeepSeek V4 Flash NVFP4 (MoE, DSpark draft), 2 GPUs"),
     "qwen27b": (f"http://{BEAST}:8004/v1", "qwen3.8-27b", "Qwen3.8-27B dense FP8, 1 GPU"),
     "flashnext": (f"http://{BEAST}:8003/v1", "Qwen3.8-Flash-Next-ablit-nvfp4", "Qwen3.8-Flash-Next NVFP4 (MoE), 1 GPU"),
 }
+# per-server way to switch reasoning off
+THINK_OFF = {"dsflash": {"thinking": False}, "qwen27b": {"enable_thinking": False}, "flashnext": {"enable_thinking": False}}
 
 router = APIRouter()
 
@@ -77,7 +80,7 @@ def _llm(system: str, user: str, max_tokens: int = 700, tries: int = 3, model: s
         try:
             r = c.chat.completions.create(model=name, temperature=0.0, max_tokens=max_tokens,
                                           messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-                                          extra_body={"chat_template_kwargs": {"enable_thinking": False}})
+                                          extra_body={"chat_template_kwargs": THINK_OFF.get(model, {"enable_thinking": False})})
             return r.choices[0].message.content or ""
         except Exception as e:  # noqa: BLE001
             last = e
@@ -191,8 +194,8 @@ def live_page():
 
 
 @router.get("/api/live/{cid}")
-def live_stream(cid: str, speed: float = 4.0, interval: float = 20.0, model: str = "qwen27b"):
-    model = model if model in MODELS else "qwen27b"
+def live_stream(cid: str, speed: float = 4.0, interval: float = 20.0, model: str = "dsflash"):
+    model = model if model in MODELS else "dsflash"
     rec = json.loads((DATA / f"{cid}.json").read_text())
     chunks = timeline(rec)
     duration = rec.get("duration_s") or (chunks[-1]["t"] + 3 if chunks else 0)

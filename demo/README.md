@@ -43,3 +43,7 @@ Uploads land in `demo/uploads/`.
 3. Proposed column: speaker turns, cited note, verifier flags. Point at one UNSUPPORTED or THIRD-PARTY claim.
 4. Delta table: same recording, what changed for the doctor.
 5. Learnings: decoder not latency; citations cheap; fine-tuning wins ROUGE and loses attribution; scale buys safety not fidelity; build evals from the edit stream.
+
+## Live synthesis page (`/live`, separate experiment)
+- Needs a fast local model: DeepSeek V4 Flash on the beast :8000 (`cd ~/projects/dsv4-flash-nvfp4-sm120 && PATH=$HOME/ml-env/bin:$PATH MODEL_DIR=$HOME/models/DeepSeek-V4-Flash-Abliterated SERVED_NAME=DeepSeek-V4-Flash-Abliterated GPU_MEM_UTIL=0.80 ./fraserprice_nop2p.sh`). Fallback: `docker start scribe-qwen38` (:8004) and pick the Qwen model in the page.
+- Sessions log to `runs/live_synth/`. Nothing here touches the loop, the results tables, or the two main demo columns.

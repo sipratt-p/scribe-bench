@@ -59,7 +59,7 @@
 <div class="controls">
   <div><label>Consultation</label><select id="pick"></select></div>
   <div><label>Speed</label><select id="speed"><option value="1">1× (real time)</option><option value="2">2×</option><option value="4" selected>4×</option><option value="8">8×</option></select></div>
-  <div><label>Model</label><select id="model"><option value="qwen27b">Qwen3.8-27B dense (1 GPU)</option><option value="flashnext">Qwen3.8-Flash-Next MoE (1 GPU)</option></select></div>
+  <div><label>Model</label><select id="model"><option value="dsflash">DeepSeek V4 Flash MoE (2 GPUs)</option><option value="qwen27b">Qwen3.8-27B dense (1 GPU)</option><option value="flashnext">Qwen3.8-Flash-Next MoE (1 GPU)</option></select></div>
   <div><label>Re-synthesize every</label><select id="interval"><option value="15">15 s of visit</option><option value="20" selected>20 s of visit</option><option value="30">30 s of visit</option><option value="45">45 s of visit</option></select></div>
   <div><label>&nbsp;</label><button id="go" class="primary">Start the visit</button> <button id="stop">Stop</button></div>
   <div><label>Audio</label><audio id="audio" controls preload="auto"></audio></div>
