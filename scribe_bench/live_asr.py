@@ -17,6 +17,7 @@ def main():
     ap.add_argument("wav")
     ap.add_argument("--device", default="cuda:0")
     ap.add_argument("--skip_pass1", action="store_true")
+    ap.add_argument("--pass1_device", default="auto", help="cuda:N, cpu, or auto (cpu when the GPU has < 14 GB free)")
     ap.add_argument("--out", required=True, help="write the JSON result here (stdout is polluted by NeMo logs)")
     args = ap.parse_args()
     import torch
@@ -25,11 +26,17 @@ def main():
     if not args.skip_pass1:
         import nemo.collections.asr as nemo_asr
         t0 = time.time()
-        m = nemo_asr.models.ASRModel.from_pretrained(model_name="nvidia/nemotron-speech-streaming-en-0.6b")
+        p1 = args.pass1_device
+        if p1 == "auto":
+            free = torch.cuda.mem_get_info(torch.device(args.device))[0] / 2**30 if torch.cuda.is_available() else 0
+            p1 = args.device if free >= 14 else "cpu"
+        torch.set_num_threads(max(4, (__import__("os").cpu_count() or 8) - 4))
+        m = nemo_asr.models.ASRModel.from_pretrained(model_name="nvidia/nemotron-speech-streaming-en-0.6b", map_location=p1)
+        m = m.to(p1).eval()
         hyp = m.transcribe([args.wav], batch_size=1)
         h = hyp[0] if not isinstance(hyp, tuple) else hyp[0][0]
         out["pass1"] = {"text": h.text if hasattr(h, "text") else h, "wall_s": round(time.time() - t0, 1),
-                        "model": "nvidia/nemotron-speech-streaming-en-0.6b"}
+                        "model": "nvidia/nemotron-speech-streaming-en-0.6b", "device": str(p1)}
         del m
         torch.cuda.empty_cache()
 

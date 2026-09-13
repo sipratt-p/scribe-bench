@@ -126,8 +126,8 @@ _MED: list[str] = []
 def is_english(w: str) -> bool:
     """The system dictionary lists lemmas, not inflections, so check a few stems too."""
     _, _, english = lexicon()
-    cands = {w, w[:-1], w[:-2], w[:-3], w[:-1] + "e", w[:-2] + "e", w[:-3] + "e"}
-    return any(len(c) >= 3 and c in english for c in cands)
+    cands = {w, w[:-1], w[:-2], w[:-3], w[:-4], w[:-1] + "e", w[:-2] + "e", w[:-3] + "e", w[:-4] + "e"}
+    return any(len(c) >= 4 and c in english for c in cands)
 
 
 def medical_terms():
@@ -135,7 +135,12 @@ def medical_terms():
     global _MED
     if not _MED:
         lex, lex_long, english = lexicon()
-        _MED = [t for t in lex_long if t.isalpha() and not is_english(t)]
+        from rapidfuzz import process
+        from rapidfuzz.distance import Levenshtein
+        eng_long = [w for w in english if len(w) >= 6 and w.isalpha()]
+        cand = [t for t in lex_long if t.isalpha() and not is_english(t)]
+        # drop lexicon junk that is one edit from an ordinary word (mencion, temperatura, ...)
+        _MED = [t for t in cand if not process.extractOne(t, eng_long, scorer=Levenshtein.distance, score_cutoff=1)]
     return _MED
 
 
