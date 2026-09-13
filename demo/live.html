@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Synthesis</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root { --bg:#F4F6F8; --surface:#FFFFFF; --ink:#172029; --muted:#5C6B78; --line:#CAD3DB; --accent:#0F6B8A; --accent-soft:#DDEEF4; --live:#8A5A0F; --live-soft:#F5EBD8; --bad:#B3261E; --bad-soft:#F9E1DF; --ok:#1E7B4F; --ok-soft:#DDF1E6; --warn:#8A5A0F; --warn-soft:#F5EBD8;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace; --sans:"Public Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; --serif:"Newsreader",Georgia,serif; color-scheme:light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme=light]) { --bg:#0F151B; --surface:#161E26; --ink:#E4EAF0; --muted:#94A3B1; --line:#2E3A46; --accent:#52B7D6; --accent-soft:#12303B; --live:#D9A441; --live-soft:#33270F; --bad:#F28B82; --bad-soft:#3A1917; --ok:#6CCB93; --ok-soft:#12301F; --warn:#E3B04B; --warn-soft:#33270F; color-scheme:dark; } }
+  :root[data-theme=dark] { --bg:#0F151B; --surface:#161E26; --ink:#E4EAF0; --muted:#94A3B1; --line:#2E3A46; --accent:#52B7D6; --accent-soft:#12303B; --live:#D9A441; --live-soft:#33270F; --bad:#F28B82; --bad-soft:#3A1917; --ok:#6CCB93; --ok-soft:#12301F; --warn:#E3B04B; --warn-soft:#33270F; color-scheme:dark; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:14.5px; line-height:1.5; padding-inline:clamp(16px,3vw,40px); padding-block:22px 60px; }
+  h1 { font-family:var(--serif); font-weight:500; font-size:32px; margin:0; }
+  .lede { color:var(--muted); max-width:90ch; margin:6px 0 14px; }
+  .eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  a { color:var(--accent); }
+  .controls { display:flex; flex-wrap:wrap; gap:12px 18px; align-items:end; background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:12px 16px; }
+  .controls label { display:block; font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  select, button { font:inherit; padding:6px 10px; border-radius:4px; border:1px solid var(--line); background:var(--surface); color:var(--ink); }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); cursor:pointer; }
+  button.primary:disabled { opacity:.5; cursor:default; }
+  .clock { font-family:var(--mono); font-size:22px; min-width:8ch; }
+  .clock small { font-size:11px; color:var(--muted); display:block; letter-spacing:.06em; text-transform:uppercase; }
+  audio { width:280px; }
+  .grid { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr) minmax(0,.9fr); gap:16px; margin-top:16px; }
+  .col { background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:12px 14px; min-width:0; }
+  .col h2 { font-family:var(--serif); font-weight:500; font-size:19px; margin:0 0 4px; }
+  .col h2 small { display:block; font-family:var(--sans); font-size:12px; color:var(--muted); font-weight:400; margin-top:2px; }
+  .col.live { border-top:4px solid var(--live); } .col.tx { border-top:4px solid var(--accent); } .col.fl { border-top:4px solid var(--warn); }
+  .transcript { font-size:13.5px; line-height:1.6; max-height:64vh; overflow:auto; padding-right:4px; }
+  .transcript span.t { font-family:var(--mono); font-size:10.5px; color:var(--muted); margin-right:6px; }
+  .transcript mark { background:var(--warn-soft); color:inherit; border-bottom:2px solid var(--warn); }
+  .transcript .cursor { display:inline-block; width:7px; height:14px; background:var(--accent); vertical-align:-2px; animation:blink 1s steps(2) infinite; }
+  @keyframes blink { to { visibility:hidden; } }
+  @media (prefers-reduced-motion: reduce) { .transcript .cursor { animation:none; } }
+  .sec { margin:10px 0 0; } .sec .k { font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; justify-content:space-between; }
+  .sec ul { margin:3px 0 0; padding-left:18px; } .sec li { margin:2px 0; } .sec li.new { background:var(--live-soft); }
+  .complaint { font-family:var(--serif); font-size:18px; margin:4px 0 2px; }
+  .gaps li { color:var(--muted); } .red li { color:var(--bad); }
+  .flag { border-left:3px solid var(--warn); background:var(--warn-soft); padding:4px 8px; margin:6px 0; border-radius:3px; font-size:13px; }
+  .flag b { font-family:var(--mono); }
+  .meta { font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:6px; }
+  .final { margin-top:18px; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; }
+  .final pre { white-space:pre-wrap; font-family:var(--sans); font-size:13px; line-height:1.5; margin:0; }
+  .final .cite { color:var(--accent); font-family:var(--mono); font-size:11px; }
+  table { border-collapse:collapse; width:100%; font-size:13px; } td, th { border-top:1px solid var(--line); padding:5px 8px; text-align:left; vertical-align:top; }
+  th { font-family:var(--mono); font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
+  td.ok { color:var(--ok); font-weight:600; } td.miss { color:var(--bad); }
+  .explain { font-size:12.5px; color:var(--muted); background:var(--accent-soft); border-left:3px solid var(--accent); padding:6px 10px; border-radius:4px; margin:8px 0 0; }
+  @media (max-width: 900px) { .grid, .final { grid-template-columns:1fr; } audio { width:100%; } }
+</style>
+</head>
+<body>
+<div class="eyebrow">scribe-bench · separate experiment · <a href="/">back to the demo</a></div>
+<h1>Live synthesis during the visit</h1>
+<p class="lede">The recording plays as if the visit were happening now. The streaming transcript arrives on the audio timeline, and every few seconds a local model re-synthesizes what has been established so far: complaint, history, findings, plan, safety-netting, red flags, and what a GP would normally still ask. Streaming words that sit one edit away from a medical term are flagged as likely mishearings, the errors the after-visit pass exists to fix. When the visit ends, the last live view is compared with the best after-visit note.</p>
+
+<div class="controls">
+  <div><label>Consultation</label><select id="pick"></select></div>
+  <div><label>Speed</label><select id="speed"><option value="1">1× (real time)</option><option value="2">2×</option><option value="4" selected>4×</option><option value="8">8×</option></select></div>
+  <div><label>Model</label><select id="model"><option value="qwen27b">Qwen3.8-27B dense (1 GPU)</option><option value="flashnext">Qwen3.8-Flash-Next MoE (1 GPU)</option></select></div>
+  <div><label>Re-synthesize every</label><select id="interval"><option value="15">15 s of visit</option><option value="20" selected>20 s of visit</option><option value="30">30 s of visit</option><option value="45">45 s of visit</option></select></div>
+  <div><label>&nbsp;</label><button id="go" class="primary">Start the visit</button> <button id="stop">Stop</button></div>
+  <div><label>Audio</label><audio id="audio" controls preload="auto"></audio></div>
+  <div class="clock"><small>visit time</small><span id="clock">0:00</span></div>
+  <div class="clock"><small>syntheses</small><span id="nsyn">0</span></div>
+  <div class="clock"><small>last latency</small><span id="lat">–</span></div>
+</div>
+
+<div class="grid">
+  <div class="col tx">
+    <h2>Streaming transcript <small>Nemotron-3.5 streaming ASR output, replayed on the visit timeline. No speaker labels.</small></h2>
+    <div class="transcript" id="tx"><span class="cursor"></span></div>
+  </div>
+  <div class="col live">
+    <h2>Live synthesis <small id="model">local model on the GPU box, updated as the visit goes</small></h2>
+    <div class="complaint" id="complaint">—</div>
+    <div class="sec"><div class="k"><span>History so far</span><span id="c-history"></span></div><ul id="history"></ul></div>
+    <div class="sec"><div class="k"><span>Findings</span></div><ul id="findings"></ul></div>
+    <div class="sec"><div class="k"><span>Plan so far</span><span id="c-plan"></span></div><ul id="plan"></ul></div>
+    <div class="sec"><div class="k"><span>Safety-netting</span></div><ul id="safety"></ul></div>
+    <div class="sec red"><div class="k"><span>Red flags</span></div><ul id="red"></ul></div>
+    <div class="sec gaps"><div class="k"><span>Not yet covered</span></div><ul id="gaps"></ul></div>
+    <div class="meta" id="synmeta"></div>
+  </div>
+  <div class="col fl">
+    <h2>Possible mishearings <small>Streaming words one edit from a lexicon term. Pass 2's LLM decoder is what fixes these.</small></h2>
+    <div id="flags"><div class="meta">none yet</div></div>
+    <div class="sec"><div class="k"><span>Terms heard</span></div><ul id="terms"></ul></div>
+  </div>
+</div>
+
+<div id="finalwrap" hidden>
+  <div class="final">
+    <div class="col">
+      <h2>What the live view had caught <small>Final plan items from the best after-visit note, and when each first appeared in a live synthesis.</small></h2>
+      <table id="cmp"></table>
+      <div class="meta" id="cmpmeta"></div>
+    </div>
+    <div class="col">
+      <h2>Best after-visit note <small>Pass 2 (diarized, role-mapped) → loop's best config. This is the cached result; the live view never sees it.</small></h2>
+      <pre id="final"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+function esc(s){ return (s||"").replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;","&gt;":"&gt;",">":"&gt;"}[c])); }
+function mmss(t){ t=Math.max(0,Math.floor(t)); return Math.floor(t/60)+":"+String(t%60).padStart(2,"0"); }
+let es=null, prev={}, tickTimer=null, wall0=0, speed=4, duration=0, flagCount=0;
+
+async function init(){
+  const list = await (await fetch("/api/consultations")).json();
+  $("pick").innerHTML = list.map(c => `<option value="${c.id}">${c.id.replace("_consultation"," #")} · ${esc(c.complaint||"").slice(0,50)} · ${Math.round((c.duration_s||0)/60)} min</option>`).join("");
+  $("pick").onchange = () => { $("audio").src = "/api/audio/"+$("pick").value; };
+  $("audio").src = "/api/audio/"+$("pick").value;
+}
+function reset(){
+  $("tx").innerHTML = '<span class="cursor"></span>'; $("flags").innerHTML = '<div class="meta">none yet</div>';
+  ["history","findings","plan","safety","red","gaps","terms"].forEach(k => $(k).innerHTML="");
+  $("complaint").textContent="—"; $("nsyn").textContent="0"; $("lat").textContent="–"; $("synmeta").textContent=""; $("finalwrap").hidden=true; prev={}; flagCount=0;
+}
+function renderList(id, items, prevItems){
+  const ps = new Set((prevItems||[]).map(x=>String(x).toLowerCase()));
+  $(id).innerHTML = (items||[]).map(x => `<li class="${ps.has(String(x).toLowerCase())?"":"new"}">${esc(String(x))}</li>`).join("");
+}
+function renderSynth(s){
+  $("complaint").textContent = s.complaint || "—";
+  renderList("history", s.history, prev.history); renderList("findings", s.findings, prev.findings); renderList("plan", s.plan, prev.plan);
+  renderList("safety", s.safety_netting, prev.safety_netting); renderList("red", s.red_flags, prev.red_flags); renderList("gaps", s.gaps, prev.gaps); renderList("terms", s.terms, prev.terms);
+  $("c-history").textContent = (s.history||[]).length ? (s.history||[]).length+" items" : ""; $("c-plan").textContent = (s.plan||[]).length ? (s.plan||[]).length+" items" : "";
+  prev = s;
+}
+function start(){
+  reset();
+  const id = $("pick").value; speed = +$("speed").value; const interval = +$("interval").value;
+  $("go").disabled = true;
+  const a = $("audio"); a.currentTime = 0; a.playbackRate = Math.min(speed, 4); a.muted = speed > 4; a.play().catch(()=>{});
+  wall0 = performance.now();
+  tickTimer = setInterval(() => { $("clock").textContent = mmss((performance.now()-wall0)/1000*speed); }, 250);
+  es = new EventSource(`/api/live/${id}?speed=${speed}&interval=${interval}&model=${$("model").value}`);
+  es.onmessage = ev => {
+    const d = JSON.parse(ev.data);
+    if (d.event === "start"){ duration = d.duration_s; $("model").textContent = `${d.model} on the GPU box, re-synthesized every ${d.interval} s of visit time`; }
+    else if (d.event === "transcript"){
+      const tx = $("tx"); const cur = tx.querySelector(".cursor");
+      const flagged = new Set((d.flags||[]).map(f => f.heard.toLowerCase()));
+      const html = d.text.split(" ").map(w => flagged.has(w.toLowerCase().replace(/[^a-z'-]/g,"")) ? `<mark>${esc(w)}</mark>` : esc(w)).join(" ");
+      const span = document.createElement("span"); span.innerHTML = (tx.childElementCount % 12 === 1 ? `<br><span class="t">${mmss(d.t)}</span>` : "") + html + " ";
+      tx.insertBefore(span, cur); tx.scrollTop = tx.scrollHeight;
+      (d.flags||[]).forEach(f => { if (flagCount++ === 0) $("flags").innerHTML=""; $("flags").insertAdjacentHTML("beforeend", `<div class="flag">${mmss(d.t)} heard <b>${esc(f.heard)}</b> → maybe <b>${esc(f.maybe)}</b></div>`); });
+    }
+    else if (d.event === "synthesis"){ renderSynth(d.synth||{}); $("nsyn").textContent = String(d.snapshot+1); $("lat").textContent = d.latency_s+" s"; $("synmeta").textContent = `snapshot ${d.snapshot+1} at ${mmss(d.t)} of visit time · model latency ${d.latency_s} s`; }
+    else if (d.event === "final"){
+      es.close(); clearInterval(tickTimer); $("go").disabled = false; $("clock").textContent = mmss(duration);
+      $("finalwrap").hidden = false;
+      $("final").innerHTML = esc(d.note).replace(/\[\[([\d,\s]+)\]\]/g, '<span class="cite">[[$1]]</span>');
+      const c = d.compare || {}; const items = c.items || []; const fs = c.first_seen || {};
+      const caught = items.filter(it => fs[it] != null).length;
+      $("cmp").innerHTML = `<thead><tr><th>Final plan item</th><th>First seen live</th></tr></thead><tbody>` + items.map(it => `<tr><td>${esc(it)}</td><td class="${fs[it]!=null?"ok":"miss"}">${fs[it]!=null ? mmss(fs[it])+" of "+mmss(duration) : "not before the end"}</td></tr>`).join("") + `</tbody>`;
+      $("cmpmeta").textContent = items.length ? `${caught} of ${items.length} final plan items were already in a live synthesis before the visit ended · ${(c.snapshots||[]).length} snapshots · ${(d.flags||[]).length} possible mishearings flagged · wall ${d.wall_s}s at ${speed}×` : (c.error ? "comparison failed: "+c.error : "no plan items extracted");
+    }
+  };
+  es.onerror = () => { es.close(); clearInterval(tickTimer); $("go").disabled = false; $("synmeta").textContent = "stream ended"; };
+}
+$("go").onclick = start;
+$("stop").onclick = () => { if (es) es.close(); clearInterval(tickTimer); $("audio").pause(); $("go").disabled = false; };
+init();
+</script>
+</body>
+</html>
