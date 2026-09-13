@@ -154,7 +154,7 @@ SYNTH_SYSTEM = """You are an in-visit clinical decision-support assistant listen
 Rules: actively challenge the earlier view every tick: if new information contradicts an assumption, revise the differential and say so in "revisions".
 Danger first: if any plausible diagnosis is time-critical (sepsis, meningitis, ACS, PE, stroke/TIA, anaphylaxis, ectopic pregnancy, malaria, DKA, testicular torsion, suicidality and the like), next_question, the FIRST plan_suggested item and safety_netting_suggested must address excluding or urgently assessing it, even if it is not the most likely diagnosis. Never suggest watch-and-wait while a time-critical diagnosis is still open.
 Setting: if modality is remote or examined is false, do not suggest investigations or referrals that presuppose examination findings; suggest the examination or the face-to-face / urgent-assessment step first, and do not suggest giving drugs the clinician cannot give in this setting (say "ambulance" or "A&E" instead).
-Simple causes first: before specialist investigations, keep the simple examinable causes in the differential when plausible (impacted ear wax, foreign body, medication side effect, constipation, viral illness) and say in "missing" what a look or examination would settle. Everything under history, findings, plan_stated, safety_netting_stated and evidence must come from the transcript; suggestions live only in the *_suggested keys and next_question. The moment the clinician states something that was in plan_suggested or safety_netting_suggested, move it to plan_stated / safety_netting_stated and remove it from the suggested list. Once a next_question has been answered in the transcript, replace it with a new one or "". Keep earlier items unless contradicted. Prefer updating the previous view to rewriting it. Short phrases."""
+Simple causes first: before specialist investigations, keep the simple examinable causes in the differential when plausible (impacted ear wax, foreign body, medication side effect, constipation, viral illness) and say in "missing" what a look or examination would settle. Everything under history, findings, plan_stated, safety_netting_stated and evidence must come from the transcript; suggestions live only in the *_suggested keys and next_question. The moment the clinician states something that was in plan_suggested or safety_netting_suggested, move it to plan_stated / safety_netting_stated and remove it from the suggested list. Once a next_question has been answered in the transcript, replace it with a new one or "". Keep earlier items unless contradicted. Prefer updating the previous view to rewriting it. The differential is re-derived from the full transcript on every tick: an empty or short previous differential is never a reason to keep it empty; populate it as soon as the complaint and one or two symptoms are known. Short phrases."""
 
 REF_SYSTEM = """From this clinician's note extract: "diagnosis": the working diagnosis or impression as a short phrase (or "" if none is stated); "plan": list of plan items (prescriptions, tests, referrals, follow-up, safety-netting) as short phrases. Output one JSON object only."""
 
@@ -238,14 +238,23 @@ def _slug(dx: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", re.sub(r"\(.*?\)", "", dx.lower())).strip("-")[:60]
 
 
+_SEARX_LOCK = threading.Lock()
+
+
 def _searx(q: str, n: int = 4) -> list[dict]:
     import urllib.parse
     import urllib.request
-    try:
-        r = urllib.request.urlopen(urllib.request.Request(f"{SEARX}/search?q={urllib.parse.quote(q)}&format=json", headers={"User-Agent": UA}), timeout=10)
-        return (json.loads(r.read()).get("results") or [])[:n]
-    except Exception:  # noqa: BLE001
-        return []
+    with _SEARX_LOCK:  # one query at a time: the engine rate-limits parallel callers into empty result sets
+        for attempt in range(3):
+            try:
+                r = urllib.request.urlopen(urllib.request.Request(f"{SEARX}/search?q={urllib.parse.quote(q)}&format=json", headers={"User-Agent": UA}), timeout=12)
+                res = (json.loads(r.read()).get("results") or [])[:n]
+                if res:
+                    return res
+            except Exception:  # noqa: BLE001
+                pass
+            time.sleep(1.5 * (attempt + 1))
+    return []
 
 
 def _fetch_text(url: str, cap: int = 6000) -> str:
