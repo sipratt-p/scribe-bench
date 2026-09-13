@@ -7,7 +7,7 @@ W = Path(__file__).parent
 order = ["index","glossary","overview","interview-narrative","log","decoder-finding","role-mapping","citations-and-verifiability",
          "fine-tuning-findings","verifier","plan-recall-gap","vanilla-vs-best","fairness","metrics","judges","autoresearch-loop",
          "expert-iteration","benchmark-maxing-vs-quality","two-pass-asr","models","datasets","infrastructure","abridge",
-         "nvidia-engagement","deliverables","open-questions","sources","README"]
+         "nvidia-engagement","deliverables","live-synthesis","open-questions","sources","README"]
 pages = {p.stem: p.read_text() for p in W.glob("*.md")}
 order += [k for k in sorted(pages) if k not in order]
 def title(md): 

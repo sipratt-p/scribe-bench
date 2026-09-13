@@ -35,6 +35,7 @@ Ambient clinical scribe evaluation harness, built 11–12 Sep 2026 for the Abrid
 
 ## Deliverables
 - [[deliverables]] — the artifact, the demo, the repo, the experiments page
+- [[live-synthesis]] — separate experiment: real-time synthesis while the visit is happening (demo `/live`)
 
 ## Meta
 - [[open-questions]] — what is unresolved and what to run next

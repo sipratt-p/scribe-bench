@@ -28,3 +28,4 @@ All times Pacific. Numbers on this page are pointers; the pages they link to car
 - This wiki written; glossary added; single-page HTML rendering published.
 - 17:40 expert-iteration run finished: dev 46.2 → 51.0, test 41.5 → 40.5 (judge 1) / 44.3 → 45.9 (judge 2); style transferred, content did not; no hacking signatures ([[expert-iteration]]).
 - Vanilla vs best restated: margin 2.4–4.2 by judge; vanilla best on spoken plan items ([[vanilla-vs-best]]).
+- 19:30–20:30 live-synthesis experiment built as a separate page (`/live`): streaming replay on the audio timeline, rolling local-model synthesis, mishearing flags, end-of-visit comparison; Flash-Next single-GPU server started on GPU 1 for a faster decoder ([[live-synthesis]]).
