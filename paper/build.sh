@@ -17,6 +17,6 @@ PY
 done
 uv run python paper/md2tex.py
 rsync -aq paper/ beast:~/projects/scribe-bench/paper/
-ssh -o BatchMode=yes beast 'cd ~/projects/scribe-bench/paper && pandoc paper.md -o main.tex --template template.tex --from markdown+pipe_tables --wrap=none && xelatex -interaction=nonstopmode main.tex >build.log 2>&1; xelatex -interaction=nonstopmode main.tex >build.log 2>&1; pdfinfo main.pdf | grep Pages'
+ssh -o BatchMode=yes beast 'cd ~/projects/scribe-bench/paper && pandoc paper.md -o main.tex --template template.tex --from markdown+pipe_tables --wrap=none --shift-heading-level-by=-1 && xelatex -interaction=nonstopmode main.tex >build.log 2>&1; xelatex -interaction=nonstopmode main.tex >build.log 2>&1; pdfinfo main.pdf | grep Pages'
 scp -q beast:~/projects/scribe-bench/paper/main.pdf paper/main.pdf
 echo "paper/main.pdf built"
