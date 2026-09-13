@@ -37,7 +37,10 @@
   .sec { margin:10px 0 0; } .sec .k { font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; justify-content:space-between; }
   .sec ul { margin:3px 0 0; padding-left:18px; } .sec li { margin:2px 0; } .sec li.new { background:var(--live-soft); }
   .complaint { font-family:var(--serif); font-size:18px; margin:4px 0 2px; }
-  .gaps li { color:var(--muted); } .red li { color:var(--bad); }
+  .gaps li { color:var(--muted); } .red li { color:var(--ink); }
+  .tier { font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; padding:1px 6px; border-radius:3px; margin-right:4px; }
+  .tier.now { background:var(--bad-soft); color:var(--bad); } .tier.today { background:var(--warn-soft); color:var(--warn); }
+  .dxcard .lk.tc { color:var(--bad); }
   .sug li { color:var(--live); } .sug li .basis { font-family:var(--mono); font-size:10.5px; color:var(--muted); margin-left:6px; }
   .dxcard { border:1px solid var(--line); border-radius:4px; padding:6px 8px; margin:4px 0; } .dxcard.new { background:var(--live-soft); }
   .dxcard b { font-size:14px; } .dxcard .lk { font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-left:6px; }
@@ -92,7 +95,7 @@
     <div class="sec"><div class="k"><span>Working differential</span><span id="c-dx"></span></div><div id="dx"></div></div>
     <div class="sec"><div class="k"><span>Assumptions under test</span></div><ul id="assume"></ul></div>
     <div class="sec ask"><div class="k"><span>Ask next</span></div><div id="nextq" class="nextq">—</div></div>
-    <div class="sec red"><div class="k"><span>Act now</span></div><ul id="red"></ul></div>
+    <div class="sec red"><div class="k"><span>Flags</span><span>none in the first 90 s</span></div><ul id="red"></ul></div>
     <div class="sec"><div class="k"><span>Plan the clinician has stated</span></div><ul id="plan"></ul></div>
     <div class="sec sug"><div class="k"><span>Plan suggestions (not yet stated)</span></div><ul id="plansug"></ul></div>
     <div class="sec"><div class="k"><span>Safety-netting given</span></div><ul id="safety"></ul></div>
@@ -158,13 +161,13 @@ function renderObjList(id, items, prevItems, keyf, fmt){
 function renderSynth(s){
   $("complaint").textContent = s.complaint || "—";
   const pdx = new Set(((prev.differential)||[]).map(d => String((d&&d.dx)||"").toLowerCase()));
-  $("dx").innerHTML = (s.differential||[]).filter(d=>d&&d.dx).map(d => `<div class="dxcard ${pdx.has(String(d.dx).toLowerCase())?"":"new"}"><b>${esc(d.dx)}</b><span class="lk">${esc(d.likelihood||"")}</span>` +
+  $("dx").innerHTML = (s.differential||[]).filter(d=>d&&d.dx).map(d => `<div class="dxcard ${pdx.has(String(d.dx).toLowerCase())?"":"new"}"><b>${esc(d.dx)}</b><span class="lk">${esc(d.likelihood||"")}</span>${d.time_critical?'<span class="lk tc">time-critical · exclude</span>':""}` +
       ((d.evidence||[]).length ? `<ul class="ev">${(d.evidence||[]).map(e=>`<li>${esc(String(e))}</li>`).join("")}</ul>` : "") +
       ((d.missing||[]).length ? `<div class="miss">to confirm/exclude: ${(d.missing||[]).map(m=>esc(String(m))).join(" · ")}</div>` : "") + `</div>`).join("") || `<div class="meta">no differential yet</div>`;
   $("c-dx").textContent = (s.differential||[]).length ? (s.differential||[]).length+" candidates" : "";
   $("nextq").textContent = s.next_question || "—";
   renderObjList("assume", s.assumptions, prev.assumptions, x=>String((x&&x.assumption)||x), x => `${esc(String((x&&x.assumption)||x))}${x&&x.would_change_if?` <span class="basis">changes if: ${esc(x.would_change_if)}</span>`:""}`);
-  renderObjList("red", s.red_flags, prev.red_flags, x=>String((x&&x.feature)||x), x => `<b>${esc(String((x&&x.feature)||x))}</b>${x&&x.why?" — "+esc(x.why):""}${x&&x.action?" → <b>"+esc(x.action)+"</b>":""}`);
+  renderObjList("red", s.red_flags, prev.red_flags, x=>String((x&&x.feature)||x), x => `<span class="tier ${(x&&x.tier)==="act now"?"now":"today"}">${esc((x&&x.tier)||"check today")}</span> <b>${esc(String((x&&x.feature)||x))}</b>${x&&x.why?" — "+esc(x.why):""}${x&&x.action?" → <b>"+esc(x.action)+"</b>":""}`);
   renderList("plan", s.plan_stated, prev.plan_stated);
   renderObjList("plansug", s.plan_suggested, prev.plan_suggested, x=>String((x&&x.item)||x), x => `${esc(String((x&&x.item)||x))}${x&&x.basis?`<span class="basis">${esc(x.basis)}</span>`:""}`);
   renderList("safety", s.safety_netting_stated, prev.safety_netting_stated);

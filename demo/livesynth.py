@@ -140,9 +140,9 @@ SYNTH_SYSTEM = """You are an in-visit clinical decision-support assistant listen
 "complaint": short string, or "" if not yet clear; never guess from small talk.
 "history": list of short strings actually stated (symptoms with duration/character, PMH, drugs, allergies, social).
 "findings": list of examination findings the clinician has stated.
-"differential": list of up to 3 objects, most likely first: {"dx": name, "likelihood": "high"|"medium"|"low", "evidence": [up to 3 short quotes or paraphrases from the transcript], "missing": [up to 2 things that would confirm or exclude it]}. Empty list until there is real evidence.
+"differential": list of up to 5 objects, most likely first: {"dx": name, "likelihood": "high"|"medium"|"low", "evidence": [up to 3 short quotes or paraphrases from the transcript], "missing": [up to 2 things that would confirm or exclude it], "time_critical": true|false}. The most likely diagnosis always keeps slot 1; time-critical possibilities are listed with "time_critical": true and low likelihood rather than displacing the likely ones. Empty list until there is real evidence.
 "next_question": the single question the clinician should ask next to best separate the top two diagnoses (or to rule out the most dangerous one). "" if nothing useful.
-"red_flags": list of up to 3 objects {"feature": what was heard, "why": the danger, "action": what to do now}. Only genuine act-now features; an empty list is the normal answer.
+"red_flags": list of up to 3 objects {"feature": what was heard, "why": the danger, "action": what to do now, "tier": "act now"|"check today"}. Only features the patient or clinician has ACTUALLY STATED, quoted or closely paraphrased. Never a feature that is merely possible, unclarified or "not yet excluded": those belong in a differential entry's "missing" list. "act now" = ambulance / A&E / same-hour assessment; "check today" = the clinician should ask or examine for it before the visit ends. An empty list is the normal answer.
 "plan_stated": list of actions the clinician has actually said (prescriptions, tests, referrals, follow-up timing).
 "safety_netting_stated": list of when-to-return / emergency advice the clinician has actually given.
 "safety_netting_suggested": list of up to 3 safety-netting points that fit the working diagnosis and have NOT been given yet.
@@ -152,7 +152,7 @@ SYNTH_SYSTEM = """You are an in-visit clinical decision-support assistant listen
 "gaps": list of up to 4 history items a GP would normally establish for this complaint that have NOT been covered yet.
 "terms": list of up to 12 medical terms heard so far.
 Rules: actively challenge the earlier view every tick: if new information contradicts an assumption, revise the differential and say so in "revisions".
-Danger first: if any plausible diagnosis is time-critical (sepsis, meningitis, ACS, PE, stroke/TIA, anaphylaxis, ectopic pregnancy, malaria, DKA, testicular torsion, suicidality and the like), next_question, the FIRST plan_suggested item and safety_netting_suggested must address excluding or urgently assessing it, even if it is not the most likely diagnosis. Never suggest watch-and-wait while a time-critical diagnosis is still open.
+Danger first, but quietly: if any plausible diagnosis is time-critical (sepsis, meningitis, ACS, PE, stroke/TIA, anaphylaxis, ectopic pregnancy, malaria, DKA, testicular torsion, suicidality and the like), keep it in the differential with "time_critical": true and make next_question the question that excludes it; do not suggest watch-and-wait while it is open. Escalate to an "act now" red flag or an urgent plan_suggested item ONLY when a stated feature actually supports the danger, not because the diagnosis is on the list. Hold: in the first 90 seconds, or while "complaint" is still "", output no red_flags and no urgent plan_suggested items; the patient is still telling their story and an early alarm is frightening and usually wrong. Tone: suggestions are phrased for the clinician, calmly ("worth checking today", "consider"); never alarmist wording.
 Setting: if modality is remote or examined is false, do not suggest investigations or referrals that presuppose examination findings; suggest the examination or the face-to-face / urgent-assessment step first, and do not suggest giving drugs the clinician cannot give in this setting (say "ambulance" or "A&E" instead).
 Simple causes first: before specialist investigations, keep the simple examinable causes in the differential when plausible (impacted ear wax, foreign body, medication side effect, constipation, viral illness) and say in "missing" what a look or examination would settle. Everything under history, findings, plan_stated, safety_netting_stated and evidence must come from the transcript; suggestions live only in the *_suggested keys and next_question. The moment the clinician states something that was in plan_suggested or safety_netting_suggested, move it to plan_stated / safety_netting_stated and remove it from the suggested list. Once a next_question has been answered in the transcript, replace it with a new one or "". Keep earlier items unless contradicted. Prefer updating the previous view to rewriting it. The differential is re-derived from the full transcript on every tick: an empty or short previous differential is never a reason to keep it empty; populate it as soon as the complaint and one or two symptoms are known. Short phrases."""
 
@@ -165,7 +165,7 @@ Answer one JSON object:
 "dx_first_top3": earliest snapshot index whose differential contains the reference diagnosis (same condition, wording may differ) in any position, or null;
 "dx_first_top1": earliest snapshot index where it is first in the differential, or null;
 "questions_asked": for each snapshot index that had a non-empty next_question, true if the clinician later asks that question in substance (after that snapshot's time), else false, as an object {index: bool};
-"red_flags": for each snapshot that had red flags, an object {index: [true/false per flag]} where true means the feature was genuinely present in the transcript AND is a genuine act-now concern;
+"red_flags": for each snapshot that had red flags, an object {index: [true/false per flag]} where true means the feature was actually stated in the transcript by that time AND its tier is appropriate ("act now" only for features that warrant ambulance / A&E / same-hour assessment; "check today" for features the clinician should ask or examine for). A flag for a merely possible or unclarified feature is false;
 "plan_suggested_final": for each plan_suggested item in the LAST snapshot: "agrees" (the clinician's note has the same action), "extra" (reasonable, not in the note), or "contradicts" (the note or transcript goes against it), as a list in order;
 "revisions": for each snapshot that lists revisions, an object {index: ["toward"|"away"|"neutral" per revision]} where "toward" means the revision moved the view closer to the reference diagnosis/plan, "away" further from it, "neutral" unrelated."""
 
@@ -314,11 +314,31 @@ def reference_block(refs: dict, dxs: list[str]) -> str:
     return ("\n\nREFERENCE MATERIAL (NHS / NICE CKS lookups for the current differential; use it for next_question, red_flags, *_suggested, and cite the source in \"basis\"):\n" + "\n".join(parts)) if parts else ""
 
 
+HOLD_S = 90.0
+URGENT = re.compile(r"\b(999|ambulance|A&E|emergency|immediately|urgent|same[- ]day|now)\b", re.I)
+
+
+def apply_hold(js: dict, upto_t: float) -> dict:
+    """Code-level guard for the hold rule: no alarms before the complaint is established or before HOLD_S."""
+    if not isinstance(js, dict):
+        return js
+    early = upto_t < HOLD_S or not (js.get("complaint") or "").strip()
+    if early:
+        js["red_flags"] = []
+        js["plan_suggested"] = [p for p in (js.get("plan_suggested") or []) if not (isinstance(p, dict) and URGENT.search(p.get("item") or ""))]
+        js["safety_netting_suggested"] = [x for x in (js.get("safety_netting_suggested") or []) if not URGENT.search(str(x))]
+    for f in (js.get("red_flags") or []):
+        if isinstance(f, dict) and f.get("tier") not in ("act now", "check today"):
+            f["tier"] = "check today"
+    return js
+
+
 def synthesize_once(text: str, prev: dict | None, upto_t: float, model: str, refs: dict | None = None, think: bool = False) -> dict:
     dxs = [d.get("dx") for d in ((prev or {}).get("differential") or []) if isinstance(d, dict) and d.get("dx")]
     user = (f"PREVIOUS VIEW:\n{json.dumps(prev) if prev else 'none yet'}" + reference_block(refs or {}, dxs)
             + f"\n\nTRANSCRIPT SO FAR ({upto_t:.0f} s into the visit):\n{text}\n\nUpdate the view now.")
-    return parse_json(_llm(SYNTH_SYSTEM, user, max_tokens=2200 if think else 1000, model=model, think=think)) or prev or {}
+    js = parse_json(_llm(SYNTH_SYSTEM, user, max_tokens=2400 if think else 1300, model=model, think=think)) or prev or {}
+    return apply_hold(js, upto_t)
 
 
 def new_dx_to_lookup(synth: dict, refs: dict, inflight: set) -> list[str]:
@@ -358,7 +378,7 @@ def score_timeline(rec: dict, snapshots: list[dict], targets: dict, model: str) 
             last_q = v.get("next_question") or ""
         revs = [f"{r.get('was')} -> {r.get('now')} ({r.get('because')})" for r in (v.get("revisions") or []) if isinstance(r, dict)]
         snaps.append(f"[{i}] t={s['t']:.0f}s differential={[d.get('dx') for d in (v.get('differential') or []) if isinstance(d, dict)]} "
-                     f"next_question={json.dumps(v.get('next_question') or '')} red_flags={[f.get('feature') for f in (v.get('red_flags') or []) if isinstance(f, dict)]} "
+                     f"next_question={json.dumps(v.get('next_question') or '')} red_flags={[(f.get('tier'), f.get('feature')) for f in (v.get('red_flags') or []) if isinstance(f, dict)]} "
                      f"plan_suggested={[p.get('item') for p in (v.get('plan_suggested') or []) if isinstance(p, dict)]}" + (f" revisions={revs}" if revs else ""))
     listing = "\n".join(f"{i + 1}. {p}" for i, p in enumerate(targets["plan"]))
     js = parse_json(_llm(SCORE_SYSTEM, f"REFERENCE DIAGNOSIS: {targets['diagnosis'] or '(none)'}\n\nREFERENCE PLAN:\n{listing}\n\nTRANSCRIPT:\n{timed_transcript(rec)}\n\nSNAPSHOTS:\n" + "\n".join(snaps), 700, model=model)) or {}
