@@ -109,6 +109,6 @@ Sunday demo picks (v5 on the page): #day3-01 (anaphylaxis: the only visit with '
 - The "live" transcript is real streaming output replayed, not streaming inference; timing is proportional word placement over utterance timestamps.
 - Mishearing flags are a heuristic (first version flagged "feeling → peeling"; fixed by treating inflections as English). Sparse by design: the streaming model mostly substitutes real words, which no edit-distance check can see.
 - The scoring uses the same local model as a judge; no clinician validation ([[judges]]). Red-flag false alarms and plan contradictions are the numbers a clinician would have to check first.
-- Lookups are NHS patient pages plus NICE CKS snippets, not the CKS full text; the model's own knowledge still fills gaps and is not distinguished from the lookup in the UI beyond the `basis` tag.
+- Lookups are tiered (NHS page → patient.info professional article → Wikipedia, low trust), matched by name against cached indexes rather than a search engine, see [[live-experiments]]; NICE CKS is unreachable (403). The model's own knowledge still fills gaps and is distinguished from the lookup only by the `basis` tag and the activity-log tier badge.
 
 Sources: `demo/livesynth.py`, `demo/live.html`, `runs/live_synth/*.json`, `runs/demo_server.log`.

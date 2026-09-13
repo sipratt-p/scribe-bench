@@ -36,3 +36,4 @@ All times Pacific. Numbers on this page are pointers; the pages they link to car
 
 ## 13 Sep 2026
 - 07:30–09:00 v5 after Seth's 'jumping to red flags too early is nerve-racking': 5-slot differential + time-critical tag, stated-only tiered flags, 90 s hold in code. 57-visit eval: diagnosis in top-3 56/57, flags 62 → 3 (all genuine), contradictions 6 → 3 (arguable), top-1 flips 0.37 → 0.75 ([[live-synthesis]]).
+- 09:00–10:00 search replaced: SearXNG engines were suspended (6 usable of 179 lookups). New tiered lookups with no search engine: NHS A-Z (786) → patient.info professional (2,576) → Wikipedia (low trust), name-matched against cached indexes; 174 of 181 differential labels covered. Wiki run log page `live-experiments` written ([[live-experiments]]).
