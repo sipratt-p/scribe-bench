@@ -1,4 +1,4 @@
-"""Re-score pipelines with a verifiability term (Abridge's Linked Evidence concern).
+"""Re-score pipelines with a verifiability term (linked evidence: can each statement be traced to the transcript).
 
   python -m autoresearch.verif_eval [--ids dev|test|all]
 

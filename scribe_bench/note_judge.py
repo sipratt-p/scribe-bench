@@ -1,5 +1,5 @@
-"""LLM judges for two of Abridge's clinician-defined note dimensions (from "The Science of AI
-Evaluation for Enterprise Healthcare"): attribution and completeness of follow-ups/referrals.
+"""LLM judges for two clinician-defined note dimensions used by published scribe-evaluation
+frameworks: attribution and completeness of follow-ups/referrals.
 
   python -m scribe_bench.note_judge aci <aci_root> <run_dir> --split test1 --variant humantrans \
       --base_url http://localhost:8500/v1 --model gemma4-vision [--out report.json]

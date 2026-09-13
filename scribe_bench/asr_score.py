@@ -48,7 +48,7 @@ def score_pairs(pairs: list[tuple[str, str]], lex: set[str]) -> dict:
 
 
 def attribution_error(export_dir: Path, hyp_dir: Path, ids: list[str]) -> dict:
-    """Word-level speaker misattribution, Abridge's 'attribution' dimension at the transcript level.
+    """Word-level speaker misattribution, the note-level 'attribution' dimension applied at the transcript level.
     Each hypothesis segment is placed on the reference timeline; the reference speaker at its
     midpoint is the truth. Hypothesis speaker labels are mapped to Doctor/Patient by majority
     overlap per file. Reports the share of hypothesis words carrying the wrong role, split by
