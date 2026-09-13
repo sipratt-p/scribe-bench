@@ -11,23 +11,24 @@ Companion to [[live-synthesis]] (the design and the current numbers). This page 
 | L4a | 23:00 | v4 (buggy) | danger-first, consult modality + examined, simple causes first; lookups on | 57 visits, discarded |
 | L4b | 23:20 | v4 clean | + re-derive the differential every tick (fixes empty-differential anchoring); search calls serialized | 57 visits |
 | L5 | 13 Sep 08:00 | v5 | 5-slot differential with time-critical tag; flags only for stated features, tiered act-now / check-today; 90 s hold enforced in code; calmer wording | 57 visits |
+| L6 | 13 Sep 09:30 | v5 + NHS lookups | same prompt; tier-1 NHS lookups actually feeding the ticks (191 used) | 57 visits |
 
 ## Results side by side
-| Metric | v2 (L1) | v4 (L4b) | v5 (L5) |
-|---|---|---|---|
-| GP's diagnosis ever in live top-3 | 52 / 57 | 49 / 57 | **56 / 57** |
-| Ever top-1 | 35 | 31 | **44** |
-| Median time to top-3 | 1:20 | 0:40 | 1:00 |
-| Had it before the GP said it | 48 / 51 | 49 / 49 | **54 / 54** (lead 5:36) |
-| Suggested questions later asked | 80.8% of 219 | **93.3%** of 149 | 86.9% of 229 |
-| Red flags raised / genuine | 61 / 54 | 62 / 52 | **3 / 3** |
-| Plan suggestions agree / extra / contradict | 37 / 108 / 13 | 82 / 67 / 6 | 43 / 73 / **3** |
-| Revisions toward / away | – | 489 / 20 | 459 / 35 |
-| Wrong complaint on first tick | 7.0% | 5.3% | 7.0% |
-| Top-1 flips per visit | 0.19 | 0.37 | 0.75 |
-| Mishearing flags precision (vs human transcript) | 57.7% of 26 | same | same |
-| Latency mean / p95, 4 visits in parallel | 5.1 / 7.3 s | 10.0 / 10.0 s | 7.1 / 9.6 s |
-| Guideline lookups actually used | – | 8 | 6 |
+| Metric | v2 (L1) | v4 (L4b) | v5 (L5) | v5 + NHS lookups (L6) |
+|---|---|---|---|---|
+| GP's diagnosis ever in live top-3 | 52 / 57 | 49 / 57 | **56 / 57** | 55 / 57 |
+| Ever top-1 | 35 | 31 | **44** | 41 |
+| Median time to top-3 | 1:20 | 0:40 | 1:00 | 1:00 |
+| Had it before the GP said it | 48 / 51 | 49 / 49 | **54 / 54** (lead 5:36) | 52 / 52 (lead 5:35) |
+| Suggested questions later asked | 80.8% of 219 | **93.3%** of 149 | 86.9% of 229 | 82.6% of 224 |
+| Red flags raised / genuine | 61 / 54 | 62 / 52 | **3 / 3** | 6 / 6 (3 visits) |
+| Plan suggestions agree / extra / contradict | 37 / 108 / 13 | 82 / 67 / 6 | 43 / 73 / **3** | 47 / 104 / 5 |
+| Revisions toward / away | – | 489 / 20 | 459 / 35 | 503 / 15 |
+| Wrong complaint on first tick | 7.0% | 5.3% | 7.0% | 5.3% |
+| Top-1 flips per visit | 0.19 | 0.37 | 0.75 | 0.63 |
+| Mishearing flags precision (vs human transcript) | 57.7% of 26 | same | same | same |
+| Latency mean / p95, 4 visits in parallel | 5.1 / 7.3 s | 10.0 / 10.0 s | 7.1 / 9.6 s | 7.1 / 10.6 s |
+| Guideline lookups actually used | – | 8 | 6 | **191** |
 
 ## What each run taught
 - **L0**: the value of streaming a scribe is small; the after-visit note delivers the same content. Complaint declared from small talk at 20 s and corrected at 40 s: early wrong commitment is the failure class. Seth: "shouldn't we be helping with diagnostics?"
@@ -37,6 +38,8 @@ Companion to [[live-synthesis]] (the design and the current numbers). This page 
 - **L4a**: a prompt rule ("keep earlier items") made the model anchor on its own empty first differential for 10 visits. Caught by inspecting the lost visits before reporting; rule rewritten to re-derive the differential every tick. Lesson: check the per-visit files before the summary.
 - **L4b**: danger-first fixed both dangerous cases and halved contradictions, but evicted the likely diagnosis from a three-slot differential (asthma → ACS/pericarditis, TIA → radiculopathy/MS) and produced hedged red flags ("thunderclap not excluded") that the judge rightly rejected. Seth: "jumping to red flags too early is quite nerve-racking for a patient."
 - **L5**: five slots with a tag instead of eviction, flags only for stated features with a tier, and a code-enforced 90 s hold: flags 62 → 3 (all genuine), coverage 56/57, contradictions 3 and arguable (otoscopy on the ear-wax visit = the GP's own plan; "treat as anaphylaxis" vs the GP's antihistamine + ambulance). Cost: top-1 flips doubled.
+
+- **L6 (v5 + NHS lookups)**: with 191 NHS lookups feeding the ticks, the numbers barely move and the ones that move go the wrong way: plan suggestions grow (119 → 156) almost entirely as "extra", agreement rate is flat (43 → 47 agrees), contradictions 3 → 5, and the two new ones are the NHS anaphylaxis page driving "call 999 / use the auto-injector" back onto the insect-sting visit that v5 had calmed, plus "lie down and raise legs" on the hives visit. Only 30 of 123 final suggestions cite the NHS material at all. Flags 3 → 6, all genuine, still 3 visits. Coverage 56 → 55 (PUO/malaria newly missed). Reading: at this scale guideline text adds volume, not agreement, and can re-import urgency the prompt rules had suppressed; the value of reference material has to be measured on the correctness of first-line wording or by a clinician, which this eval does not do. Tiers 2–3 (patient.info, Wikipedia) were added after this run and are unmeasured.
 
 ## Search and the lookups: what actually happened
 The v3/v4/v5 lookups ran through the beast's SearXNG (tunnelled to the Mac). It worked for the first ~20 conditions, then the upstream engines (Brave, DuckDuckGo, Google CSE) rate-limited and suspended under ~180 queries in an hour and returned empty result sets; serializing and retrying did not help. Net: **6 usable lookups of 179 attempted**, so none of the v4/v5 gains can be credited to guideline material; they are the prompt rules.

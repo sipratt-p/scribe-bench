@@ -89,19 +89,19 @@ Next changes, not run: a five-slot differential so the dangerous entries stop ev
 ## v5 (13 Sep morning): 5-slot differential with a time-critical tag, stated-only tiered flags, 90 s hold, calmer wording
 Seth's note after reading v4: "jumping to red flags too early is quite nerve racking for a patient." Three changes: the differential has five slots and time-critical possibilities carry a tag instead of displacing the likely diagnosis; a red flag must quote something actually said and carries a tier ("act now" vs "check today"), with unclarified possibilities going to the differential's `missing` list; and a hold, enforced in code as well as in the prompt, that allows no flags and no urgent suggestions in the first 90 s or before the complaint is established.
 
-| Metric | v2 | v4 | v5 |
-|---|---|---|---|
-| Reference diagnosis ever in live top-3 | 52 / 57 | 49 / 57 | **56 / 57** |
-| Ever top-1 | 35 | 31 | **44** |
-| Had it before the GP said it | 48 / 51 | 49 / 49 | **54 / 54**, lead 5:36 |
-| Suggested questions later asked | 80.8% | 93.3% | 86.9% (229) |
-| Red flags raised / genuine | 61 / 54 | 62 / 52 | **3 / 3** (2 visits) |
-| Plan suggestions agree / extra / contradict | 37 / 108 / 13 | 82 / 67 / 6 | 43 / 73 / **3** |
-| Revisions toward / away | – | 489 / 20 | 459 / 35 |
-| Top-1 flips per visit | 0.19 | 0.37 | 0.75 |
-| Latency mean / p95 (4 parallel) | 5.1 / 7.3 | 10.0 / 10.0 | 7.1 / 9.6 |
+| Metric | v2 | v4 | v5 | v5 + NHS lookups |
+|---|---|---|---|---|
+| Reference diagnosis ever in live top-3 | 52 / 57 | 49 / 57 | **56 / 57** | 55 / 57 |
+| Ever top-1 | 35 | 31 | **44** | 41 |
+| Had it before the GP said it | 48 / 51 | 49 / 49 | **54 / 54**, lead 5:36 | 52 / 52, lead 5:35 |
+| Suggested questions later asked | 80.8% | 93.3% | 86.9% (229) | 82.6% (224) |
+| Red flags raised / genuine | 61 / 54 | 62 / 52 | **3 / 3** (2 visits) | 6 / 6 (3 visits) |
+| Plan suggestions agree / extra / contradict | 37 / 108 / 13 | 82 / 67 / 6 | 43 / 73 / **3** | 47 / 104 / 5 |
+| Revisions toward / away | – | 489 / 20 | 459 / 35 | 503 / 15 |
+| Top-1 flips per visit | 0.19 | 0.37 | 0.75 | 0.63 |
+| Latency mean / p95 (4 parallel) | 5.1 / 7.3 | 10.0 / 10.0 | 7.1 / 9.6 | 7.1 / 10.6 |
 
-The three v5 flags: "feels like can't breathe that well right now" and "chest is tight" at 3:40–4:00 on the real anaphylaxis visit, and "vaginal bleeding with lower abdominal pain" at 2:00 on the abdominal-pain visit. All judged genuine. The three contradictions: "perform otoscopy" on the ear-wax visit, which is what the GP's plan says in other words (judge over-call), and two on the hives visit where the model calls it likely anaphylaxis and advises against relying on oral antihistamines while the GP gave antihistamines and called an ambulance, a real clinical disagreement rather than an error. The one missed diagnosis is #5-09, "likely migraine", where the GP never stated it aloud either. Cost: top-1 flips doubled, because a five-slot differential reorders more often. Lookups still barely fire (6 used): the search path needs fixing before the guideline material can be credited with anything.
+The three v5 flags: "feels like can't breathe that well right now" and "chest is tight" at 3:40–4:00 on the real anaphylaxis visit, and "vaginal bleeding with lower abdominal pain" at 2:00 on the abdominal-pain visit. All judged genuine. The three contradictions: "perform otoscopy" on the ear-wax visit, which is what the GP's plan says in other words (judge over-call), and two on the hives visit where the model calls it likely anaphylaxis and advises against relying on oral antihistamines while the GP gave antihistamines and called an ambulance, a real clinical disagreement rather than an error. The one missed diagnosis is #5-09, "likely migraine", where the GP never stated it aloud either. Cost: top-1 flips doubled, because a five-slot differential reorders more often. With the search path replaced and 191 NHS lookups feeding the ticks (last column), the metrics did not improve: more suggestions, same agreement, two more contradictions from the NHS anaphylaxis page re-importing urgency; see [[live-experiments]] L6.
 
 Sunday demo picks (v5 on the page): #day3-01 (anaphylaxis: the only visit with 'act now' flags, both genuine, at 3:40), #day2-07 (acute cardiac event), #day4-03 (PE), #day2-09 (suspected stroke). Honest failure: #day5-09 (migraine never in the top-3; GP never said it aloud either) and the v4 history of ear wax and the rash-with-travel visit.
 
