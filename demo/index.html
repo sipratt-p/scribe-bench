@@ -94,56 +94,62 @@
   <div style="grid-column:1/-1"><button id="explain-btn" class="secondary" style="padding:6px 12px">▸ Explain the jargon</button> <span class="steps">for people who know tech but not this field</span></div>
 </div>
 <details class="arch" open><summary>Architecture and harness</summary>
-<div style="overflow-x:auto"><svg class="arch-svg" viewBox="0 0 980 600" role="img" aria-label="Two pipelines from the same audio, vanilla and proposed, and the harness that scores both against the human transcript and the GP note">
+<div style="overflow-x:auto"><svg class="arch2" viewBox="0 0 1000 600" role="img" aria-label="What was built and measured: vanilla and proposed pipelines from one audio input, and the harness that scores both">
 <style>
-.arch-svg{max-width:100%;height:auto;font-family:"Public Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;font-size:12px}
-.arch-svg .bx rect{fill:var(--surface);stroke:var(--ink);stroke-width:1.2}.arch-svg .bx .t{font-weight:600;font-size:12.5px;fill:var(--ink)}.arch-svg .bx .s{font-size:10.5px;fill:var(--muted)}
-.arch-svg .live rect{stroke:var(--accent);stroke-width:1.6}.arch-svg .live .t{fill:var(--accent)}
-.arch-svg .cache rect{stroke:var(--muted);stroke-dasharray:4 3}
-.arch-svg .truth rect{fill:var(--accent-soft);stroke:var(--accent)}
-.arch-svg .van rect{stroke:var(--theirs);stroke-width:1.6}.arch-svg .van .t{fill:var(--theirs)}
-.arch-svg .ar{stroke:var(--ink);stroke-width:1.2;fill:none}.arch-svg .ar.live{stroke:var(--accent)}.arch-svg .lb{font-size:10.5px;fill:var(--muted)}
-.arch-svg .zone{fill:none;stroke:var(--line);stroke-dasharray:6 4}.arch-svg .zl{font-family:"IBM Plex Mono",Menlo,monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;fill:var(--muted)}
-.arch-svg .lg{font-size:10.5px;fill:var(--muted)}
+.arch2{max-width:100%;height:auto;font-family:"Public Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;font-size:11.5px}
+.arch2 .bx rect{fill:var(--surface);stroke:var(--ink);stroke-width:1}.arch2 .bx text{fill:var(--ink)}.arch2 .bx .t{font-weight:600;font-size:12px}.arch2 .bx .s{font-size:10px;fill:var(--muted)}
+.arch2 .new rect{stroke:var(--accent);stroke-width:1.6}.arch2 .new .t{fill:var(--accent)}
+.arch2 .van rect{stroke:var(--theirs);stroke-width:1.6}.arch2 .van .t{fill:var(--theirs)}
+.arch2 .truth rect{fill:var(--accent-soft);stroke:var(--accent)}
+.arch2 .dash rect{stroke-dasharray:4 3;stroke:var(--muted)}
+.arch2 .ar{stroke:var(--ink);stroke-width:1.1;fill:none}.arch2 .ar.new{stroke:var(--accent)}.arch2 .ar.dsh{stroke-dasharray:4 3}
+.arch2 .lb{font-family:"IBM Plex Mono",Menlo,monospace;font-size:9.5px;fill:var(--muted)}.arch2 .lb.new{fill:var(--accent)}
+.arch2 .bd{fill:none;stroke:var(--line);stroke-dasharray:6 4}.arch2 .bdl{font-family:"IBM Plex Mono",Menlo,monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.arch2 .m{font-family:"IBM Plex Mono",Menlo,monospace;font-size:9px;fill:var(--ok)}.arch2 .mk circle{fill:var(--ok)}.arch2 .mk text{fill:#fff;font-size:8px;font-weight:700}
+.arch2 .lg{font-size:10px;fill:var(--muted)}
 </style>
-<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
-<rect class="zone" x="8" y="8" width="964" height="300" rx="8"/><text class="zl" x="20" y="26">Pipelines · ASR and DeepSeek on the GPU box · note model and verifier on the Mac</text>
-<g class="bx"><rect x="20" y="70" width="120" height="54" rx="5"/><text x="80.0" y="88" text-anchor="middle" class="t">Encounter audio</text><text x="80.0" y="103" text-anchor="middle" class="s">57 mock GP visits</text></g>
-<text class="zl" x="200" y="50" style="fill:var(--theirs)">Vanilla · unoptimized baseline</text>
-<g class="bx van"><rect x="200" y="58" width="190" height="60" rx="5"/><text x="295.0" y="76" text-anchor="middle" class="t">Streaming ASR</text><text x="295.0" y="91" text-anchor="middle" class="s">Nemotron-3.5 0.6B · 1.1 s</text><text x="295.0" y="103" text-anchor="middle" class="s">chunks · no speaker labels</text></g>
-<g class="bx van"><rect x="620" y="58" width="190" height="60" rx="5"/><text x="715.0" y="76" text-anchor="middle" class="t">Note model</text><text x="715.0" y="91" text-anchor="middle" class="s">untuned Qwen 27B · plain</text><text x="715.0" y="103" text-anchor="middle" class="s">prompt</text></g>
-<g class="bx van"><rect x="850" y="58" width="110" height="54" rx="5"/><text x="905.0" y="76" text-anchor="middle" class="t">Note</text><text x="905.0" y="91" text-anchor="middle" class="s">no citations</text></g>
-<line class="ar" x1="140" y1="85" x2="198" y2="85" marker-end="url(#ah)"/>
-<line class="ar" x1="390" y1="85" x2="618" y2="85" marker-end="url(#ah)"/><text class="lb" x="504.0" y="80.0" text-anchor="middle">text only</text>
-<line class="ar" x1="810" y1="85" x2="848" y2="85" marker-end="url(#ah)"/>
-<text class="zl" x="200" y="162" style="fill:var(--accent)">Proposed · after-visit pass</text>
-<g class="bx live"><rect x="200" y="170" width="170" height="60" rx="5"/><text x="285.0" y="188" text-anchor="middle" class="t">After-visit ASR</text><text x="285.0" y="203" text-anchor="middle" class="s">MOSS-TD 0.9B · LLM decoder</text><text x="285.0" y="215" text-anchor="middle" class="s">· speaker labels</text></g>
-<g class="bx live"><rect x="400" y="170" width="140" height="60" rx="5"/><text x="470.0" y="188" text-anchor="middle" class="t">Role map</text><text x="470.0" y="203" text-anchor="middle" class="s">S01 / S02 → Doctor /</text><text x="470.0" y="215" text-anchor="middle" class="s">Patient, one LLM call</text></g>
-<g class="bx live"><rect x="570" y="170" width="190" height="72" rx="5"/><text x="665.0" y="188" text-anchor="middle" class="t">Note model + citations</text><text x="665.0" y="203" text-anchor="middle" class="s">v2: DeepSeek V4 Flash,</text><text x="665.0" y="215" text-anchor="middle" class="s">precision-first, a [[line]]</text><text x="665.0" y="227" text-anchor="middle" class="s">on every sentence</text></g>
-<g class="bx live"><rect x="790" y="170" width="170" height="84" rx="5"/><text x="875.0" y="188" text-anchor="middle" class="t">Verifier</text><text x="875.0" y="203" text-anchor="middle" class="s">checks each sentence</text><text x="875.0" y="215" text-anchor="middle" class="s">against its cited lines;</text><text x="875.0" y="227" text-anchor="middle" class="s">flags unsupported claims</text><text x="875.0" y="239" text-anchor="middle" class="s">and third-party details</text></g>
-<path class="ar" d="M80 124 V 197 H 198" marker-end="url(#ah)"/>
-<line class="ar" x1="370" y1="197" x2="398" y2="197" marker-end="url(#ah)"/>
-<line class="ar" x1="540" y1="197" x2="568" y2="197" marker-end="url(#ah)"/>
-<line class="ar" x1="760" y1="197" x2="788" y2="197" marker-end="url(#ah)"/>
-<g class="bx live"><rect x="570" y="262" width="190" height="54" rx="5"/><text x="665.0" y="280" text-anchor="middle" class="t">Cited note + flags</text><text x="665.0" y="295" text-anchor="middle" class="s">what the doctor would see</text></g>
-<path class="ar" d="M875 254 V 280 H 762" marker-end="url(#ah)"/>
-<rect class="zone" x="8" y="320" width="964" height="256" rx="8"/><text class="zl" x="20" y="338">Harness · scores both pipelines against what a person produced</text>
-<g class="bx truth"><rect x="20" y="356" width="170" height="60" rx="5"/><text x="105.0" y="374" text-anchor="middle" class="t">Human transcript</text><text x="105.0" y="389" text-anchor="middle" class="s">per-speaker timestamps</text><text x="105.0" y="401" text-anchor="middle" class="s">from two microphones</text></g>
-<g class="bx truth"><rect x="20" y="450" width="170" height="54" rx="5"/><text x="105.0" y="468" text-anchor="middle" class="t">GP's own note</text><text x="105.0" y="483" text-anchor="middle" class="s">diagnosis and plan</text></g>
-<g class="bx"><rect x="230" y="356" width="200" height="60" rx="5"/><text x="330.0" y="374" text-anchor="middle" class="t">Transcript metrics</text><text x="330.0" y="389" text-anchor="middle" class="s">WER · medical-term miss</text><text x="330.0" y="401" text-anchor="middle" class="s">(7,092-term lexicon) · DER</text></g>
-<g class="bx"><rect x="230" y="450" width="200" height="72" rx="5"/><text x="330.0" y="468" text-anchor="middle" class="t">Note metrics</text><text x="330.0" y="483" text-anchor="middle" class="s">term recall / precision ·</text><text x="330.0" y="495" text-anchor="middle" class="s">ROUGE-L · plan recall · edit</text><text x="330.0" y="507" text-anchor="middle" class="s">effort</text></g>
-<g class="bx live"><rect x="470" y="400" width="190" height="60" rx="5"/><text x="565.0" y="418" text-anchor="middle" class="t">LLM judges</text><text x="565.0" y="433" text-anchor="middle" class="s">misattribution · plan items ·</text><text x="565.0" y="445" text-anchor="middle" class="s">grounded / linked sentences</text></g>
-<g class="bx live"><rect x="700" y="356" width="120" height="48" rx="5"/><text x="760.0" y="374" text-anchor="middle" class="t">Judge 1</text><text x="760.0" y="389" text-anchor="middle" class="s">Qwen3.8-27B</text></g>
-<g class="bx live"><rect x="700" y="412" width="120" height="48" rx="5"/><text x="760.0" y="430" text-anchor="middle" class="t">Judge 2</text><text x="760.0" y="445" text-anchor="middle" class="s">DeepSeek V4 Flash</text></g>
-<g class="bx live"><rect x="700" y="468" width="120" height="60" rx="5"/><text x="760.0" y="486" text-anchor="middle" class="t">Judge 3</text><text x="760.0" y="501" text-anchor="middle" class="s">Gemma 4,</text><text x="760.0" y="513" text-anchor="middle" class="s">attribution check</text></g>
-<g class="bx"><rect x="850" y="380" width="110" height="90" rx="5"/><text x="905.0" y="398" text-anchor="middle" class="t">Search loop</text><text x="905.0" y="413" text-anchor="middle" class="s">131 variants ·</text><text x="905.0" y="425" text-anchor="middle" class="s">dev 20 → test 37</text><text x="905.0" y="437" text-anchor="middle" class="s">→ judge-2 gate</text></g>
-<line class="ar" x1="190" y1="380" x2="228" y2="380" marker-end="url(#ah)"/>
-<line class="ar" x1="190" y1="475" x2="228" y2="475" marker-end="url(#ah)"/>
-<line class="ar" x1="430" y1="470" x2="468" y2="440" marker-end="url(#ah)"/>
-<line class="ar" x1="190" y1="462" x2="468" y2="425" marker-end="url(#ah)"/>
-<line class="ar" x1="660" y1="430" x2="698" y2="430" marker-end="url(#ah)"/>
-<line class="ar" x1="820" y1="430" x2="848" y2="430" marker-end="url(#ah)"/>
-<text class="lg" x="20" y="594">Teal = added in the proposed design · dashed fill = ground truth from the dataset · amber = vanilla baseline · every judged number is a model reading, no clinician validation</text></svg></div>
+<defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker><marker id="a2n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0F6B8A"/></marker></defs>
+<rect class="bd" x="12" y="12" width="976" height="290" rx="6"/><text class="bdl" x="24" y="30">Pipelines · what runs · green tag = the measurement it moved</text>
+<g class="bx"><rect x="30" y="52" width="140" height="60" rx="4"/><text class="t" x="100.0" y="71" text-anchor="middle">Encounter audio</text><text class="s" x="100.0" y="86" text-anchor="middle">57 mock GP visits</text><text class="s" x="100.0" y="99" text-anchor="middle">mono, PriMock57</text></g>
+<text class="bdl" x="200" y="46" style="fill:var(--theirs)">vanilla · unoptimized baseline</text>
+<g class="bx van"><rect x="200" y="52" width="170" height="60" rx="4"/><text class="t" x="285.0" y="71" text-anchor="middle">Streaming ASR</text><text class="s" x="285.0" y="86" text-anchor="middle">Nemotron-3.5 0.6B · 1.1 s</text><text class="s" x="285.0" y="99" text-anchor="middle">no speaker labels</text></g>
+<g class="bx van"><rect x="620" y="52" width="170" height="60" rx="4"/><text class="t" x="705.0" y="71" text-anchor="middle">Note model</text><text class="s" x="705.0" y="86" text-anchor="middle">untuned Qwen 27B</text><text class="s" x="705.0" y="99" text-anchor="middle">plain prompt</text></g>
+<g class="bx van"><rect x="830" y="52" width="140" height="60" rx="4"/><text class="t" x="900.0" y="71" text-anchor="middle">Note</text><text class="s" x="900.0" y="86" text-anchor="middle">no citations</text></g>
+<line class="ar" x1="170" y1="82" x2="198" y2="82" marker-end="url(#a2)"/><text class="lb" x="184.0" y="78.0" text-anchor="middle">audio</text>
+<line class="ar" x1="370" y1="82" x2="618" y2="82" marker-end="url(#a2)"/><text class="lb" x="494.0" y="78.0" text-anchor="middle">text only</text>
+<line class="ar" x1="790" y1="82" x2="828" y2="82" marker-end="url(#a2)"/>
+<text class="bdl" x="200" y="152" style="fill:var(--accent)">proposed · after-visit pass · the best configuration</text>
+<g class="bx new"><rect x="200" y="160" width="170" height="60" rx="4"/><text class="t" x="285.0" y="179" text-anchor="middle">After-visit ASR</text><text class="s" x="285.0" y="194" text-anchor="middle">MOSS-TD 0.9B · LLM decoder</text><text class="s" x="285.0" y="207" text-anchor="middle">speaker labels S01/S02</text></g><text class="m" x="366" y="215" text-anchor="end">term miss 12.5→8.4</text>
+<g class="bx new"><rect x="400" y="160" width="150" height="60" rx="4"/><text class="t" x="475.0" y="179" text-anchor="middle">Role map</text><text class="s" x="475.0" y="194" text-anchor="middle">S01/S02 → Doctor/Patient</text><text class="s" x="475.0" y="207" text-anchor="middle">one LLM call</text></g><text class="m" x="546" y="215" text-anchor="end">misattrib ↓ (one judge)</text>
+<g class="bx new"><rect x="580" y="160" width="190" height="60" rx="4"/><text class="t" x="675.0" y="179" text-anchor="middle">Note model + citations</text><text class="s" x="675.0" y="194" text-anchor="middle">DeepSeek V4 Flash · precision-first</text><text class="s" x="675.0" y="207" text-anchor="middle">[[line]] on every sentence</text></g><text class="m" x="766" y="215" text-anchor="end">precision +6.5 · grounded +5.3</text>
+<g class="bx new"><rect x="800" y="160" width="170" height="60" rx="4"/><text class="t" x="885.0" y="179" text-anchor="middle">Verifier</text><text class="s" x="885.0" y="194" text-anchor="middle">claim ↔ cited lines</text><text class="s" x="885.0" y="207" text-anchor="middle">flags unsupported · leaks</text></g><text class="m" x="966" y="215" text-anchor="end">99% injected-error recall</text>
+<path class="ar new" d="M100 112 V 190 H 198" marker-end="url(#a2n)"/>
+<line class="ar new" x1="370" y1="190" x2="398" y2="190" marker-end="url(#a2n)"/><text class="lb new" x="384.0" y="186.0" text-anchor="middle">transcript</text>
+<line class="ar new" x1="550" y1="190" x2="578" y2="190" marker-end="url(#a2n)"/><text class="lb new" x="564.0" y="186.0" text-anchor="middle">roles</text>
+<line class="ar new" x1="770" y1="190" x2="798" y2="190" marker-end="url(#a2n)"/><text class="lb new" x="784.0" y="186.0" text-anchor="middle">cited draft</text>
+<g class="bx new"><rect x="580" y="250" width="190" height="44" rx="4"/><text class="t" x="675.0" y="269" text-anchor="middle">Cited note + flags</text><text class="s" x="675.0" y="284" text-anchor="middle">what the clinician would see</text></g>
+<path class="ar new" d="M885 220 V 272 H 772" marker-end="url(#a2n)"/>
+<g class="bx dash"><rect x="30" y="200" width="140" height="60" rx="4"/><text class="t" x="100.0" y="219" text-anchor="middle">Hotwords</text><text class="s" x="100.0" y="234" text-anchor="middle">complaint-tuned lexicon</text></g><text class="m" x="166" y="255" text-anchor="end">no gain (WER +0.18)</text>
+<path class="ar dsh" d="M170 230 H 285 V 222" marker-end="url(#a2)"/>
+<rect class="bd" x="12" y="316" width="976" height="262" rx="6"/><text class="bdl" x="24" y="334">Harness · scores both pipelines against what a person produced</text>
+<g class="bx truth"><rect x="30" y="352" width="150" height="60" rx="4"/><text class="t" x="105.0" y="371" text-anchor="middle">Human transcript</text><text class="s" x="105.0" y="386" text-anchor="middle">per-speaker timestamps</text><text class="s" x="105.0" y="399" text-anchor="middle">two microphones</text></g>
+<g class="bx truth"><rect x="30" y="440" width="150" height="60" rx="4"/><text class="t" x="105.0" y="459" text-anchor="middle">GP's own note</text><text class="s" x="105.0" y="474" text-anchor="middle">diagnosis · plan</text></g>
+<g class="bx"><rect x="220" y="352" width="190" height="60" rx="4"/><text class="t" x="315.0" y="371" text-anchor="middle">Transcript metrics</text><text class="s" x="315.0" y="386" text-anchor="middle">WER · medical-term miss</text><text class="s" x="315.0" y="399" text-anchor="middle">DER · misattributed words</text></g>
+<g class="bx"><rect x="220" y="440" width="190" height="60" rx="4"/><text class="t" x="315.0" y="459" text-anchor="middle">Note metrics</text><text class="s" x="315.0" y="474" text-anchor="middle">term recall / precision · ROUGE-L</text><text class="s" x="315.0" y="487" text-anchor="middle">plan recall · edit effort</text></g>
+<g class="bx new"><rect x="450" y="396" width="170" height="60" rx="4"/><text class="t" x="535.0" y="415" text-anchor="middle">LLM judges</text><text class="s" x="535.0" y="430" text-anchor="middle">misattribution · plan items</text><text class="s" x="535.0" y="443" text-anchor="middle">grounded / linked</text></g>
+<g class="bx new"><rect x="660" y="352" width="120" height="44" rx="4"/><text class="t" x="720.0" y="371" text-anchor="middle">Judge 1</text><text class="s" x="720.0" y="386" text-anchor="middle">Qwen3.8-27B</text></g>
+<g class="bx new"><rect x="660" y="404" width="120" height="44" rx="4"/><text class="t" x="720.0" y="423" text-anchor="middle">Judge 2</text><text class="s" x="720.0" y="438" text-anchor="middle">DeepSeek V4 Flash</text></g>
+<g class="bx new"><rect x="660" y="456" width="120" height="44" rx="4"/><text class="t" x="720.0" y="475" text-anchor="middle">Judge 3</text><text class="s" x="720.0" y="490" text-anchor="middle">Gemma 4 · attribution</text></g>
+<g class="bx new"><rect x="820" y="370" width="150" height="100" rx="4"/><text class="t" x="895.0" y="389" text-anchor="middle">Search loop</text><text class="s" x="895.0" y="404" text-anchor="middle">131 variants · 9 knobs</text><text class="s" x="895.0" y="417" text-anchor="middle">dev 20 → test 37 → judge 2</text></g><text class="m" x="966" y="465" text-anchor="end">5 accepted</text>
+<line class="ar" x1="180" y1="382" x2="218" y2="382" marker-end="url(#a2)"/>
+<line class="ar" x1="180" y1="470" x2="218" y2="470" marker-end="url(#a2)"/>
+<line class="ar new" x1="410" y1="470" x2="448" y2="440" marker-end="url(#a2n)"/>
+<path class="ar new" d="M180 460 H 200 V 420 H 448" marker-end="url(#a2n)"/>
+<line class="ar new" x1="620" y1="426" x2="658" y2="426" marker-end="url(#a2n)"/>
+<line class="ar new" x1="780" y1="426" x2="818" y2="426" marker-end="url(#a2n)"/>
+<path class="ar new dsh" d="M895 370 V 300 H 895" marker-end="url(#a2n)"/>
+<text class="lb new" x="905" y="312">proposes the next variant</text>
+<text class="lg" x="24" y="592">teal = built and measured · amber = baseline · dashed = tried and rejected · green tags = the measurement each box moved on the 37 held-out visits · every judged number is a model reading</text></svg></div>
 <details><summary>In words</summary>
 <div class="k">Two pipelines on the same audio</div>
 <ol>

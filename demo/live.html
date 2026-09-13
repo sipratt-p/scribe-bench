@@ -72,46 +72,46 @@
 <h1>Live decision support during the visit</h1>
 <p class="lede">The recording plays as if the visit were happening now. The streaming transcript arrives on the audio timeline, and every few seconds a local model updates a view meant to change what the clinician does before the patient leaves: a working differential with the evidence for each and what is still missing, the one question that best separates the top two, act-now red flags, safety-netting not yet given, and guideline-based plan suggestions kept apart from what the clinician actually said. When the visit ends, the live timeline is scored against the clinician's own note: how early the right diagnosis appeared, whether the suggested questions got asked, red-flag precision, and whether the plan suggestions agreed with or contradicted the plan.</p>
 <details class="arch" open><summary>Architecture and harness</summary>
-<div style="overflow-x:auto"><svg class="arch-svg" viewBox="0 0 980 520" role="img" aria-label="Live decision support loop: replayed streaming transcript, a synthesis call to the model every 20 seconds with guards, cached guideline lookups, and end-of-visit scoring against the GP note">
+<div style="overflow-x:auto"><svg class="arch2" viewBox="0 0 1000 520" role="img" aria-label="Live decision support loop: replayed streaming transcript, a model call every 20 seconds with guards, cached guideline lookups, scoring at the end">
 <style>
-.arch-svg{max-width:100%;height:auto;font-family:"Public Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;font-size:12px}
-.arch-svg .bx rect{fill:var(--surface);stroke:var(--ink);stroke-width:1.2}.arch-svg .bx .t{font-weight:600;font-size:12.5px;fill:var(--ink)}.arch-svg .bx .s{font-size:10.5px;fill:var(--muted)}
-.arch-svg .live rect{stroke:var(--accent);stroke-width:1.6}.arch-svg .live .t{fill:var(--accent)}
-.arch-svg .cache rect{stroke:var(--muted);stroke-dasharray:4 3}
-.arch-svg .truth rect{fill:var(--accent-soft);stroke:var(--accent)}
-.arch-svg .van rect{stroke:var(--theirs);stroke-width:1.6}.arch-svg .van .t{fill:var(--theirs)}
-.arch-svg .ar{stroke:var(--ink);stroke-width:1.2;fill:none}.arch-svg .ar.live{stroke:var(--accent)}.arch-svg .lb{font-size:10.5px;fill:var(--muted)}
-.arch-svg .zone{fill:none;stroke:var(--line);stroke-dasharray:6 4}.arch-svg .zl{font-family:"IBM Plex Mono",Menlo,monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;fill:var(--muted)}
-.arch-svg .lg{font-size:10.5px;fill:var(--muted)}
+.arch2{max-width:100%;height:auto;font-family:"Public Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;font-size:11.5px}
+.arch2 .bx rect{fill:var(--surface);stroke:var(--ink);stroke-width:1}.arch2 .bx text{fill:var(--ink)}.arch2 .bx .t{font-weight:600;font-size:12px}.arch2 .bx .s{font-size:10px;fill:var(--muted)}
+.arch2 .new rect{stroke:var(--accent);stroke-width:1.6}.arch2 .new .t{fill:var(--accent)}
+.arch2 .van rect{stroke:var(--theirs);stroke-width:1.6}.arch2 .van .t{fill:var(--theirs)}
+.arch2 .truth rect{fill:var(--accent-soft);stroke:var(--accent)}
+.arch2 .dash rect{stroke-dasharray:4 3;stroke:var(--muted)}
+.arch2 .ar{stroke:var(--ink);stroke-width:1.1;fill:none}.arch2 .ar.new{stroke:var(--accent)}.arch2 .ar.dsh{stroke-dasharray:4 3}
+.arch2 .lb{font-family:"IBM Plex Mono",Menlo,monospace;font-size:9.5px;fill:var(--muted)}.arch2 .lb.new{fill:var(--accent)}
+.arch2 .bd{fill:none;stroke:var(--line);stroke-dasharray:6 4}.arch2 .bdl{font-family:"IBM Plex Mono",Menlo,monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.arch2 .m{font-family:"IBM Plex Mono",Menlo,monospace;font-size:9px;fill:var(--ok)}.arch2 .mk circle{fill:var(--ok)}.arch2 .mk text{fill:#fff;font-size:8px;font-weight:700}
+.arch2 .lg{font-size:10px;fill:var(--muted)}
 </style>
-<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
-<rect class="zone" x="8" y="8" width="290" height="420" rx="8"/><text class="zl" x="20" y="26">Browser</text>
-<rect class="zone" x="310" y="8" width="380" height="420" rx="8"/><text class="zl" x="322" y="26">Mac · demo server :8700</text>
-<rect class="zone" x="702" y="8" width="270" height="420" rx="8"/><text class="zl" x="714" y="26">GPU box · DeepSeek V4 Flash</text>
-<g class="bx"><rect x="20" y="44" width="250" height="54" rx="5"/><text x="145.0" y="62" text-anchor="middle" class="t">Audio plays at 1–8×</text><text x="145.0" y="77" text-anchor="middle" class="s">the visit clock drives everything</text></g>
-<g class="bx cache"><rect x="330" y="44" width="200" height="72" rx="5"/><text x="430.0" y="62" text-anchor="middle" class="t">Replay (recorded)</text><text x="430.0" y="77" text-anchor="middle" class="s">streaming-ASR output placed on</text><text x="430.0" y="89" text-anchor="middle" class="s">the human timestamps, 4 words</text><text x="430.0" y="101" text-anchor="middle" class="s">at a time</text></g>
-<line class="ar" x1="270" y1="70" x2="328" y2="70" marker-end="url(#ah)"/><text class="lb" x="299.0" y="65.0" text-anchor="middle">clock</text>
-<g class="bx live"><rect x="330" y="130" width="200" height="72" rx="5"/><text x="430.0" y="148" text-anchor="middle" class="t">Every 20 s of visit time</text><text x="430.0" y="163" text-anchor="middle" class="s">transcript so far + previous</text><text x="430.0" y="175" text-anchor="middle" class="s">view + reference material → one</text><text x="430.0" y="187" text-anchor="middle" class="s">prompt</text></g>
-<line class="ar" x1="430" y1="110" x2="430" y2="128" marker-end="url(#ah)"/>
-<g class="bx live"><rect x="740" y="130" width="200" height="84" rx="5"/><text x="840.0" y="148" text-anchor="middle" class="t">Synthesis (live call)</text><text x="840.0" y="163" text-anchor="middle" class="s">returns one JSON view:</text><text x="840.0" y="175" text-anchor="middle" class="s">differential, ask-next, flags,</text><text x="840.0" y="187" text-anchor="middle" class="s">plan stated vs suggested,</text><text x="840.0" y="199" text-anchor="middle" class="s">assumptions, revisions</text></g>
-<line class="ar live" x1="530" y1="150" x2="738" y2="150" marker-end="url(#ah)"/><text class="lb" x="634.0" y="145.0" text-anchor="middle">prompt</text>
-<line class="ar live" x1="738" y1="180" x2="530" y2="180" marker-end="url(#ah)"/><text class="lb" x="634.0" y="192.0" text-anchor="middle">2–6 s</text>
-<g class="bx live"><rect x="330" y="230" width="200" height="84" rx="5"/><text x="430.0" y="248" text-anchor="middle" class="t">Guards, in code</text><text x="430.0" y="263" text-anchor="middle" class="s">no alarms before 90 s or before</text><text x="430.0" y="275" text-anchor="middle" class="s">the complaint is known · flag</text><text x="430.0" y="287" text-anchor="middle" class="s">tiers · differential re-derived</text><text x="430.0" y="299" text-anchor="middle" class="s">each tick</text></g>
-<line class="ar" x1="430" y1="202" x2="430" y2="228" marker-end="url(#ah)"/>
-<g class="bx"><rect x="20" y="230" width="250" height="60" rx="5"/><text x="145.0" y="248" text-anchor="middle" class="t">Panels</text><text x="145.0" y="263" text-anchor="middle" class="s">differential · ask next · flags · plan</text><text x="145.0" y="275" text-anchor="middle" class="s">· scribe view</text></g>
-<line class="ar" x1="328" y1="255" x2="272" y2="255" marker-end="url(#ah)"/><text class="lb" x="300.0" y="250.0" text-anchor="middle">stream</text>
-<g class="bx cache"><rect x="330" y="330" width="200" height="72" rx="5"/><text x="430.0" y="348" text-anchor="middle" class="t">Lookups (cached)</text><text x="430.0" y="363" text-anchor="middle" class="s">new differential entry → NHS</text><text x="430.0" y="375" text-anchor="middle" class="s">A-Z (786) → patient.info</text><text x="430.0" y="387" text-anchor="middle" class="s">(2,576) → Wikipedia (low trust)</text></g>
-<line class="ar" x1="400" y1="314" x2="400" y2="328" marker-end="url(#ah)"/>
-<path class="ar" d="M530 350 H 620 V 200 H 535" marker-end="url(#ah)"/>
-<text class="lb" x="626" y="270">reference material</text><text class="lb" x="626" y="282">on the next tick</text>
-<g class="bx live"><rect x="740" y="330" width="200" height="72" rx="5"/><text x="840.0" y="348" text-anchor="middle" class="t">Distill (live, once per condition)</text><text x="840.0" y="363" text-anchor="middle" class="s">key questions · red flags ·</text><text x="840.0" y="375" text-anchor="middle" class="s">first-line care · safety-</text><text x="840.0" y="387" text-anchor="middle" class="s">netting</text></g>
-<line class="ar live" x1="530" y1="372" x2="738" y2="372" marker-end="url(#ah)"/>
-<g class="bx"><rect x="20" y="330" width="250" height="72" rx="5"/><text x="145.0" y="348" text-anchor="middle" class="t">Activity log</text><text x="145.0" y="363" text-anchor="middle" class="s">every synthesis, lookup, revision and</text><text x="145.0" y="375" text-anchor="middle" class="s">scoring step with timing and source</text><text x="145.0" y="387" text-anchor="middle" class="s">links</text></g>
-<line class="ar" x1="328" y1="360" x2="272" y2="360" marker-end="url(#ah)"/>
-<rect class="zone" x="8" y="440" width="964" height="56" rx="8"/>
-<text class="zl" x="20" y="458">Visit ends → scoring, 3 live calls</text>
-<text class="lg" x="20" y="474">GP note → diagnosis + plan · timed human transcript → when the GP said each · timeline judged: top-3 timing, questions later asked, flags genuine, suggestions agree / extra / contradict, revisions toward / away</text>
-<text class="lg" x="20" y="514">Solid teal = live model call · dashed = replayed or cached · the same model writes and judges (no clinician validation)</text></svg></div>
+<defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker><marker id="a2n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0F6B8A"/></marker></defs>
+<rect class="bd" x="12" y="12" width="300" height="420" rx="6"/><text class="bdl" x="24" y="30">Browser</text>
+<rect class="bd" x="324" y="12" width="370" height="420" rx="6"/><text class="bdl" x="336" y="30">Mac · demo server</text>
+<rect class="bd" x="706" y="12" width="282" height="420" rx="6"/><text class="bdl" x="718" y="30">GPU box · DeepSeek V4 Flash · 220 tok/s</text>
+<g class="bx"><rect x="30" y="50" width="260" height="60" rx="4"/><text class="t" x="160.0" y="69" text-anchor="middle">Audio plays at 1–8×</text><text class="s" x="160.0" y="84" text-anchor="middle">the visit clock drives everything</text></g>
+<g class="bx dash"><rect x="345" y="50" width="180" height="60" rx="4"/><text class="t" x="435.0" y="69" text-anchor="middle">Replay</text><text class="s" x="435.0" y="84" text-anchor="middle">recorded streaming-ASR output</text><text class="s" x="435.0" y="97" text-anchor="middle">on the human timestamps</text></g>
+<line class="ar" x1="290" y1="80" x2="343" y2="80" marker-end="url(#a2)"/><text class="lb" x="316.5" y="76.0" text-anchor="middle">clock</text>
+<g class="bx new"><rect x="345" y="145" width="180" height="60" rx="4"/><text class="t" x="435.0" y="164" text-anchor="middle">Tick · every 20 s</text><text class="s" x="435.0" y="179" text-anchor="middle">transcript so far + previous view</text><text class="s" x="435.0" y="192" text-anchor="middle">+ reference material</text></g>
+<line class="ar" x1="435" y1="110" x2="435" y2="143" marker-end="url(#a2)"/>
+<g class="bx new"><rect x="730" y="145" width="240" height="60" rx="4"/><text class="t" x="850.0" y="164" text-anchor="middle">Synthesis · live call</text><text class="s" x="850.0" y="179" text-anchor="middle">differential · ask-next · flags · plan</text><text class="s" x="850.0" y="192" text-anchor="middle">assumptions · revisions</text></g><text class="m" x="966" y="200" text-anchor="end">2–6 s</text>
+<line class="ar new" x1="525" y1="165" x2="728" y2="165" marker-end="url(#a2n)"/><text class="lb new" x="626.5" y="161.0" text-anchor="middle">prompt</text>
+<line class="ar new" x1="728" y1="190" x2="525" y2="190" marker-end="url(#a2n)"/><text class="lb new" x="626.5" y="202.0" text-anchor="middle">JSON view</text>
+<g class="bx new"><rect x="345" y="240" width="180" height="60" rx="4"/><text class="t" x="435.0" y="259" text-anchor="middle">Guards · in code</text><text class="s" x="435.0" y="274" text-anchor="middle">no alarms < 90 s or before the complaint</text><text class="s" x="435.0" y="287" text-anchor="middle">flag tiers · re-derive differential</text></g><text class="m" x="521" y="295" text-anchor="end">flags 61→3, all genuine</text>
+<line class="ar" x1="435" y1="205" x2="435" y2="238" marker-end="url(#a2)"/>
+<g class="bx"><rect x="30" y="240" width="260" height="60" rx="4"/><text class="t" x="160.0" y="259" text-anchor="middle">Panels</text><text class="s" x="160.0" y="274" text-anchor="middle">differential · ask next · flags</text><text class="s" x="160.0" y="287" text-anchor="middle">plan stated vs suggested · scribe view</text></g>
+<line class="ar" x1="343" y1="270" x2="292" y2="270" marker-end="url(#a2)"/><text class="lb" x="317.5" y="266.0" text-anchor="middle">stream</text>
+<g class="bx dash"><rect x="345" y="335" width="180" height="60" rx="4"/><text class="t" x="435.0" y="354" text-anchor="middle">Lookups · cached</text><text class="s" x="435.0" y="369" text-anchor="middle">NHS A-Z 786 → patient.info 2,576</text><text class="s" x="435.0" y="382" text-anchor="middle">→ Wikipedia (low trust)</text></g><text class="m" x="521" y="390" text-anchor="end">no resolved gain</text>
+<line class="ar" x1="400" y1="300" x2="400" y2="333" marker-end="url(#a2)"/><text class="lb" x="400.0" y="314.5" text-anchor="start">new dx</text>
+<path class="ar dsh" d="M525 365 H 600 V 205 H 528" marker-end="url(#a2)"/>
+<text class="lb" x="606" y="290">reference material</text><text class="lb" x="606" y="301">on the next tick</text>
+<g class="bx new"><rect x="730" y="335" width="240" height="60" rx="4"/><text class="t" x="850.0" y="354" text-anchor="middle">Distill · once per condition</text><text class="s" x="850.0" y="369" text-anchor="middle">key questions · red flags</text><text class="s" x="850.0" y="382" text-anchor="middle">first-line · safety-netting</text></g>
+<line class="ar new" x1="525" y1="378" x2="728" y2="378" marker-end="url(#a2n)"/>
+<g class="bx"><rect x="30" y="335" width="260" height="60" rx="4"/><text class="t" x="160.0" y="354" text-anchor="middle">Activity log</text><text class="s" x="160.0" y="369" text-anchor="middle">every tick, lookup, revision, scoring</text><text class="s" x="160.0" y="382" text-anchor="middle">with timings and sources</text></g>
+<line class="ar" x1="343" y1="365" x2="292" y2="365" marker-end="url(#a2)"/>
+<rect class="bd" x="12" y="444" width="976" height="46" rx="6"/><text class="bdl" x="24" y="462">Visit ends → scoring · 3 live calls · GP note → diagnosis + plan · timed transcript → when the GP said each</text><text class="lg" x="24" y="478">judged: top-3 timing · questions later asked · flags genuine · suggestions agree / extra / contradict · revisions toward / away · then re-judged item by item with Gemma and Qwen</text>
+<text class="lg" x="24" y="512">teal = live model call · dashed = replayed or cached · green tags = the measurement each part moved over 57 visits · the same model writes and judges (cross-judged afterwards)</text></svg></div>
 <details><summary>In words</summary>
 <div class="k">Pipeline, per visit</div>
 <ol>
