@@ -125,6 +125,83 @@ PriMock57 is released under CC BY 4.0 (repository LICENSE.md); ACI-Bench under C
 ## 7. Reproducibility
 Code, lexicon, splits, prompts, run notebooks and cached model outputs are in the repository; every table's source file is listed in [[sources]]. All models are open weights; the two workstation GPUs and about $49 of cloud time suffice to rerun everything except the 550B base-model run.
 
+## Tables
+
+**Table 1. Transcript layer, 57 recordings.** WER after symmetric normalization; medical-term miss over 1,741 lexicon occurrences (binomial 95% CI); DER with 250 ms collar.
+
+| System | Decoder | WER % | Term miss % [95% CI] | DER % |
+|---|---|---|---|---|
+| Nemotron-3.5 streaming 0.6B, 1.1 s chunks | transducer | 11.8 | 12.5 [10.9, 14.0] | no speakers |
+| Nemotron-3.5 offline | transducer | 11.8 | 12.5 | no speakers |
+| Parakeet-TDT 0.6B v3 | transducer | 11.2 | 15.1 [13.4, 16.8] | no speakers |
+| Sortformer + Parakeet v3 | transducer | 11.2 | 15.1 | 11.1 |
+| Canary-Qwen 2.5B | LLM | 11.6 | 9.4 [8.0, 10.8] | no speakers |
+| MOSS-TD 0.9B | LLM | 10.3 | 8.4 [7.1, 9.7] | 11.4 |
+| MOSS-TD + complaint hotwords | LLM | 10.6 | 8.6 [7.2, 9.9] | 11.7 |
+| Nano Omni 30B-A3B as prompted | LLM | 27.2 | 15.7 | 88.3 |
+
+Paired over recordings: MOSS-TD − streaming term miss −3.9 [−6.3, −1.7], WER −1.4 [−1.8, −1.0]; Canary-Qwen − streaming term miss −2.6 [−4.8, −0.6], WER −0.1 [−0.4, +0.2]; hotwords − plain WER +0.18 [+0.03, +0.33].
+
+**Table 2. After-visit note, 37 held-out consultations, judge 1.** Means, and paired bootstrap 95% CI of the difference from vanilla.
+
+| Metric | Vanilla | v1 (anonymous labels) | Best | Best, cited | Best − vanilla | Cited − vanilla |
+|---|---|---|---|---|---|---|
+| Composite | 40.8 | 39.6 | 45.0 | 44.1 | +4.2 [−0.3, +8.8] | +3.1 [−1.2, +7.9] |
+| Term precision | 26.4 | 25.8 | 30.9 | 32.9 | **+4.5 [+2.3, +6.7]** | **+6.5 [+4.2, +8.7]** |
+| Term recall | 52.1 | 54.4 | 52.7 | 51.9 | +0.6 [−3.0, +4.5] | −0.2 [−3.8, +3.7] |
+| ROUGE-L | 21.8 | 20.6 | 23.9 | 22.7 | **+2.2 [+1.0, +3.2]** | +0.9 [−0.1, +1.9] |
+| Plan recall (all reference items) | 80.8 | 79.0 | 81.2 | 76.0 | +0.6 [−5.3, +6.5] | −6.0 [−12.3, +0.2] |
+| Plan recall (transcript-stated items) | 96.5 | – | 92.9 | 89.4 | – | – |
+| Misattributions / note | 0.08 | 0.11 | 0.03 | 0.03 | −0.05 [−0.16, +0.05] | −0.05 [−0.16, +0.05] |
+| Grounded sentences % | 88.6 | 89.8 | 87.9 | 93.2 | −0.8 [−4.0, +2.4] | **+4.6 [+2.3, +6.9]** |
+| Cited / linked % | 0 / – | 0 / – | 0 / – | 88.8 / 84.0 | – | – |
+
+Judge 2 composite: vanilla 44.4, best 46.8, difference +2.5 [−0.1, +5.3]. Cited − best: grounded +5.3 [+3.2, +7.8], ROUGE-L −1.2 [−2.3, −0.2], plan recall −6.5 [−13.3, +0.2].
+
+**Table 3. Live view, 57 visits, per version (original judge).**
+
+| Metric | v2 | v4 | v5 | v5 + retrieval |
+|---|---|---|---|---|
+| Reference diagnosis ever in top-3 | 52 | 49 | 56 | 55 |
+| Ever top-1 | 35 | 31 | 44 | 41 |
+| Had it before the GP said it | 48 / 51 | 49 / 49 | 54 / 54 | 52 / 52 |
+| Suggested questions later asked | 80.8% of 219 | 93.3% of 149 | 86.9% of 229 | 82.6% of 224 |
+| Red flags raised / judged genuine | 61 / 54 | 62 / 52 | 3 / 3 | 6 / 6 |
+| Plan suggestions agree / extra / contradict | 37 / 108 / 13 | 82 / 67 / 6 | 43 / 73 / 3 | 47 / 104 / 5 |
+| Top-1 flips per visit | 0.19 | 0.37 | 0.75 | 0.63 |
+
+Paired v5 − v2: top-3 +0.07 [+0.02, +0.14]; contradictions −0.18 [−0.33, −0.04]; flags −1.02 [−1.44, −0.63]; false alarms −0.12 [−0.23, −0.04]. v5 + retrieval − v5: no interval excludes zero.
+
+**Table 3b. Live view v5, cross-judged item by item.**
+
+| Quantity | timeline prompt, DeepSeek | item prompt, DeepSeek | item prompt, Gemma 4 |
+|---|---|---|---|
+| Diagnosis ever in top-3 | 56 / 57 | 51 / 57 | 51 / 57 |
+| Flags judged genuine (of 3) | 3 | 1 | 3 |
+| Plan suggestions agree / extra / contradict (87) | 26 / 58 / 3 | 67 / 5 / 15 | 21 / 65 / 1 |
+
+κ, top-3 per visit: timeline vs item-DeepSeek +0.26, timeline vs item-Gemma +0.26, item-DeepSeek vs item-Gemma +0.63. κ, plan verdicts: +0.08 / +0.28 / +0.10.
+
+**Table 4. Attribution judged three ways, 74 held-out notes.**
+
+| Judge | Notes flagged | Vanilla mean / note | Best mean / note |
+|---|---|---|---|
+| Qwen3.8-27B | 4 | 0.08 | 0.03 |
+| DeepSeek V4 Flash | 1 | 0.03 | 0.00 |
+| Gemma 4 26B-A4B | 13 | 0.135 | 0.216 |
+
+Pairwise κ: −0.02, +0.29, +0.12; flagged by all three: 0. Composite ranking, Qwen vs DeepSeek: Spearman ρ = 0.80 (n = 74).
+
+**Table 5. Fine-tuning, ACI-Bench, 120 encounters, SFT − base (paired bootstrap 95% CI).**
+
+| Metric | SFT − base |
+|---|---|
+| ROUGE-L | +8.6 [+7.2, +10.0] |
+| Term recall | +4.8 [+2.9, +6.6] |
+| Term precision | +10.2 [+7.9, +12.6] |
+| Misattributions / note | +0.11 [+0.04, +0.18] |
+| Follow-up recall | −4.5 [−7.3, −2.0] |
+
 ## Figures and tables (list)
 1. Table 1: ASR matrix (WER, term miss with CIs, DER, speakers) — from [[decoder-finding]].
 2. Figure 1: term miss vs WER scatter, decoder family coloured — drawn, below.

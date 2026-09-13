@@ -20,7 +20,7 @@ Ambient clinical scribes turn a recorded consultation into a draft note, and are
 
 **Judges.** Judge 1 Qwen3.8-27B-FP8 (vLLM, thinking off) for all per-note judgments; judge 2 DeepSeek V4 Flash for confirmation of accepted configs. Judge benchmark on injected errors: Qwen 99.1% recall / 6.5% false positive, DeepSeek 95.7% / 4.5%, Gemma 4 98.7% / 5.5%.
 
-**Statistics.** Paired bootstrap over visits (10,000 resamples) for differences; binomial or Wilson intervals for rates; Spearman ρ and Cohen's κ for judge agreement. All reported in `runs/paper_stats.md`.
+**Statistics.** Paired bootstrap over visits (10,000 resamples) for differences, with the recording as the sampling unit for transcript metrics and the visit for note and live metrics; binomial or Wilson intervals for rates; Spearman ρ and Cohen's κ for judge agreement. We report every per-metric interval rather than a single headline; the composite is an engineering objective for the search, not a claim, and we do not correct for multiple comparisons because the point is the pattern across metrics, not any one test. All numbers are in `runs/paper_stats.md`.
 
 **Compute.** One workstation with two RTX PRO 6000 (Blackwell) GPUs and a Mac Studio; about $49 of rented H200 time for fine-tuning. Everything else local.
 
@@ -95,13 +95,13 @@ Expert iteration on the local writer (sample 8, keep 2, LoRA, four rounds, rewar
 
 **Results (Table 3).** Diagnosis ever in top-3: v2 52/57 [81, 96], v5 56/57 [91, 100]; v5 − v2 +0.07 [+0.02, +0.14]. Lead over the GP: median 5:36, in 54/54 visits where the GP stated a diagnosis. Red flags: v2 61 raised / 7 false; v5 3 raised / 0 false; per-visit −1.02 [−1.44, −0.63] flags and −0.12 [−0.23, −0.04] false alarms. Contradicting plan suggestions: 13 → 3, −0.18 [−0.33, −0.04] per visit. v4's danger-first rule raised agreeing suggestions (+0.79 [+0.39, +1.21] per visit) but evicted the likely diagnosis (top-3 −0.05 [−0.12, +0.02]) and produced hedged flags. Guideline retrieval (v5+NHS − v5): no resolved change on any measure; suggestions +31 mostly "extra"; the NHS anaphylaxis page re-imported emergency advice on an insect-sting visit the prompt rules had calmed.
 
-**Reading.** The safety improvements are prompt rules (stated-feature-only flags, a hold, tiering), and they are resolved at n = 57. "Ahead of the GP" measures how fast the view reads the history, not diagnostic insight. Every flag and contradiction is a model judging a model; the three v5 flags and three contradictions are what a clinician should read first.
+**Cross-judging (Table 3b).** The v5 run was re-judged item by item, with minimal context per verdict, by DeepSeek and by Gemma 4. Diagnosis coverage falls from 56/57 under the whole-timeline prompt to 51/57 under both item judges, which agree with each other (κ = +0.63) and disagree with the timeline prompt (κ = +0.26 each): the timeline prompt over-credits. Plan-suggestion verdicts depend on the prompt more than on the judge: agree / extra / contradict is 26 / 58 / 3 under the timeline prompt, 67 / 5 / 15 under DeepSeek's item prompt and 21 / 65 / 1 under Gemma's (three-way κ between 0.08 and 0.28). Of the three red flags, all three features were stated in the transcript by the time they were raised; Gemma accepts all three, DeepSeek's item judge accepts one and rejects the "act now" tier on the other two. **Reading.** The safety improvements are prompt rules (stated-feature-only flags, a hold, tiering) and their per-visit effects are resolved at n = 57 under the original judge; the reduction in raised flags (61 → 3) is a property of the generator and does not depend on any judge. What does depend on the judge is the classification of suggestions, so the "3 contradictions" figure is reported as one prompt's verdict, not a fact about the pipeline. "Ahead of the GP" measures how fast the view reads the history, not diagnostic insight.
 
 ## 5. What the judges can and cannot see
 - **Ranking, yes.** Per-note composites from the two judges correlate at ρ = 0.80 over 74 notes; both order vanilla < best.
 - **Levels, no.** Judge 2 scores every note 2–4 points higher; plan recall means differ by 5 points (ρ = 0.54).
 - **Attribution, not at all.** On the same 74 notes, Qwen flags 4, DeepSeek 1, Gemma 4 flags 13; pairwise κ −0.02 (Qwen–DeepSeek), +0.29 (Qwen–Gemma), +0.12 (DeepSeek–Gemma); four notes are flagged by two judges and none by all three. Gemma also reverses the direction of the pipeline difference (vanilla 0.135 vs best 0.216 per note, against 0.08 vs 0.03 under Qwen). The misattribution penalty carries 40 points per event in the composite, so this is the term most exposed to judge choice, and the one dimension where the paper can make no directional claim at all.
-- **Self-judging.** In Study 2 the writer and the judge are the same model; it cannot detect its own over-escalation (the anaphylaxis-vs-antihistamine disagreement is judged "contradicts" both ways).
+- **Self-judging and prompt granularity.** In Study 2 the writer and the judge are the same model. Re-judging item by item with a second model changes the verdict distributions more than changing the model does (plan verdicts: κ 0.08–0.28 across prompts, 0.10 across judges at the same prompt), while diagnosis coverage is stable across judges at the item level (κ = 0.63) and inflated by the whole-timeline prompt (56 vs 51 of 57).
 - **Objective design.** Two failures were caused by the metric, not the model: citations removed (3.4) and unspoken plan items credited (3.5). Both were found by re-scoring, not by a new model.
 - **RL sign disagreement** (3.7).
 - Implication: use LLM judges to order pipelines and to audit objectives; calibrate at least the attribution judge against clinicians before any absolute claim.
@@ -115,6 +115,83 @@ PriMock57 is released under CC BY 4.0 (repository LICENSE.md); ACI-Bench under C
 ## 7. Reproducibility
 Code, lexicon, splits, prompts, run notebooks and cached model outputs are in the repository; every table's source file is listed in the repository. All models are open weights; the two workstation GPUs and about $49 of cloud time suffice to rerun everything except the 550B base-model run.
 
+## Tables
+
+**Table 1. Transcript layer, 57 recordings.** WER after symmetric normalization; medical-term miss over 1,741 lexicon occurrences (binomial 95% CI); DER with 250 ms collar.
+
+| System | Decoder | WER % | Term miss % [95% CI] | DER % |
+|---|---|---|---|---|
+| Nemotron-3.5 streaming 0.6B, 1.1 s chunks | transducer | 11.8 | 12.5 [10.9, 14.0] | no speakers |
+| Nemotron-3.5 offline | transducer | 11.8 | 12.5 | no speakers |
+| Parakeet-TDT 0.6B v3 | transducer | 11.2 | 15.1 [13.4, 16.8] | no speakers |
+| Sortformer + Parakeet v3 | transducer | 11.2 | 15.1 | 11.1 |
+| Canary-Qwen 2.5B | LLM | 11.6 | 9.4 [8.0, 10.8] | no speakers |
+| MOSS-TD 0.9B | LLM | 10.3 | 8.4 [7.1, 9.7] | 11.4 |
+| MOSS-TD + complaint hotwords | LLM | 10.6 | 8.6 [7.2, 9.9] | 11.7 |
+| Nano Omni 30B-A3B as prompted | LLM | 27.2 | 15.7 | 88.3 |
+
+Paired over recordings: MOSS-TD − streaming term miss −3.9 [−6.3, −1.7], WER −1.4 [−1.8, −1.0]; Canary-Qwen − streaming term miss −2.6 [−4.8, −0.6], WER −0.1 [−0.4, +0.2]; hotwords − plain WER +0.18 [+0.03, +0.33].
+
+**Table 2. After-visit note, 37 held-out consultations, judge 1.** Means, and paired bootstrap 95% CI of the difference from vanilla.
+
+| Metric | Vanilla | v1 (anonymous labels) | Best | Best, cited | Best − vanilla | Cited − vanilla |
+|---|---|---|---|---|---|---|
+| Composite | 40.8 | 39.6 | 45.0 | 44.1 | +4.2 [−0.3, +8.8] | +3.1 [−1.2, +7.9] |
+| Term precision | 26.4 | 25.8 | 30.9 | 32.9 | **+4.5 [+2.3, +6.7]** | **+6.5 [+4.2, +8.7]** |
+| Term recall | 52.1 | 54.4 | 52.7 | 51.9 | +0.6 [−3.0, +4.5] | −0.2 [−3.8, +3.7] |
+| ROUGE-L | 21.8 | 20.6 | 23.9 | 22.7 | **+2.2 [+1.0, +3.2]** | +0.9 [−0.1, +1.9] |
+| Plan recall (all reference items) | 80.8 | 79.0 | 81.2 | 76.0 | +0.6 [−5.3, +6.5] | −6.0 [−12.3, +0.2] |
+| Plan recall (transcript-stated items) | 96.5 | – | 92.9 | 89.4 | – | – |
+| Misattributions / note | 0.08 | 0.11 | 0.03 | 0.03 | −0.05 [−0.16, +0.05] | −0.05 [−0.16, +0.05] |
+| Grounded sentences % | 88.6 | 89.8 | 87.9 | 93.2 | −0.8 [−4.0, +2.4] | **+4.6 [+2.3, +6.9]** |
+| Cited / linked % | 0 / – | 0 / – | 0 / – | 88.8 / 84.0 | – | – |
+
+Judge 2 composite: vanilla 44.4, best 46.8, difference +2.5 [−0.1, +5.3]. Cited − best: grounded +5.3 [+3.2, +7.8], ROUGE-L −1.2 [−2.3, −0.2], plan recall −6.5 [−13.3, +0.2].
+
+**Table 3. Live view, 57 visits, per version (original judge).**
+
+| Metric | v2 | v4 | v5 | v5 + retrieval |
+|---|---|---|---|---|
+| Reference diagnosis ever in top-3 | 52 | 49 | 56 | 55 |
+| Ever top-1 | 35 | 31 | 44 | 41 |
+| Had it before the GP said it | 48 / 51 | 49 / 49 | 54 / 54 | 52 / 52 |
+| Suggested questions later asked | 80.8% of 219 | 93.3% of 149 | 86.9% of 229 | 82.6% of 224 |
+| Red flags raised / judged genuine | 61 / 54 | 62 / 52 | 3 / 3 | 6 / 6 |
+| Plan suggestions agree / extra / contradict | 37 / 108 / 13 | 82 / 67 / 6 | 43 / 73 / 3 | 47 / 104 / 5 |
+| Top-1 flips per visit | 0.19 | 0.37 | 0.75 | 0.63 |
+
+Paired v5 − v2: top-3 +0.07 [+0.02, +0.14]; contradictions −0.18 [−0.33, −0.04]; flags −1.02 [−1.44, −0.63]; false alarms −0.12 [−0.23, −0.04]. v5 + retrieval − v5: no interval excludes zero.
+
+**Table 3b. Live view v5, cross-judged item by item.**
+
+| Quantity | timeline prompt, DeepSeek | item prompt, DeepSeek | item prompt, Gemma 4 |
+|---|---|---|---|
+| Diagnosis ever in top-3 | 56 / 57 | 51 / 57 | 51 / 57 |
+| Flags judged genuine (of 3) | 3 | 1 | 3 |
+| Plan suggestions agree / extra / contradict (87) | 26 / 58 / 3 | 67 / 5 / 15 | 21 / 65 / 1 |
+
+κ, top-3 per visit: timeline vs item-DeepSeek +0.26, timeline vs item-Gemma +0.26, item-DeepSeek vs item-Gemma +0.63. κ, plan verdicts: +0.08 / +0.28 / +0.10.
+
+**Table 4. Attribution judged three ways, 74 held-out notes.**
+
+| Judge | Notes flagged | Vanilla mean / note | Best mean / note |
+|---|---|---|---|
+| Qwen3.8-27B | 4 | 0.08 | 0.03 |
+| DeepSeek V4 Flash | 1 | 0.03 | 0.00 |
+| Gemma 4 26B-A4B | 13 | 0.135 | 0.216 |
+
+Pairwise κ: −0.02, +0.29, +0.12; flagged by all three: 0. Composite ranking, Qwen vs DeepSeek: Spearman ρ = 0.80 (n = 74).
+
+**Table 5. Fine-tuning, ACI-Bench, 120 encounters, SFT − base (paired bootstrap 95% CI).**
+
+| Metric | SFT − base |
+|---|---|
+| ROUGE-L | +8.6 [+7.2, +10.0] |
+| Term recall | +4.8 [+2.9, +6.6] |
+| Term precision | +10.2 [+7.9, +12.6] |
+| Misattributions / note | +0.11 [+0.04, +0.18] |
+| Follow-up recall | −4.5 [−7.3, −2.0] |
+
 ## Figures and tables (list)
 1. Table 1: ASR matrix (WER, term miss with CIs, DER, speakers) — from decoder-finding.
 2. Figure 1: term miss vs WER scatter, decoder family coloured — drawn, below.
@@ -122,7 +199,7 @@ Code, lexicon, splits, prompts, run notebooks and cached model outputs are in th
 4. Figure 2: the search's dev-vs-test trajectory — drawn, below.
 5. Table 3: live-view versions with CIs — from `runs/paper_stats.md`.
 6. Figure 3: per-visit red flags and contradictions, v2 vs v5 — drawn, below.
-7. Table 4: three-judge agreement. 8. Table 5: ACI-Bench fine-tuning with per-encounter CIs.
+7. Table 4: three-judge agreement (attribution). 8. Table 5: ACI-Bench fine-tuning with per-encounter CIs. 9. Table 3b: live-view cross-judging.
 8. Appendix A: run log (the run log, the search log); Appendix B: prompts; Appendix C: verifier benchmark (Appendix C); Appendix D: fairness (Appendix D).
 
 ![Medical-term miss rate against word error rate, seven open ASR systems](figs/fig1_decoder.pdf){width=100%}
