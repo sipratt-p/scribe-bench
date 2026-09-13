@@ -64,6 +64,28 @@ Reading
 - **Stability is fine**: 0.19 top-1 flips per visit and 7% premature complaints; the "never guess from small talk" rule works most of the time.
 - Not measured yet: the v3 lookups' and revisions' effect (run again with the v3 prompt), and any clinician's view of the red flags and contradictions.
 
+## v2 → v4 on the same 57 visits (v4 = danger-first, modality-aware, simple-causes-first, re-derive every tick; lookups + revisions on; 12 Sep 23:50)
+| Metric | v2 | v4 |
+|---|---|---|
+| Reference diagnosis ever in live top-3 | 52 / 57 | 49 / 57 |
+| Ever top-1 | 35 / 57 | 31 / 57 |
+| Median time to top-3 | 1:20 | **0:40** |
+| Had it before the GP said it | 48 / 51 | **49 / 49**, median lead 5:39 |
+| Suggested questions later asked | 80.8% of 219 | **93.3%** of 149 |
+| Red flags: unique / genuine / precision | 61 / 54 / 88.5% | 62 / 52 / **83.9%** (10 false alarms) |
+| Plan suggestions agree / extra / contradict | 37 / 108 / 13 | **82 / 67 / 6** |
+| Announced revisions toward / away | – | 489 / 20 (of 1,258) |
+| Wrong complaint on first tick | 7.0% | 5.3% |
+| Top-1 flips per visit | 0.19 | 0.37 |
+| Tick latency mean / p95 (4 visits in parallel) | 5.1 / 7.3 s | 10.0 / 10.0 s |
+| Guideline lookups actually used | – | 8 (search engine returned empty for most conditions) |
+
+What v4 fixed: the two dangerous cases. Impacted ear wax is now in the top-3 (simple-causes-first) and the rash-with-travel visit no longer suggests watch-and-wait (danger-first). Plan suggestions doubled their agreement with the GP and contradictions fell from 13 to 6, all six in two visits: an insect-bite reaction escalated to anaphylaxis (999, adrenaline), and a headache-with-fever visit chased meningitis and COVID where the GP's note says hypothyroid, a diagnosis never spoken aloud. Suggested questions got fewer and better (93% later asked).
+
+What v4 cost: **danger-first crowds a three-slot differential.** Asthma exacerbation lost its slot to ACS / pericarditis, TIA to cervical radiculopathy / MS; heart failure was still listed second but the judge marked it absent ("exacerbation of heart failure" vs "heart failure"), a judge inconsistency. Red-flag precision fell because the model now raises hedged flags ("thunderclap not excluded", "onset not yet clarified"), which the judge rightly rejects. Top-1 flips doubled because the differential is re-derived every tick. Latency doubled with the longer prompt and output; single-stream on the demo page it is 4–6 s. The lookups barely contributed: SearXNG returned empty result sets for most conditions even serialized, so the v4 gains are the prompt rules, not the guideline material.
+
+Next changes, not run: a five-slot differential so the dangerous entries stop evicting the likely one; red flags only for features actually present, with hedges going to `missing`; a working search path for the lookups (direct NHS site search); and a clinician reading the 62 red flags and 6 contradictions.
+
 Sunday demo picks: #day2-07 (acute cardiac event: top-3 at 1:00 vs GP 5:42, red flags, 6/6 questions asked, plan 2 agree), #day4-03 (PE: top-3 at 1:00 vs GP 5:38), #day2-09 (suspected stroke: 1:00 vs 3:49). Failure to show honestly: #day2-01 (ear wax never in the differential, three contradicting suggestions).
 
 ## Caveats
