@@ -76,3 +76,62 @@ Started 2026-09-12 00:51. Dev = 20 PriMock consultations, test = 37. Cached ASR 
 | 70 | moss_hot150 | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 48.22 (TR 52.81, TP 36.04, RL 29.12, plan 78.72, mis 0.0) | +0.01 (human 48.21) |  |  |
 | 71 | moss_hotcc | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 47.75 (TR 51.6, TP 36.94, RL 29.34, plan 76.6, mis 0.0) | +0.11 (human 47.64) |  |  |
 | 72 | moss_hotcc | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. U | 0 | none | 46.44 (TR 49.77, TP 34.56, RL 29.12, plan 76.6, mis 0.0) | -0.81 (human 47.25) |  |  |
+| 73 | moss_hotcc | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 45.37 (TR 51.22, TP 34.63, RL 29.34, plan 78.72, mis 0.05) | -0.8 (human 46.17) |  |  |
+| 74 | moss_hot150 | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 43.86 (TR 48.42, TP 36.39, RL 25.26, plan 76.84, mis 0.05) | -3.06 (human 46.92) |  |  |
+| 75 | moss_hotcc | 0 | llm | base +scaffold [dsv4flash] | Prioritize high-precision terminology. F | 0 | none | 46.34 (TR 52.21, TP 37.39, RL 28.61, plan 78.72, mis 0.05) | -1.41 (human 47.75) |  |  |
+| 76 | moss_hotcc | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 45.9 (TR 51.84, TP 32.63, RL 24.66, plan 78.12, mis 0.0) | +0.31 (human 45.59) |  |  |
+| 77 | moss_hotcc | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. W | 0 | none | 44.81 (TR 48.31, TP 37.16, RL 29.26, plan 76.6, mis 0.05) | -2.87 (human 47.68) |  |  |
+| 78 | moss_hotcc | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. D | 0 | none | 45.62 (TR 52.34, TP 35.91, RL 29.94, plan 75.79, mis 0.05) | -1.69 (human 47.31) |  |  |
+| 79 | moss_hot150 | 0 | llm | base +scaffold [dsv4flash] | Extract atomic propositions from the tra | 0 | none | 45.09 (TR 50.36, TP 36.65, RL 29.41, plan 75.53, mis 0.05) | -2.04 (human 47.13) |  |  |
+| 80 | moss_hotcc | 0 | llm | base [dsv4flash] | Identify the speaker for each utterance. | 0 | none | 45.83 (TR 49.19, TP 37.05, RL 29.78, plan 80.0, mis 0.05) | -1.57 (human 47.4) |  |  |
+| 81 | moss_hotcc | 0 | llm | base [dsv4flash] | When listing plan items, use the exact p | 0 | none | 46.67 (TR 48.21, TP 37.71, RL 28.93, plan 75.53, mis 0.0) | +0.72 (human 45.95) |  |  |
+| 82 | moss_hot150 | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 45.27 (TR 50.36, TP 35.35, RL 30.13, plan 77.66, mis 0.05) | -1.6 (human 46.87) |  |  |
+| 83 | moss_hotcc | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 47.41 (TR 51.14, TP 36.04, RL 29.7, plan 76.6, mis 0.0) | +1.95 (human 45.46) |  |  |
+| 84 | moss_hotcc | 0 | llm | base +scaffold [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 47.11 (TR 49.89, TP 36.04, RL 28.97, plan 77.66, mis 0.0) | +0.67 (human 46.44) |  |  |
+| 85 | moss_hotcc | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 1 | drop_flagged | 45.72 (TR 48.01, TP 38.65, RL 29.15, plan 69.47, mis 0.0) | +0.98 (human 44.74) |  |  |
+| 86 | moss_hotcc | 0 | llm | base +scaffold [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 45.35 (TR 50.35, TP 35.58, RL 29.15, plan 78.72, mis 0.05) | -1.45 (human 46.8) |  |  |
+| 87 | moss_hot150 | 0 | llm | base +scaffold [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 44.71 (TR 50.78, TP 35.78, RL 29.23, plan 74.47, mis 0.05) | -2.09 (human 46.8) |  |  |
+| 88 | moss_hot150 | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 1 | drop_flagged | 43.71 (TR 48.73, TP 38.99, RL 29.09, plan 77.89, mis 0.1) | -1.03 (human 44.74) |  |  |
+| 89 | moss_hot150 | 0 | llm | attrib_strict [dsv4flash] | Strictly attribute every clinical findin | 0 | none | 46.87 (TR 50.0, TP 36.58, RL 27.87, plan 76.6, mis 0.0) | -0.26 (human 47.13) |  |  |
+| 90 | moss_hot150 | 0 | llm | base [qwen27b] | Prioritize high-precision terminology. E | 0 | none | 45.48 (TR 51.19, TP 30.86, RL 27.5, plan 76.84, mis 0.0) | -1.69 (human 47.17) |  |  |
+| 91 | canary_qwen | 0 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 42.82 (TR 49.75, TP 35.43, RL 29.48, plan 76.84, mis 0.1) | -5.38 (human 48.2) |  |  |
+| 92 | moss_hot150 | 0 | llm | attrib_strict [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 47.26 (TR 50.43, TP 34.82, RL 28.61, plan 79.79, mis 0.0) | -1.4 (human 48.66) |  |  |
+| 93 | moss_hotcc | 0 | llm | attrib_strict [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 43.93 (TR 52.98, TP 36.48, RL 29.65, plan 75.79, mis 0.1) | -4.73 (human 48.66) |  |  |
+| 94 | moss_hot150 | 1 | llm | attrib_strict [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 47.28 (TR 51.15, TP 34.96, RL 28.5, plan 78.72, mis 0.0) | -1.38 (human 48.66) |  |  |
+| 95 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 48.78 (TR 55.67, TP 35.78, RL 29.88, plan 76.84, mis 0.0) | +1.91 (human 46.87) | 42.51 | dev gain did not hold on test |
+| 96 | moss_hotcc | 1 | llm | attrib_strict [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 43.53 (TR 53.7, TP 35.51, RL 29.11, plan 74.74, mis 0.1) | -5.13 (human 48.66) |  |  |
+| 97 | moss_hot150 | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 45.63 (TR 51.0, TP 35.08, RL 30.32, plan 78.72, mis 0.05) | -1.24 (human 46.87) |  |  |
+| 98 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 1 | drop_flagged | 41.73 (TR 48.02, TP 37.64, RL 28.87, plan 71.28, mis 0.1) | -3.01 (human 44.74) |  |  |
+| 99 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 44.42 (TR 49.76, TP 33.73, RL 28.98, plan 77.89, mis 0.05) | -2.4 (human 46.82) |  |  |
+| 100 | moss_hot150 | 1 | llm | base +scaffold [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 45.15 (TR 51.13, TP 34.86, RL 27.8, plan 78.95, mis 0.05) | -2.57 (human 47.72) |  |  |
+| 101 | moss_hotcc | 1 | llm | attrib_strict [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 46.95 (TR 50.1, TP 35.53, RL 28.43, plan 77.89, mis 0.0) | -0.67 (human 47.62) |  |  |
+| 102 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 1 | none | 45.22 (TR 50.18, TP 37.52, RL 29.01, plan 75.53, mis 0.05) | -0.19 (human 45.41) |  |  |
+| 103 | moss_hotcc | 1 | llm | base +scaffold [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 45.26 (TR 51.51, TP 35.99, RL 29.25, plan 75.79, mis 0.05) | -1.54 (human 46.8) |  |  |
+| 104 | moss_hotcc | 1 | llm | attrib_strict [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 44.27 (TR 50.45, TP 35.41, RL 27.02, plan 75.53, mis 0.05) | -2.95 (human 47.22) |  |  |
+| 105 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 45.4 (TR 52.81, TP 38.0, RL 29.51, plan 71.28, mis 0.05) | -2.89 (human 48.29) |  |  |
+| 106 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 48.72 (TR 52.66, TP 36.12, RL 29.38, plan 81.05, mis 0.0) | +1.59 (human 47.13) | 41.88 | dev gain did not hold on test |
+| 107 | moss_hotcc | 1 | llm | attrib_strict +scaffold [dsv4flash] | Extract atomic propositions first. For e | 0 | none | 47.33 (TR 52.33, TP 38.03, RL 27.96, plan 83.16, mis 0.05) | +0.85 (human 46.48) |  |  |
+| 108 | moss_hot150 | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. W | 0 | none | 45.87 (TR 50.15, TP 35.82, RL 30.4, plan 80.0, mis 0.05) | -3.08 (human 48.95) |  |  |
+| 109 | moss_hotcc | 1 | llm | strict +scaffold [dsv4flash] | Extract atomic propositions from the tra | 0 | none | 43.23 (TR 49.5, TP 37.21, RL 26.49, plan 79.57, mis 0.1) | -2.08 (human 45.31) |  |  |
+| 110 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 45.13 (TR 51.06, TP 35.52, RL 28.94, plan 76.84, mis 0.05) | -2.44 (human 47.57) |  |  |
+| 111 | moss_hot150 | 1 | llm | attrib_strict [dsv4flash] | Prioritize high-precision terminology. W | 0 | none | 44.04 (TR 50.31, TP 35.79, RL 27.66, plan 73.4, mis 0.05) | -4.02 (human 48.06) |  |  |
+| 112 | moss_hotcc | 1 | llm | base +scaffold [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 44.93 (TR 50.96, TP 36.13, RL 28.21, plan 75.79, mis 0.05) | -1.59 (human 46.52) |  |  |
+| 113 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 48.24 (TR 55.09, TP 34.92, RL 28.27, plan 77.89, mis 0.0) | -0.47 (human 48.71) |  |  |
+| 114 | moss_hotcc | 1 | llm | attrib_strict [dsv4flash] | Prioritize high-precision terminology. W | 0 | none | 47.09 (TR 49.9, TP 35.89, RL 29.1, plan 77.66, mis 0.0) | +0.77 (human 46.32) |  |  |
+| 115 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. D | 0 | none | 43.27 (TR 53.19, TP 35.64, RL 28.63, plan 74.47, mis 0.1) | -3.65 (human 46.92) |  |  |
+| 116 | moss_hotcc | 1 | llm | attrib_strict +scaffold [dsv4flash] | Extract atomic propositions first. For e | 0 | none | 46.24 (TR 49.12, TP 34.84, RL 27.38, plan 77.89, mis 0.0) | +0.51 (human 45.73) |  |  |
+| 117 | moss_hot150 | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. W | 0 | none | 45.66 (TR 50.98, TP 38.48, RL 28.58, plan 75.53, mis 0.05) | -3.0 (human 48.66) |  |  |
+| 118 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 48.76 (TR 52.89, TP 37.32, RL 28.48, plan 80.0, mis 0.0) | +1.29 (human 47.47) | 42.57 | dev gain did not hold on test |
+| 119 | moss_hotcc | 1 | llm | base [qwen27b] | Prioritize high-precision terminology. E | 0 | none | 44.74 (TR 53.07, TP 29.75, RL 25.02, plan 74.47, mis 0.0) | -1.11 (human 45.85) |  |  |
+| 120 | moss_hotcc | 1 | llm | attrib_strict +scaffold [dsv4flash] | Extract atomic propositions first. For e | 0 | none | 44.76 (TR 49.52, TP 36.72, RL 26.53, plan 77.89, mis 0.05) | -1.96 (human 46.72) |  |  |
+| 121 | moss_hot150 | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. W | 0 | none | 41.66 (TR 47.55, TP 36.12, RL 29.1, plan 73.68, mis 0.1) | -5.92 (human 47.58) |  |  |
+| 122 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 45.44 (TR 49.83, TP 34.8, RL 29.38, plan 80.85, mis 0.05) | -2.16 (human 47.6) |  |  |
+| 123 | moss_hotcc | 1 | llm | attrib_strict +scaffold [dsv4flash] | Extract atomic propositions first. For e | 0 | none | 47.0 (TR 50.22, TP 35.51, RL 27.69, plan 78.72, mis 0.0) | +0.25 (human 46.75) |  |  |
+| 124 | moss_hot150 | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. U | 0 | none | 45.68 (TR 52.21, TP 34.73, RL 29.03, plan 78.95, mis 0.05) | +1.01 (human 44.67) |  |  |
+| 125 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 45.52 (TR 51.81, TP 35.7, RL 28.67, plan 77.66, mis 0.05) | -2.1 (human 47.62) |  |  |
+| 126 | moss_hotcc | 1 | llm | attrib_strict [dsv4flash] | Prioritize high-precision terminology. D | 0 | none | 44.1 (TR 48.44, TP 35.12, RL 28.57, plan 76.6, mis 0.05) | -3.09 (human 47.19) |  |  |
+| 127 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. U | 0 | none | 46.74 (TR 50.89, TP 33.42, RL 28.28, plan 78.95, mis 0.0) | +2.23 (human 44.51) |  |  |
+| 128 | moss_hotcc | 1 | llm | attrib_strict [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 47.34 (TR 50.15, TP 35.86, RL 27.7, plan 80.0, mis 0.0) | -0.46 (human 47.8) |  |  |
+| 129 | moss_hotcc | 1 | llm | base [dsv4flash] | Prioritize high-precision terminology. I | 0 | none | 46.86 (TR 51.51, TP 35.08, RL 27.83, plan 76.6, mis 0.0) | -0.09 (human 46.95) |  |  |
+| 130 | moss_hot150 | 1 | llm | attrib_strict [dsv4flash] | Prioritize high-precision terminology. E | 0 | none | 46.64 (TR 48.69, TP 36.0, RL 28.5, plan 77.66, mis 0.0) | -1.19 (human 47.83) |  |  |
+| 131 | moss_hotcc | 1 | llm | base [dsv4flash] | Explicitly list any plan items using the | 0 | none | 45.7 (TR 50.31, TP 38.46, RL 28.76, plan 76.6, mis 0.05) | -1.54 (human 47.24) |  |  |

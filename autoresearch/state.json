@@ -2660,6 +2660,2337 @@
    "test": null,
    "test2": null,
    "minutes": 8.0
+  },
+  "cdd9684d72a4a816": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly list any medical terms that are uncertain or potentially misheard as 'unclear' rather than guessing. Do not include any plan items that are not explicitly stated in the transcript.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.34,
+    "term_recall": 51.22,
+    "term_precision": 34.63,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 45.37,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.08,
+    "term_recall": 50.12,
+    "term_precision": 36.17,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 68,
+    "plan_recall": 72.34,
+    "score": 46.17,
+    "n": 20
+   },
+   "gap": -0.8,
+   "test": null,
+   "test2": null,
+   "minutes": 8.0
+  },
+  "33c618adcc9d4eae": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Ensure all plan items are verbatim quotes from the clinician's speech. If a term is ambiguous, omit it rather than inferring.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 25.26,
+    "term_recall": 48.42,
+    "term_precision": 36.39,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 43.86,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 25.64,
+    "term_recall": 50.06,
+    "term_precision": 38.2,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 46.92,
+    "n": 20
+   },
+   "gap": -3.06,
+   "test": null,
+   "test2": null,
+   "minutes": 8.5
+  },
+  "8a6c82679ff1b658": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Focus on extracting atomic propositions for the plan section. If a sentence in the plan is not directly supported by a clear utterance, delete it.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.61,
+    "term_recall": 52.21,
+    "term_precision": 37.39,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 46.34,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.73,
+    "term_recall": 52.25,
+    "term_precision": 37.42,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 71,
+    "plan_recall": 75.53,
+    "score": 47.75,
+    "n": 20
+   },
+   "gap": -1.41,
+   "test": null,
+   "test2": null,
+   "minutes": 9.7
+  },
+  "9d619115585dc62c": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly list any medical terms or plan items that are NOT mentioned in the transcript to ensure negative constraints are respected.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 24.66,
+    "term_recall": 51.84,
+    "term_precision": 32.63,
+    "misattrib": 0.0,
+    "plan_items": 96,
+    "plan_found": 75,
+    "plan_recall": 78.12,
+    "score": 45.9,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 24.89,
+    "term_recall": 54.96,
+    "term_precision": 30.76,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 70,
+    "plan_recall": 74.47,
+    "score": 45.59,
+    "n": 20
+   },
+   "gap": 0.31,
+   "test": null,
+   "test2": null,
+   "minutes": 12.1
+  },
+  "f7f1dff293ff23d5": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. When writing the plan section, use the exact phrasing and wording used by the clinician in the transcript, avoiding paraphrasing.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.26,
+    "term_recall": 48.31,
+    "term_precision": 37.16,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 44.81,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.98,
+    "term_recall": 50.14,
+    "term_precision": 38.23,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 47.68,
+    "n": 20
+   },
+   "gap": -2.87,
+   "test": null,
+   "test2": null,
+   "minutes": 11.0
+  },
+  "53fea1fead0a538c": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Delete any sentence in the final note that cannot be directly supported by a specific segment of the transcript.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.94,
+    "term_recall": 52.34,
+    "term_precision": 35.91,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 45.62,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.2,
+    "term_recall": 50.62,
+    "term_precision": 35.84,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 47.31,
+    "n": 20
+   },
+   "gap": -1.69,
+   "test": null,
+   "test2": null,
+   "minutes": 13.4
+  },
+  "ea6046240a473880": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Extract atomic propositions from the transcript first. Only include a sentence in the final note if it is directly supported by an extracted proposition. Do not infer or add details not present in the source.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.41,
+    "term_recall": 50.36,
+    "term_precision": 36.65,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 71,
+    "plan_recall": 75.53,
+    "score": 45.09,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 27.64,
+    "term_recall": 49.91,
+    "term_precision": 36.12,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 47.13,
+    "n": 20
+   },
+   "gap": -2.04,
+   "test": null,
+   "test2": null,
+   "minutes": 27.4
+  },
+  "62d73713d2ca1bd0": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Identify the speaker for each utterance. Attribute all clinical findings and plan items strictly to the correct speaker. If the speaker is ambiguous, omit the statement rather than guessing.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.78,
+    "term_recall": 49.19,
+    "term_precision": 37.05,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 76,
+    "plan_recall": 80.0,
+    "score": 45.83,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.09,
+    "term_recall": 51.66,
+    "term_precision": 35.88,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 47.4,
+    "n": 20
+   },
+   "gap": -1.57,
+   "test": null,
+   "test2": null,
+   "minutes": 13.9
+  },
+  "91fd5c96d1c6d3a6": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "When listing plan items, use the exact phrasing and terminology used by the clinician in the transcript. Do not paraphrase or generalize plan items.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.93,
+    "term_recall": 48.21,
+    "term_precision": 37.71,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 71,
+    "plan_recall": 75.53,
+    "score": 46.67,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.98,
+    "term_recall": 50.18,
+    "term_precision": 38.45,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 45.95,
+    "n": 20
+   },
+   "gap": 0.72,
+   "test": null,
+   "test2": null,
+   "minutes": 7.7
+  },
+  "93acfe40971205f2": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 30.13,
+    "term_recall": 50.36,
+    "term_precision": 35.35,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 45.27,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.94,
+    "term_recall": 50.18,
+    "term_precision": 34.99,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 46.87,
+    "n": 20
+   },
+   "gap": -1.6,
+   "test": null,
+   "test2": null,
+   "minutes": 7.7
+  },
+  "6e4f821d8f4d9e6c": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E. When listing plan items, use the exact phrasing from the transcript.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.7,
+    "term_recall": 51.14,
+    "term_precision": 36.04,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 47.41,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 30.79,
+    "term_recall": 50.31,
+    "term_precision": 37.02,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 71,
+    "plan_recall": 75.53,
+    "score": 45.46,
+    "n": 20
+   },
+   "gap": 1.95,
+   "test": null,
+   "test2": null,
+   "minutes": 8.1
+  },
+  "d33e974019170ba1": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E. Extract atomic propositions from the transcript first, then write the note from them.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.97,
+    "term_recall": 49.89,
+    "term_precision": 36.04,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 47.11,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.63,
+    "term_recall": 50.61,
+    "term_precision": 35.96,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 70,
+    "plan_recall": 73.68,
+    "score": 46.44,
+    "n": 20
+   },
+   "gap": 0.67,
+   "test": null,
+   "test2": null,
+   "minutes": 14.6
+  },
+  "ad5e55a35944ce58": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 1,
+    "gate": "drop_flagged",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.15,
+    "term_recall": 48.01,
+    "term_precision": 38.65,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 66,
+    "plan_recall": 69.47,
+    "score": 45.72,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.47,
+    "term_recall": 51.82,
+    "term_precision": 36.79,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 68,
+    "plan_recall": 72.34,
+    "score": 44.74,
+    "n": 20
+   },
+   "gap": 0.98,
+   "test": null,
+   "test2": null,
+   "minutes": 17.6
+  },
+  "56f14a24fab0e572": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.15,
+    "term_recall": 50.35,
+    "term_precision": 35.58,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 45.35,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.48,
+    "term_recall": 50.88,
+    "term_precision": 37.04,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 69,
+    "plan_recall": 72.63,
+    "score": 46.8,
+    "n": 20
+   },
+   "gap": -1.45,
+   "test": null,
+   "test2": null,
+   "minutes": 9.3
+  },
+  "9bbafc700f5811a0": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.23,
+    "term_recall": 50.78,
+    "term_precision": 35.78,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 70,
+    "plan_recall": 74.47,
+    "score": 44.71,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.48,
+    "term_recall": 50.88,
+    "term_precision": 37.04,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 69,
+    "plan_recall": 72.63,
+    "score": 46.8,
+    "n": 20
+   },
+   "gap": -2.09,
+   "test": null,
+   "test2": null,
+   "minutes": 4.8
+  },
+  "a0aeb4240d2a3e75": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 1,
+    "gate": "drop_flagged",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.09,
+    "term_recall": 48.73,
+    "term_precision": 38.99,
+    "misattrib": 0.1,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 43.71,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.47,
+    "term_recall": 51.82,
+    "term_precision": 36.79,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 68,
+    "plan_recall": 72.34,
+    "score": 44.74,
+    "n": 20
+   },
+   "gap": -1.03,
+   "test": null,
+   "test2": null,
+   "minutes": 10.5
+  },
+  "3d4e0ebc9ac2e747": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Strictly attribute every clinical finding and plan item to the speaker who explicitly stated it. If the speaker is ambiguous, omit the statement. Do not infer actions from context.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.87,
+    "term_recall": 50.0,
+    "term_precision": 36.58,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 46.87,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.41,
+    "term_recall": 48.73,
+    "term_precision": 36.79,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 47.13,
+    "n": 20
+   },
+   "gap": -0.26,
+   "test": null,
+   "test2": null,
+   "minutes": 8.5
+  },
+  "688a322f5dcc2c45": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "qwen27b"
+   },
+   "dev": {
+    "rougeL": 27.5,
+    "term_recall": 51.19,
+    "term_precision": 30.86,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 45.48,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 27.98,
+    "term_recall": 55.34,
+    "term_precision": 34.3,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 69,
+    "plan_recall": 73.4,
+    "score": 47.17,
+    "n": 20
+   },
+   "gap": -1.69,
+   "test": null,
+   "test2": null,
+   "minutes": 2.4
+  },
+  "b8208546dc386380": {
+   "cfg": {
+    "asr_variant": "canary_qwen",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly state 'no plan' if no plan items are mentioned. Do not hallucinate follow-up instructions or medications.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.48,
+    "term_recall": 49.75,
+    "term_precision": 35.43,
+    "misattrib": 0.1,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 42.82,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.17,
+    "term_recall": 52.7,
+    "term_precision": 37.46,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 48.2,
+    "n": 20
+   },
+   "gap": -5.38,
+   "test": null,
+   "test2": null,
+   "minutes": 3.3
+  },
+  "2624e2111b504550": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.61,
+    "term_recall": 50.43,
+    "term_precision": 34.82,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 75,
+    "plan_recall": 79.79,
+    "score": 47.26,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.59,
+    "term_recall": 53.23,
+    "term_precision": 35.89,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 77,
+    "plan_recall": 81.05,
+    "score": 48.66,
+    "n": 20
+   },
+   "gap": -1.4,
+   "test": null,
+   "test2": null,
+   "minutes": 10.1
+  },
+  "f454a89567641e2a": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 0,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.65,
+    "term_recall": 52.98,
+    "term_precision": 36.48,
+    "misattrib": 0.1,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 43.93,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.59,
+    "term_recall": 53.23,
+    "term_precision": 35.89,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 77,
+    "plan_recall": 81.05,
+    "score": 48.66,
+    "n": 20
+   },
+   "gap": -4.73,
+   "test": null,
+   "test2": null,
+   "minutes": 7.1
+  },
+  "30eea4c4d594a6b7": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.5,
+    "term_recall": 51.15,
+    "term_precision": 34.96,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 47.28,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.59,
+    "term_recall": 53.23,
+    "term_precision": 35.89,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 77,
+    "plan_recall": 81.05,
+    "score": 48.66,
+    "n": 20
+   },
+   "gap": -1.38,
+   "test": null,
+   "test2": null,
+   "minutes": 6.2
+  },
+  "98c8e9cb307e4c19": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.88,
+    "term_recall": 55.67,
+    "term_precision": 35.78,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 48.78,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.94,
+    "term_recall": 50.18,
+    "term_precision": 34.99,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 46.87,
+    "n": 20
+   },
+   "gap": 1.91,
+   "test": {
+    "rougeL": 23.1,
+    "term_recall": 50.55,
+    "term_precision": 29.8,
+    "misattrib": 0.05,
+    "plan_items": 153,
+    "plan_found": 122,
+    "plan_recall": 79.74,
+    "score": 42.51,
+    "n": 37
+   },
+   "test2": null,
+   "minutes": 12.6
+  },
+  "7150357d487cab95": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.11,
+    "term_recall": 53.7,
+    "term_precision": 35.51,
+    "misattrib": 0.1,
+    "plan_items": 95,
+    "plan_found": 71,
+    "plan_recall": 74.74,
+    "score": 43.53,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.59,
+    "term_recall": 53.23,
+    "term_precision": 35.89,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 77,
+    "plan_recall": 81.05,
+    "score": 48.66,
+    "n": 20
+   },
+   "gap": -5.13,
+   "test": null,
+   "test2": null,
+   "minutes": 2.5
+  },
+  "aaa883700c93eaf1": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 30.32,
+    "term_recall": 51.0,
+    "term_precision": 35.08,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 45.63,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.94,
+    "term_recall": 50.18,
+    "term_precision": 34.99,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 46.87,
+    "n": 20
+   },
+   "gap": -1.24,
+   "test": null,
+   "test2": null,
+   "minutes": 1.4
+  },
+  "85ea3a2121baeb87": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 1,
+    "gate": "drop_flagged",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.87,
+    "term_recall": 48.02,
+    "term_precision": 37.64,
+    "misattrib": 0.1,
+    "plan_items": 94,
+    "plan_found": 67,
+    "plan_recall": 71.28,
+    "score": 41.73,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.47,
+    "term_recall": 51.82,
+    "term_precision": 36.79,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 68,
+    "plan_recall": 72.34,
+    "score": 44.74,
+    "n": 20
+   },
+   "gap": -3.01,
+   "test": null,
+   "test2": null,
+   "minutes": 7.5
+  },
+  "cf8ccd21a11bf331": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E. If a clinical finding is not explicitly attributed to a specific speaker in the transcript, omit it from the note to prevent misattribution.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.98,
+    "term_recall": 49.76,
+    "term_precision": 33.73,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 44.42,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.96,
+    "term_recall": 52.13,
+    "term_precision": 34.81,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 71,
+    "plan_recall": 74.74,
+    "score": 46.82,
+    "n": 20
+   },
+   "gap": -2.4,
+   "test": null,
+   "test2": null,
+   "minutes": 8.0
+  },
+  "5b05e4f65d393cdc": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E. Extract atomic propositions first, then write the note. Ensure all plan items are verbatim quotes from the clinician.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.8,
+    "term_recall": 51.13,
+    "term_precision": 34.86,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 45.15,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 27.24,
+    "term_recall": 51.23,
+    "term_precision": 36.47,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 75,
+    "plan_recall": 79.79,
+    "score": 47.72,
+    "n": 20
+   },
+   "gap": -2.57,
+   "test": null,
+   "test2": null,
+   "minutes": 12.6
+  },
+  "3c01467e988098f5": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Prioritize high-precision terminology. E. Strictly attribute every clinical finding. If the speaker is ambiguous, do not include the finding.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.43,
+    "term_recall": 50.1,
+    "term_precision": 35.53,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 46.95,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.97,
+    "term_recall": 51.89,
+    "term_precision": 36.45,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 47.62,
+    "n": 20
+   },
+   "gap": -0.67,
+   "test": null,
+   "test2": null,
+   "minutes": 10.3
+  },
+  "1955630dc3281118": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 1,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.01,
+    "term_recall": 50.18,
+    "term_precision": 37.52,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 71,
+    "plan_recall": 75.53,
+    "score": 45.22,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.72,
+    "term_recall": 52.72,
+    "term_precision": 36.86,
+    "misattrib": 0.05,
+    "plan_items": 96,
+    "plan_found": 71,
+    "plan_recall": 73.96,
+    "score": 45.41,
+    "n": 20
+   },
+   "gap": -0.19,
+   "test": null,
+   "test2": null,
+   "minutes": 0.7
+  },
+  "c7ab3c92d1842065": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.25,
+    "term_recall": 51.51,
+    "term_precision": 35.99,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 45.26,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.48,
+    "term_recall": 50.88,
+    "term_precision": 37.04,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 69,
+    "plan_recall": 72.63,
+    "score": 46.8,
+    "n": 20
+   },
+   "gap": -1.54,
+   "test": null,
+   "test2": null,
+   "minutes": 9.3
+  },
+  "88866788b4688b89": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Prioritize high-precision terminology. E. Explicitly state 'No plan items identified' if the clinician does not explicitly state a plan, to avoid hallucinated plan items.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.02,
+    "term_recall": 50.45,
+    "term_precision": 35.41,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 71,
+    "plan_recall": 75.53,
+    "score": 44.27,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 27.41,
+    "term_recall": 50.95,
+    "term_precision": 36.39,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 47.22,
+    "n": 20
+   },
+   "gap": -2.95,
+   "test": null,
+   "test2": null,
+   "minutes": 8.6
+  },
+  "451dcad5ee24912a": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E. When listing plan items, use the exact phrasing from the clinician's speech. Do not paraphrase plan items.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.51,
+    "term_recall": 52.81,
+    "term_precision": 38.0,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 67,
+    "plan_recall": 71.28,
+    "score": 45.4,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 30.36,
+    "term_recall": 52.17,
+    "term_precision": 38.04,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 48.29,
+    "n": 20
+   },
+   "gap": -2.89,
+   "test": null,
+   "test2": null,
+   "minutes": 7.7
+  },
+  "ce2d4d4b6f0efa59": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. E. Identify the speaker for each utterance before writing the note. Ensure all findings are attributed to the correct speaker (clinician vs patient).",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.38,
+    "term_recall": 52.66,
+    "term_precision": 36.12,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 77,
+    "plan_recall": 81.05,
+    "score": 48.72,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.92,
+    "term_recall": 52.32,
+    "term_precision": 33.58,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 47.13,
+    "n": 20
+   },
+   "gap": 1.59,
+   "test": {
+    "rougeL": 22.59,
+    "term_recall": 52.45,
+    "term_precision": 29.93,
+    "misattrib": 0.08,
+    "plan_items": 151,
+    "plan_found": 120,
+    "plan_recall": 79.47,
+    "score": 41.88,
+    "n": 37
+   },
+   "test2": null,
+   "minutes": 14.8
+  },
+  "4bfc95af54ed5ba3": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Extract atomic propositions first. For each proposition, verify the speaker role. If a clinical finding is attributed to the wrong speaker, delete the sentence entirely. Do not include any plan items that are not explicitly stated in the transcript.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.96,
+    "term_recall": 52.33,
+    "term_precision": 38.03,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 79,
+    "plan_recall": 83.16,
+    "score": 47.33,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 25.78,
+    "term_recall": 48.78,
+    "term_precision": 36.48,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 46.48,
+    "n": 20
+   },
+   "gap": 0.85,
+   "test": null,
+   "test2": null,
+   "minutes": 9.9
+  },
+  "e5cf25c16f85dfaa": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. When listing plan items, use the exact phrasing from the clinician's speech. If a term is uncertain, omit it rather than guessing. Ensure all clinical findings are attributed to the correct speaker based on the role map.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 30.4,
+    "term_recall": 50.15,
+    "term_precision": 35.82,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 76,
+    "plan_recall": 80.0,
+    "score": 45.87,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.44,
+    "term_recall": 51.39,
+    "term_precision": 37.42,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 78,
+    "plan_recall": 82.11,
+    "score": 48.95,
+    "n": 20
+   },
+   "gap": -3.08,
+   "test": null,
+   "test2": null,
+   "minutes": 7.9
+  },
+  "124f154035d402dc": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "strict",
+    "extra": "Extract atomic propositions from the transcript. Only include a proposition in the final note if it is directly supported by the text. Delete any sentence that contains a misattribution or unsupported claim. Use the clinician's exact words for plan items.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 26.49,
+    "term_recall": 49.5,
+    "term_precision": 37.21,
+    "misattrib": 0.1,
+    "plan_items": 93,
+    "plan_found": 74,
+    "plan_recall": 79.57,
+    "score": 43.23,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.68,
+    "term_recall": 47.01,
+    "term_precision": 36.58,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 70,
+    "plan_recall": 74.47,
+    "score": 45.31,
+    "n": 20
+   },
+   "gap": -2.08,
+   "test": null,
+   "test2": null,
+   "minutes": 9.9
+  },
+  "f41f872e17ccd260": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly state 'No plan items identified' if the clinician does not explicitly outline a management plan. Do not infer future actions from current findings.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.94,
+    "term_recall": 51.06,
+    "term_precision": 35.52,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 45.13,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.53,
+    "term_recall": 52.21,
+    "term_precision": 36.11,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 47.57,
+    "n": 20
+   },
+   "gap": -2.44,
+   "test": null,
+   "test2": null,
+   "minutes": 7.9
+  },
+  "c3ac9c023a79274c": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Prioritize high-precision terminology. When listing plan items, use the exact phrasing from the clinician's utterance. If a plan item is not explicitly stated, omit it entirely.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.66,
+    "term_recall": 50.31,
+    "term_precision": 35.79,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 69,
+    "plan_recall": 73.4,
+    "score": 44.04,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.68,
+    "term_recall": 51.4,
+    "term_precision": 36.36,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 76,
+    "plan_recall": 80.0,
+    "score": 48.06,
+    "n": 20
+   },
+   "gap": -4.02,
+   "test": null,
+   "test2": null,
+   "minutes": 11.5
+  },
+  "99ac4c43476427d1": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Extract atomic propositions first. For each proposition, verify it is directly supported by the transcript. Delete any sentence that cannot be traced to a specific utterance.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.21,
+    "term_recall": 50.96,
+    "term_precision": 36.13,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 44.93,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.08,
+    "term_recall": 51.23,
+    "term_precision": 35.28,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 71,
+    "plan_recall": 74.74,
+    "score": 46.52,
+    "n": 20
+   },
+   "gap": -1.59,
+   "test": null,
+   "test2": null,
+   "minutes": 12.0
+  },
+  "04508111314cae10": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly list any clinical findings that are NOT present in the transcript to avoid hallucination.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.27,
+    "term_recall": 55.09,
+    "term_precision": 34.92,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 48.24,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.07,
+    "term_recall": 55.58,
+    "term_precision": 35.58,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 48.71,
+    "n": 20
+   },
+   "gap": -0.47,
+   "test": null,
+   "test2": null,
+   "minutes": 8.2
+  },
+  "247f14fb2d9c1c04": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Prioritize high-precision terminology. When writing the plan, use the exact phrasing used by the clinician in the transcript.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.1,
+    "term_recall": 49.9,
+    "term_precision": 35.89,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 47.09,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.78,
+    "term_recall": 50.22,
+    "term_precision": 39.19,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 46.32,
+    "n": 20
+   },
+   "gap": 0.77,
+   "test": null,
+   "test2": null,
+   "minutes": 8.2
+  },
+  "86a1e73d1ce417f3": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Delete any sentence that cannot be directly supported by a specific quote from the transcript.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.63,
+    "term_recall": 53.19,
+    "term_precision": 35.64,
+    "misattrib": 0.1,
+    "plan_items": 94,
+    "plan_found": 70,
+    "plan_recall": 74.47,
+    "score": 43.27,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.67,
+    "term_recall": 53.25,
+    "term_precision": 37.39,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 46.92,
+    "n": 20
+   },
+   "gap": -3.65,
+   "test": null,
+   "test2": null,
+   "minutes": 7.8
+  },
+  "613ba3572fd53239": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Extract atomic propositions first. For each proposition, verify the speaker role before attributing. If a finding is not explicitly linked to a speaker, omit it. Prioritize high-precision terminology.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.38,
+    "term_recall": 49.12,
+    "term_precision": 34.84,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 46.24,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.7,
+    "term_recall": 51.97,
+    "term_precision": 38.8,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 45.73,
+    "n": 20
+   },
+   "gap": 0.51,
+   "test": null,
+   "test2": null,
+   "minutes": 10.3
+  },
+  "86f6cab04a29a8e4": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. When listing plan items, use the clinician's exact phrasing from the transcript to maximize recall. Do not paraphrase plan items.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.58,
+    "term_recall": 50.98,
+    "term_precision": 38.48,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 71,
+    "plan_recall": 75.53,
+    "score": 45.66,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.66,
+    "term_recall": 51.41,
+    "term_precision": 40.51,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 72,
+    "plan_recall": 75.79,
+    "score": 48.66,
+    "n": 20
+   },
+   "gap": -3.0,
+   "test": null,
+   "test2": null,
+   "minutes": 7.8
+  },
+  "7b3df0d7f3f59669": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly state negative findings (e.g., 'no pain', 'clear lungs') if mentioned in the transcript to improve term recall.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.48,
+    "term_recall": 52.89,
+    "term_precision": 37.32,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 76,
+    "plan_recall": 80.0,
+    "score": 48.76,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.17,
+    "term_recall": 52.61,
+    "term_precision": 34.93,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 47.47,
+    "n": 20
+   },
+   "gap": 1.29,
+   "test": {
+    "rougeL": 22.99,
+    "term_recall": 53.1,
+    "term_precision": 29.16,
+    "misattrib": 0.05,
+    "plan_items": 154,
+    "plan_found": 119,
+    "plan_recall": 77.27,
+    "score": 42.57,
+    "n": 37
+   },
+   "test2": null,
+   "minutes": 14.7
+  },
+  "917311903a3f3335": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly list any findings that are NOT present in the transcript to avoid hallucination.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "qwen27b"
+   },
+   "dev": {
+    "rougeL": 25.02,
+    "term_recall": 53.07,
+    "term_precision": 29.75,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 70,
+    "plan_recall": 74.47,
+    "score": 44.74,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 25.07,
+    "term_recall": 57.2,
+    "term_precision": 31.4,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 67,
+    "plan_recall": 71.28,
+    "score": 45.85,
+    "n": 20
+   },
+   "gap": -1.11,
+   "test": null,
+   "test2": null,
+   "minutes": 3.1
+  },
+  "8a9690a432c175cb": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Extract atomic propositions first. For each proposition, verify it is explicitly stated in the transcript. Delete any sentence that cannot be directly traced to a specific speaker's utterance.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 26.53,
+    "term_recall": 49.52,
+    "term_precision": 36.72,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 44.76,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.08,
+    "term_recall": 48.45,
+    "term_precision": 37.41,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 46.72,
+    "n": 20
+   },
+   "gap": -1.96,
+   "test": null,
+   "test2": null,
+   "minutes": 10.0
+  },
+  "9e28c9c10882484b": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. When writing the plan section, use the exact phrasing used by the clinician in the transcript.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.1,
+    "term_recall": 47.55,
+    "term_precision": 36.12,
+    "misattrib": 0.1,
+    "plan_items": 95,
+    "plan_found": 70,
+    "plan_recall": 73.68,
+    "score": 41.66,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 29.17,
+    "term_recall": 50.41,
+    "term_precision": 37.53,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 47.58,
+    "n": 20
+   },
+   "gap": -5.92,
+   "test": null,
+   "test2": null,
+   "minutes": 10.5
+  },
+  "47404dc2392c4d29": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly list any plan items in the clinician's own words. Do not include unsupported sentences.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.38,
+    "term_recall": 49.83,
+    "term_precision": 34.8,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 76,
+    "plan_recall": 80.85,
+    "score": 45.44,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.58,
+    "term_recall": 52.0,
+    "term_precision": 37.27,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 71,
+    "plan_recall": 75.53,
+    "score": 47.6,
+    "n": 20
+   },
+   "gap": -2.16,
+   "test": null,
+   "test2": null,
+   "minutes": 10.8
+  },
+  "24a4dfa05c05bb85": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Extract atomic propositions first. For each proposition, verify it is grounded in the transcript. Then write the note. Prioritize high-precision terminology.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 1,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.69,
+    "term_recall": 50.22,
+    "term_precision": 35.51,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 47.0,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 26.72,
+    "term_recall": 50.23,
+    "term_precision": 36.55,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 46.75,
+    "n": 20
+   },
+   "gap": 0.25,
+   "test": null,
+   "test2": null,
+   "minutes": 9.8
+  },
+  "3a73122dc81f3003": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Use the ASR-corrected transcript to ensure accurate terminology. Explicitly list plan items.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 29.03,
+    "term_recall": 52.21,
+    "term_precision": 34.73,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 45.68,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.91,
+    "term_recall": 49.44,
+    "term_precision": 33.65,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 75,
+    "plan_recall": 79.79,
+    "score": 44.67,
+    "n": 20
+   },
+   "gap": 1.01,
+   "test": null,
+   "test2": null,
+   "minutes": 8.0
+  },
+  "b7d4cc9fabd56c85": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Explicitly list any plan items in the clinician's own words.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.67,
+    "term_recall": 51.81,
+    "term_precision": 35.7,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 45.52,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.32,
+    "term_recall": 52.77,
+    "term_precision": 35.17,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 74,
+    "plan_recall": 77.89,
+    "score": 47.62,
+    "n": 20
+   },
+   "gap": -2.1,
+   "test": null,
+   "test2": null,
+   "minutes": 8.0
+  },
+  "80ea7be796d641f2": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Prioritize high-precision terminology. Delete any sentence that is not explicitly supported by the transcript.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.57,
+    "term_recall": 48.44,
+    "term_precision": 35.12,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 44.1,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.28,
+    "term_recall": 50.88,
+    "term_precision": 36.52,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 47.19,
+    "n": 20
+   },
+   "gap": -3.09,
+   "test": null,
+   "test2": null,
+   "minutes": 8.3
+  },
+  "3858ca51627d2338": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. Use explicit negatives to clarify what was NOT done or ordered.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.28,
+    "term_recall": 50.89,
+    "term_precision": 33.42,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 46.74,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.23,
+    "term_recall": 51.8,
+    "term_precision": 33.2,
+    "misattrib": 0.05,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 44.51,
+    "n": 20
+   },
+   "gap": 2.23,
+   "test": null,
+   "test2": null,
+   "minutes": 8.0
+  },
+  "d3e947f1265d8eb4": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Prioritize high-precision terminology. Explicitly list any plan items using the clinician's exact phrasing from the transcript to maximize plan recall.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.7,
+    "term_recall": 50.15,
+    "term_precision": 35.86,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 76,
+    "plan_recall": 80.0,
+    "score": 47.34,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 27.16,
+    "term_recall": 52.38,
+    "term_precision": 36.21,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 75,
+    "plan_recall": 78.95,
+    "score": 47.8,
+    "n": 20
+   },
+   "gap": -0.46,
+   "test": null,
+   "test2": null,
+   "minutes": 8.5
+  },
+  "a3112b6f17ef93d4": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Prioritize high-precision terminology. If a medical term is uncertain or potentially a misattribution, omit it entirely rather than guessing. Focus on clear, unambiguous facts.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 27.83,
+    "term_recall": 51.51,
+    "term_precision": 35.08,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 46.86,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.18,
+    "term_recall": 50.72,
+    "term_precision": 35.78,
+    "misattrib": 0.0,
+    "plan_items": 95,
+    "plan_found": 73,
+    "plan_recall": 76.84,
+    "score": 46.95,
+    "n": 20
+   },
+   "gap": -0.09,
+   "test": null,
+   "test2": null,
+   "minutes": 7.8
+  },
+  "2b38229b3b1a9349": {
+   "cfg": {
+    "asr_variant": "moss_hot150",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "attrib_strict",
+    "extra": "Prioritize high-precision terminology. Ensure all plan items are captured verbatim from the clinician's speech to improve plan recall without sacrificing precision.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.5,
+    "term_recall": 48.69,
+    "term_precision": 36.0,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 73,
+    "plan_recall": 77.66,
+    "score": 46.64,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 28.06,
+    "term_recall": 51.68,
+    "term_precision": 36.55,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 74,
+    "plan_recall": 78.72,
+    "score": 47.83,
+    "n": 20
+   },
+   "gap": -1.19,
+   "test": null,
+   "test2": null,
+   "minutes": 8.5
+  },
+  "5bcb5416f65aebed": {
+   "cfg": {
+    "asr_variant": "moss_hotcc",
+    "asr_correct": 1,
+    "role_map": "llm",
+    "prompt": "base",
+    "extra": "Explicitly list any plan items using the exact phrasing from the transcript. Do not paraphrase plan items.",
+    "cite": 0,
+    "gate": "none",
+    "scaffold": 0,
+    "note_model": "dsv4flash"
+   },
+   "dev": {
+    "rougeL": 28.76,
+    "term_recall": 50.31,
+    "term_precision": 38.46,
+    "misattrib": 0.05,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 45.7,
+    "n": 20
+   },
+   "human": {
+    "rougeL": 27.88,
+    "term_recall": 50.72,
+    "term_precision": 37.09,
+    "misattrib": 0.0,
+    "plan_items": 94,
+    "plan_found": 72,
+    "plan_recall": 76.6,
+    "score": 47.24,
+    "n": 20
+   },
+   "gap": -1.54,
+   "test": null,
+   "test2": null,
+   "minutes": 8.0
   }
  },
  "best": {
@@ -2695,7 +5026,7 @@
   "score": 45.01,
   "n": 37
  },
- "iters": 72,
+ "iters": 131,
  "best_test2": {
   "rougeL": 23.91,
   "term_recall": 52.7,

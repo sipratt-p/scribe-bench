@@ -63,6 +63,7 @@
   th { font-family:var(--mono); font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
   td.ok { color:var(--ok); font-weight:600; } td.miss { color:var(--bad); }
   .explain { font-size:12.5px; color:var(--muted); background:var(--accent-soft); border-left:3px solid var(--accent); padding:6px 10px; border-radius:4px; margin:8px 0 0; }
+  details.arch { background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:8px 14px; margin:10px 0 0; max-width:100%; } details.arch summary { cursor:pointer; font-weight:600; } details.arch ol, details.arch ul { padding-left:18px; margin:6px 0; } details.arch li { margin:3px 0; } details.arch .k { font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-top:8px; }
   @media (max-width: 900px) { .grid, .final { grid-template-columns:1fr; } audio { width:100%; } }
 </style>
 </head>
@@ -70,6 +71,29 @@
 <div class="eyebrow">scribe-bench · separate experiment · <a href="/">back to the demo</a> · <a href="/measurements/live">how this is measured</a></div>
 <h1>Live decision support during the visit</h1>
 <p class="lede">The recording plays as if the visit were happening now. The streaming transcript arrives on the audio timeline, and every few seconds a local model updates a view meant to change what the clinician does before the patient leaves: a working differential with the evidence for each and what is still missing, the one question that best separates the top two, act-now red flags, safety-netting not yet given, and guideline-based plan suggestions kept apart from what the clinician actually said. When the visit ends, the live timeline is scored against the clinician's own note: how early the right diagnosis appeared, whether the suggested questions got asked, red-flag precision, and whether the plan suggestions agreed with or contradicted the plan.</p>
+<details class="arch"><summary>Architecture and harness: what runs where, what is live, what is cached</summary>
+<div class="k">Pipeline, per visit</div>
+<ol>
+<li><b>Streaming transcript (replayed).</b> The real output of the streaming recognizer (Nemotron-3.5 0.6B, 1.1 s chunks, no speaker labels) was recorded once per consultation. The page replays it in four-word chunks placed on the human transcript's timestamps, at the chosen speed. The recognizer is not re-run.</li>
+<li><b>Synthesis tick, every 20 s of visit time (live).</b> The server sends the whole transcript so far plus its previous view to the model on the GPU box (DeepSeek V4 Flash, two GPUs, ~220 tokens/s, reasoning off) and gets one JSON object back: differential, ask-next, flags, plan stated vs suggested, safety-netting given vs to add, assumptions, revisions, scribe view. Latency is shown in the header. If a tick takes longer than the interval, the next one is skipped rather than queued.</li>
+<li><b>Guards in code, not only in the prompt.</b> No flags and no urgent suggestions before 90 s or before the complaint is known; every flag carries a tier; the differential is re-derived from the full transcript each tick.</li>
+<li><b>Guideline lookups (background, cached).</b> Each new differential entry is matched by name against cached indexes (NHS conditions A-Z, 786 entries → patient.info professional articles, 2,576 → Wikipedia, marked low trust) and the page is fetched and distilled once; later ticks receive it as reference material and cite it in "basis". First lookup of a condition ≈ 3 s, afterwards instant. No search engine is involved.</li>
+<li><b>Mishearing flags (local).</b> Streaming words one edit from a medical term, or short word runs that fuse into one, checked against a 7,092-term lexicon on the server.</li>
+<li><b>Scoring at the end (live, three model calls).</b> The clinician's real note is read for its diagnosis and plan; the timed human transcript gives the moment the GP said each; the live timeline is then judged for when the diagnosis appeared, whether suggested questions were later asked, whether flags were genuine, and whether plan suggestions agree with or contradict the GP's plan.</li>
+</ol>
+<div class="k">Where things run</div>
+<ul>
+<li>Browser: audio playback, rendering, the activity log.</li>
+<li>Mac (this server, FastAPI :8700): replay timing, mishearing check, lookups, session logs under runs/live_synth/.</li>
+<li>GPU box (beast, 2× RTX PRO 6000): the model, served by vLLM as an OpenAI-compatible endpoint.</li>
+</ul>
+<div class="k">Harness</div>
+<ul>
+<li>The same synthesis and scoring code runs headless over all 57 consultations (autoresearch/live_eval.py); results per version are on the <a href="/measurements/live">measurements page</a>.</li>
+<li>Ground truth: the GP's note (diagnosis, plan) and the human transcript with per-speaker timestamps. Judge: the same model that writes, which is why every number here says "no clinician validation".</li>
+<li>Nothing on this page feeds the after-visit results; it is a separate experiment.</li>
+</ul>
+</details>
 <div class="explain" style="display:block">Suggestions, not decisions. Everything in the amber column is generated by a local model from a partial, unlabelled, sometimes misheard transcript; it is here to be measured, not trusted.</div>
 
 <div class="controls">

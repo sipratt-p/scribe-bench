@@ -64,6 +64,8 @@
   .stat { position:relative; }
   body.explain-on .stat[data-x]::after { content:attr(data-x); display:block; font-size:11px; color:var(--muted); text-transform:none; letter-spacing:0; margin-top:4px; line-height:1.35; }
   #explain-btn.on { background:var(--accent-soft); color:var(--accent); }
+  details.arch { background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:8px 14px; margin:10px 0 0; max-width:100%; } details.arch summary { cursor:pointer; font-weight:600; } details.arch ol, details.arch ul { padding-left:18px; margin:6px 0; } details.arch li { margin:3px 0; } details.arch .k { font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-top:8px; }
+
   @media (max-width:900px) { .cols { grid-template-columns:1fr; } .controls { grid-template-columns:1fr; } }
 </style>
 </head>
@@ -91,6 +93,25 @@
   <div><label>&nbsp;</label><button id="run" class="secondary">Run live</button></div>
   <div style="grid-column:1/-1"><button id="explain-btn" class="secondary" style="padding:6px 12px">▸ Explain the jargon</button> <span class="steps">for people who know tech but not this field</span></div>
 </div>
+<details class="arch"><summary>Architecture and harness: what runs where, what is cached, what is live</summary>
+<div class="k">Two pipelines on the same audio</div>
+<ol>
+<li><b>Vanilla (left).</b> Streaming recognizer (Nemotron-3.5 0.6B, 1.1 s chunks, no speaker labels) → untuned note model, plain prompt. An unoptimized baseline, not any vendor's product.</li>
+<li><b>Proposed (right).</b> After-visit recognizer with a language-model decoder and speaker labels (MOSS-Transcribe-Diarize 0.9B) → an LLM step that names which speaker is the Doctor → note model with span citations → a verifier that checks every cited sentence against its lines and flags unsupported claims and third-party details. v2 adds the overnight search's picks: complaint-tuned hotwords, a precision-first instruction, DeepSeek V4 Flash as writer.</li>
+</ol>
+<div class="k">Cached vs live</div>
+<ul>
+<li><b>Cached mode (pick a consultation):</b> everything was computed once for all 57 consultations and stored; no model runs. Transcript metrics against the human transcript, note metrics against the GP's note, verifier claims, judge readouts.</li>
+<li><b>Import mode (upload audio, "Run live"):</b> the file goes to the GPU box; pass 1 runs on CPU, pass 2 on a GPU (~2 min for a 9-min visit); notes and the verifier run on the Mac's local models; attribution is judged by a local model. About 6 minutes end to end.</li>
+</ul>
+<div class="k">Harness</div>
+<ul>
+<li>Data: PriMock57 (57 mock GP consultations with human transcripts, per-speaker timestamps and the GP's note); ACI-Bench for note-generation, fine-tuning and verifier studies; a 7,092-term primary-care lexicon.</li>
+<li>Scorers: WER, medical-term miss, DER; term recall/precision, ROUGE-L, plan-item recall, misattributions per note, grounded/cited/linked sentences, edit effort; verifier recall on injected errors. Definitions on the <a href="/measurements/note">measurements page</a>.</li>
+<li>Search: an overnight loop over nine pipeline knobs with a 20/37 dev/test split and a second judge as the gate; every row on the <a href="/experiments">experiments page</a>.</li>
+<li>Where things run: Mac (this server, oMLX note model :8600, Gemma judge :8500) and the GPU box (vLLM endpoints, ASR runners).</li>
+</ul>
+</details>
 <div class="explain">This page compares two ways of turning a recorded doctor visit into the clinical note the doctor has to sign. Left is a vanilla, unoptimized pipeline: the streaming, real-time transcript written straight into a note; right adds a second, slower pass after the visit and checks the draft before the doctor sees it. Every number is measured against the human transcript and the note the real clinician wrote for that same visit.</div>
 <div class="status" id="status"></div>
 
