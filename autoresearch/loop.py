@@ -100,7 +100,7 @@ class LLM:
             try:
                 r = self.c.chat.completions.create(model=self.model, temperature=0.0, max_tokens=max_tokens,
                                                    messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-                                                   extra_body={"chat_template_kwargs": {"enable_thinking": False}})
+                                                   extra_body={"chat_template_kwargs": ({"thinking": False} if "deepseek" in self.model.lower() else {"enable_thinking": False})})
                 return r.choices[0].message.content or ""
             except Exception as e:  # noqa: BLE001
                 last = e

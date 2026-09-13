@@ -15,6 +15,26 @@ recs, dev, test = L.load_recs()
 qwen = L.LLM("http://localhost:8004/v1", "qwen3.8-27b", workers=2)   # only cached calls expected (role map)
 ds = L.LLM("http://localhost:8000/v1", "DeepSeek-V4-Flash-DSpark", workers=4)
 OFF = {k: {**v, "note_model": "dsv4flash_official"} for k, v in CONFIGS.items() if k in ("best", "best_cite")}
+# invalidate cache entries written by the first (thinking-on) pass: official notes, and official-judge scores of the vanilla notes
+from autoresearch.loop import PROMPTS, CITE_SUFFIX, number_lines, h, CACHE
+removed = 0
+for name, cfg in OFF.items():
+    system = PROMPTS[cfg["prompt"]] + ("\n" + cfg["extra"] if cfg.get("extra") else "") + (CITE_SUFFIX if cfg.get("cite") else "") + f"\n<!-- note_model={cfg.get('note_model', 'qwen27b')} -->"
+    for cid in dev + test:
+        rec = recs[cid]; d = L.transcript_for(cfg, rec, qwen); body = number_lines(d) if cfg.get("cite") else d
+        p = CACHE / f"{h('note', cid, system, body)}.json"
+        if p.exists(): p.unlink(); removed += 1
+for p in CACHE.glob("*.json"):
+    pass
+print("stale official note caches removed:", removed, flush=True)
+# official-judge score caches: key = h("score", "DeepSeek-V4-Flash-DSpark", cid, hyp); recompute for vanilla notes and unlink
+from scribe_bench.note_score import strip_cites
+cfg = CONFIGS["theirs"]; nm = L.note_llm_for(cfg, qwen); removed = 0
+for cid in test:
+    rec = recs[cid]; d = L.transcript_for(cfg, rec, qwen); n = L.note_for(cfg, rec, d, nm)
+    p = CACHE / f"{h('score', 'DeepSeek-V4-Flash-DSpark', cid, strip_cites(n))}.json"
+    if p.exists(): p.unlink(); removed += 1
+print("stale official judge-2 caches removed:", removed, flush=True)
 out = {}
 for name, cfg in OFF.items():
     nm = L.note_llm_for(cfg, qwen)
