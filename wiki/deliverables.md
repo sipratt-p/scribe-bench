@@ -5,3 +5,4 @@
 - **Repo** `~/src/scribe-bench` (git, 30+ commits; mirror `beast:~/projects/scribe-bench`): `scribe_bench/` (loaders, ASR runners, scorers, judges, verifier, SFT), `autoresearch/` (loop, variants, synth audio, verif_eval, plan_recall, plan_gap, expert_iter, export_best), `demo/`, `RESULTS.md`, `runs/`, this `wiki/`.
 - **Memory** (`~/.claude/projects/-Users-sethcosmo/memory/`): `project_scribe_bench.md`, `reference_gpu_providers.md`, `feedback_local_first_compute.md`, a private workshop note.
 - **Telegram** updates to chat 5599217394 on acceptances and milestones.
+- **Paper build** (`paper/`): `paper/build.sh` renders the three figures to PDF with headless Chrome on the Mac, converts `wiki/paper-draft.md` to LaTeX with pandoc on the GPU box and builds `paper/main.pdf` with XeLaTeX (14 pages as of 13 Sep). `release/make_release.sh` builds an anonymized release tree (no machine names, tailnet addresses, or private pages).
