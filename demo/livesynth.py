@@ -36,6 +36,10 @@ MODELS = {
     "flashnext": (f"http://{BEAST}:8003/v1", "Qwen3.8-Flash-Next-ablit-nvfp4", "Qwen3.8-Flash-Next NVFP4 (MoE), 1 GPU"),
 }
 THINK_OFF = {"dsflash": {"thinking": False}, "qwen27b": {"enable_thinking": False}, "flashnext": {"enable_thinking": False}}
+THINK_LOW = {"dsflash": {"thinking": True, "reasoning_effort": "low"}, "qwen27b": {"enable_thinking": False}, "flashnext": {"enable_thinking": False}}
+SEARX = os.environ.get("SCRIBE_SEARX", "http://127.0.0.1:8890")  # beast SearXNG via `ssh -N -L 8890:127.0.0.1:8890 beast`
+LOOKUPS = ROOT / "runs/live_synth/lookups"
+UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
 
 router = APIRouter()
 
@@ -157,16 +161,17 @@ Answer one JSON object:
 WORD = re.compile(r"[A-Za-z][A-Za-z'-]+")
 
 
-def _llm(system: str, user: str, max_tokens: int = 900, tries: int = 3, model: str = "dsflash") -> str:
+def _llm(system: str, user: str, max_tokens: int = 900, tries: int = 3, model: str = "dsflash", think: bool = False) -> str:
     from openai import OpenAI
     url, name, _ = MODELS.get(model, MODELS["dsflash"])
+    kw = (THINK_LOW if think else THINK_OFF).get(model, {"enable_thinking": False})
     c = OpenAI(base_url=url, api_key="x", timeout=180, max_retries=0)
     last = None
     for i in range(tries):
         try:
             r = c.chat.completions.create(model=name, temperature=0.0, max_tokens=max_tokens,
                                           messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-                                          extra_body={"chat_template_kwargs": THINK_OFF.get(model, {"enable_thinking": False})})
+                                          extra_body={"chat_template_kwargs": kw})
             return r.choices[0].message.content or ""
         except Exception as e:  # noqa: BLE001
             last = e
@@ -215,9 +220,95 @@ def ref_note_text(rec: dict) -> str:
     return n if isinstance(n, str) else (n or {}).get("note", "")
 
 
-def synthesize_once(text: str, prev: dict | None, upto_t: float, model: str) -> dict:
-    user = f"PREVIOUS VIEW:\n{json.dumps(prev) if prev else 'none yet'}\n\nTRANSCRIPT SO FAR ({upto_t:.0f} s into the visit):\n{text}\n\nUpdate the view now."
-    return parse_json(_llm(SYNTH_SYSTEM, user, model=model)) or prev or {}
+LOOKUP_SYSTEM = """You are given search snippets and page text from NHS and NICE CKS about a condition. Extract, for an in-visit assistant, one JSON object: "condition": name; "key_questions": up to 6 history questions that matter for this condition; "red_flags": up to 5 features that need urgent action; "first_line": up to 5 first-line management points; "safety_netting": up to 4 when-to-return points; "sources": the URLs used. Only content supported by the material; short phrases."""
+
+
+def _slug(dx: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", re.sub(r"\(.*?\)", "", dx.lower())).strip("-")[:60]
+
+
+def _searx(q: str, n: int = 4) -> list[dict]:
+    import urllib.parse
+    import urllib.request
+    try:
+        r = urllib.request.urlopen(urllib.request.Request(f"{SEARX}/search?q={urllib.parse.quote(q)}&format=json", headers={"User-Agent": UA}), timeout=10)
+        return (json.loads(r.read()).get("results") or [])[:n]
+    except Exception:  # noqa: BLE001
+        return []
+
+
+def _fetch_text(url: str, cap: int = 6000) -> str:
+    import html as _html
+    import urllib.request
+    try:
+        r = urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=10)
+        t = r.read().decode("utf-8", "ignore")
+    except Exception:  # noqa: BLE001
+        return ""
+    t = re.sub(r"<script.*?</script>|<style.*?</style>|<nav.*?</nav>|<footer.*?</footer>", " ", t, flags=re.S | re.I)
+    t = _html.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", t)))
+    m = re.search(r"(Symptoms|Overview|Treatment|Management)", t)
+    return t[m.start(): m.start() + cap] if m else t[:cap]
+
+
+def lookup(dx: str, model: str) -> dict:
+    """NHS + NICE CKS lookup for one condition, cached on disk. Returns {} if nothing usable."""
+    slug = _slug(dx)
+    if not slug:
+        return {}
+    LOOKUPS.mkdir(parents=True, exist_ok=True)
+    p = LOOKUPS / f"{slug}.json"
+    if p.exists():
+        return json.loads(p.read_text())
+    t0 = time.time()
+    nhs = _searx(f"site:nhs.uk/conditions {dx}", 3)
+    cks = _searx(f"site:cks.nice.org.uk {dx}", 3)
+    material, sources = [], []
+    for r in nhs[:2]:
+        txt = _fetch_text(r.get("url", ""))
+        if txt:
+            material.append(f"[NHS] {r.get('title', '')} <{r.get('url')}>\n{txt}")
+            sources.append(r.get("url"))
+    for r in cks[:3]:
+        material.append(f"[NICE CKS snippet] {r.get('title', '')} <{r.get('url')}>\n{r.get('content', '')}")
+        sources.append(r.get("url"))
+    if not material:
+        out = {"condition": dx, "empty": True, "ms": int(1000 * (time.time() - t0))}
+        p.write_text(json.dumps(out))
+        return out
+    js = parse_json(_llm(LOOKUP_SYSTEM, f"CONDITION: {dx}\n\nMATERIAL:\n" + "\n\n".join(material)[:14000], 700, model=model)) or {}
+    js.setdefault("condition", dx)
+    js["sources"] = [u for u in (js.get("sources") or sources) if u][:5]
+    js["ms"] = int(1000 * (time.time() - t0))
+    js["n_material"] = len(material)
+    p.write_text(json.dumps(js))
+    return js
+
+
+def reference_block(refs: dict, dxs: list[str]) -> str:
+    parts = []
+    for dx in dxs[:3]:
+        r = refs.get(_slug(dx))
+        if r and not r.get("empty"):
+            parts.append(json.dumps({k: r.get(k) for k in ("condition", "key_questions", "red_flags", "first_line", "safety_netting", "sources")}))
+    return ("\n\nREFERENCE MATERIAL (NHS / NICE CKS lookups for the current differential; use it for next_question, red_flags, *_suggested, and cite the source in \"basis\"):\n" + "\n".join(parts)) if parts else ""
+
+
+def synthesize_once(text: str, prev: dict | None, upto_t: float, model: str, refs: dict | None = None, think: bool = True) -> dict:
+    dxs = [d.get("dx") for d in ((prev or {}).get("differential") or []) if isinstance(d, dict) and d.get("dx")]
+    user = (f"PREVIOUS VIEW:\n{json.dumps(prev) if prev else 'none yet'}" + reference_block(refs or {}, dxs)
+            + f"\n\nTRANSCRIPT SO FAR ({upto_t:.0f} s into the visit):\n{text}\n\nUpdate the view now.")
+    return parse_json(_llm(SYNTH_SYSTEM, user, model=model, think=think)) or prev or {}
+
+
+def new_dx_to_lookup(synth: dict, refs: dict, inflight: set) -> list[str]:
+    out = []
+    for d in (synth.get("differential") or []):
+        dx = d.get("dx") if isinstance(d, dict) else None
+        if dx and _slug(dx) not in refs and _slug(dx) not in inflight:
+            inflight.add(_slug(dx))
+            out.append(dx)
+    return out
 
 
 def reference_targets(rec: dict, model: str) -> dict:
@@ -289,17 +380,44 @@ def live_stream(cid: str, speed: float = 4.0, interval: float = 20.0, model: str
     duration = rec.get("duration_s") or (chunks[-1]["t"] + 3 if chunks else 0)
     final_note = (rec.get("ours_v2") or rec.get("ours") or {}).get("note") or ""
     q: "queue.Queue[dict]" = queue.Queue()
-    state = {"transcript": [], "synth": None, "snapshots": [], "flags": [], "seen": set(), "pending": False, "synth_chunks": -1, "recent": []}
+    state = {"transcript": [], "synth": None, "snapshots": [], "flags": [], "seen": set(), "pending": False, "synth_chunks": -1, "recent": [],
+             "refs": {}, "inflight": set(), "activity": []}
     lock = threading.Lock()
+    from concurrent.futures import ThreadPoolExecutor
+    pool = ThreadPoolExecutor(2)
+
+    def act(t, task, status, detail, ms=None, **extra):
+        ev = {"event": "activity", "t": t, "task": task, "status": status, "detail": detail, "ms": ms, **extra}
+        state["activity"].append(ev)
+        q.put(ev)
+
+    def do_lookup(dx: str, t: float):
+        act(t, "lookup", "started", f"NHS + NICE CKS: {dx}")
+        t0 = time.time()
+        try:
+            r = lookup(dx, model)
+        except Exception as e:  # noqa: BLE001
+            r = {"condition": dx, "empty": True, "error": str(e)}
+        with lock:
+            state["refs"][_slug(dx)] = r
+        if r.get("empty"):
+            act(t, "lookup", "empty", f"{dx}: nothing usable", int(1000 * (time.time() - t0)))
+        else:
+            act(t, "lookup", "done", f"{dx}: {len(r.get('key_questions') or [])} questions, {len(r.get('red_flags') or [])} red flags, "
+                f"{len(r.get('first_line') or [])} first-line, {len(r.get('safety_netting') or [])} safety-net · {', '.join(u.split('/')[2] for u in (r.get('sources') or [])[:2])}",
+                int(1000 * (time.time() - t0)), sources=r.get("sources"), dx=dx)
 
     def synthesize(upto_t: float):
         with lock:
             text = " ".join(state["transcript"])
             prev = state["synth"]
+            refs = dict(state["refs"])
             state["synth_chunks"] = len(state["transcript"])
+        n_ref = sum(1 for d in ((prev or {}).get("differential") or []) if isinstance(d, dict) and _slug(d.get("dx") or "") in refs and not refs[_slug(d.get("dx") or "")].get("empty"))
+        act(upto_t, "synthesis", "started", f"{len(text.split())} words of transcript" + (f", {n_ref} reference lookups attached" if n_ref else ""))
         t0 = time.time()
         try:
-            js = synthesize_once(text, prev, upto_t, model)
+            js = synthesize_once(text, prev, upto_t, model, refs, think=True)
         except Exception as e:  # noqa: BLE001
             js = prev or {"error": str(e)}
         lat = round(time.time() - t0, 1)
@@ -307,7 +425,12 @@ def live_stream(cid: str, speed: float = 4.0, interval: float = 20.0, model: str
             state["synth"] = js
             state["snapshots"].append({"t": upto_t, "synth": js, "latency_s": lat})
             state["pending"] = False
+            todo = new_dx_to_lookup(js, state["refs"], state["inflight"])
+        dxs = [d.get("dx") for d in (js.get("differential") or []) if isinstance(d, dict)]
+        act(upto_t, "synthesis", "done", f"differential {dxs}" + (f" · next question set" if js.get("next_question") else "") + (f" · {len(js.get('red_flags') or [])} red flag(s)" if js.get("red_flags") else ""), int(1000 * lat))
         q.put({"event": "synthesis", "t": upto_t, "latency_s": lat, "snapshot": len(state["snapshots"]) - 1, "synth": js})
+        for dx in todo:
+            pool.submit(do_lookup, dx, upto_t)
 
     def gen():
         yield f"data: {json.dumps({'event': 'start', 'id': cid, 'duration_s': duration, 'speed': speed, 'interval': interval, 'model': MODELS[model][2], 'chunks': len(chunks)})}\n\n"
@@ -345,6 +468,8 @@ def live_stream(cid: str, speed: float = 4.0, interval: float = 20.0, model: str
         while not q.empty():
             yield f"data: {json.dumps(q.get())}\n\n"
         yield f"data: {json.dumps({'event': 'scoring'})}\n\n"
+        act(duration, "scoring", "started", "extracting the reference diagnosis and plan from the clinician's note, timing them in the transcript, judging the timeline")
+        t_sc = time.time()
         try:
             targets = reference_targets(rec, model)
             sc = score_timeline(rec, state["snapshots"], targets, model)
@@ -352,11 +477,16 @@ def live_stream(cid: str, speed: float = 4.0, interval: float = 20.0, model: str
             sc["targets"] = targets
         except Exception as e:  # noqa: BLE001
             sc = {"error": str(e)}
+        act(duration, "scoring", "done", "scored", int(1000 * (time.time() - t_sc)))
+        while not q.empty():
+            yield f"data: {json.dumps(q.get())}\n\n"
         final = {"event": "final", "note": final_note, "ref_note": ref_note_text(rec), "score": sc, "flags": state["flags"],
-                 "latency": [s["latency_s"] for s in state["snapshots"]], "wall_s": round(time.time() - wall0, 1)}
+                 "latency": [s["latency_s"] for s in state["snapshots"]], "wall_s": round(time.time() - wall0, 1),
+                 "lookups": {k: {kk: v.get(kk) for kk in ("condition", "sources", "ms", "empty")} for k, v in state["refs"].items()}}
         yield f"data: {json.dumps(final)}\n\n"
         OUT.mkdir(parents=True, exist_ok=True)
         (OUT / f"{cid}_{int(wall0)}.json").write_text(json.dumps({"id": cid, "speed": speed, "interval": interval, "model": model,
-                                                                  "snapshots": state["snapshots"], "flags": state["flags"], "score": sc}, indent=1))
+                                                                  "snapshots": state["snapshots"], "flags": state["flags"], "score": sc,
+                                                                  "activity": state["activity"], "lookups": state["refs"]}, indent=1))
 
     return StreamingResponse(gen(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
