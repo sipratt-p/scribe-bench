@@ -296,12 +296,26 @@ WORD_ALIAS = {"ear wax": "earwax", "wax": "earwax", "sting": "insect bites and s
               "lower respiratory tract infection": "chest infection", "upper respiratory tract infection": "common cold", "cystitis": "urinary tract infections"}
 
 
+NHS_OVERRIDE = {  # pages that exist but are not listed under this name in the A-Z
+    "gastroenteritis": ("Diarrhoea and vomiting (gastroenteritis)", "/conditions/diarrhoea-and-vomiting/"),
+    "food poisoning": ("Food poisoning", "/conditions/food-poisoning/"),
+    "urti": ("Common cold", "/conditions/common-cold/"), "common cold": ("Common cold", "/conditions/common-cold/"),
+    "lrti": ("Chest infection", "/conditions/chest-infection/"), "chest infection": ("Chest infection", "/conditions/chest-infection/"),
+    "acute coronary syndrome": ("Heart attack", "/conditions/heart-attack/"), "acs": ("Heart attack", "/conditions/heart-attack/"),
+    "uti": ("Urinary tract infections (UTIs)", "/conditions/urinary-tract-infections-utis/"),
+}
+
+
 def nhs_match(dx: str, model: str) -> tuple[str, str] | None:
     """Fuzzy shortlist from the NHS A-Z (token and character matching, abbreviations expanded), then one short model call to pick the same condition or none."""
     from rapidfuzz import fuzz, process, utils
     az = nhs_az()
     if not az:
         return None
+    low = dx.lower()
+    for key, hit in NHS_OVERRIDE.items():
+        if re.search(r"\b" + re.escape(key) + r"\b", low):
+            return hit
     q = re.sub(r"\(.*?\)", " ", dx).replace("/", " ")
     q = re.sub(r"\b(acute|chronic|possible|probable|likely|suspected|early|mild|moderate|severe|viral|bacterial|flare|flare-up|exacerbation|reaction|localised|localized|allergic|of|to|the|type)\b", " ", q, flags=re.I)
     q = " ".join(ABBREV.get(w.lower(), w) for w in q.split())
@@ -325,6 +339,8 @@ def nhs_match(dx: str, model: str) -> tuple[str, str] | None:
     k = int(m.group(0)) if m else 0
     if 1 <= k <= len(short):
         n = short[k - 1][0]
+        if fuzz.token_set_ratio(q, n, processor=utils.default_process) < 45 and fuzz.partial_ratio(q, n, processor=utils.default_process) < 70:
+            return None  # the picker chose a near miss
         return n, az[n]
     return None
 
