@@ -165,7 +165,7 @@
 <h2 id="limits">What we cannot claim</h2>
 <div class="warn"><p><b>The vanilla pipeline is not Abridge's product.</b> It is an unoptimized baseline built from open models. Abridge's system is fine-tuned on millions of real encounters and has its own evidence-linking feature.</p></div>
 <div class="callout"><p><b>The judges are models, not clinicians.</b> Every attribution, completeness and grounding number is a local model's reading. The two judges we use disagree on the size of the gain. A clinician reading a sample is the missing step.</p></div>
-<div class="callout"><p><b>37 consultations separate about four points, not one.</b> Differences smaller than that between columns should be read as ties.</p></div>
+<div class="callout"><p><b>The headline gain is not statistically resolved.</b> Best minus vanilla on the composite is +4.2 with a 95% bootstrap interval of −0.3 to +8.8 over the 37 held-out visits. What is resolved: term precision (+4.5, interval +2.3 to +6.7), ROUGE-L (+2.2, +1.0 to +3.2), and grounding with citations (+5.3, +3.2 to +7.8). Read the composite as "probably better", not as a measured four points.</p></div>
 <div class="callout"><p><b>Absolute scores are low by construction.</b> The reference notes are terse UK GP notes; the ordering between pipelines is the finding, not the level.</p></div>
 <div class="callout"><p><b>Medical-term hints in the transcriber were not a real gain.</b> The search preferred them by about a point on the note score, but the transcript itself got slightly worse. Treated as noise.</p></div>
 </div></body>

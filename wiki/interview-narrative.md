@@ -5,7 +5,7 @@
 
 ## Numbers to have ready
 - Term miss: 12.7% streaming vs 8.6% LLM-decoder at ~equal WER ([[decoder-finding]]).
-- Vanilla vs best on held-out: +4.2 (Qwen judge) / +2.4 (DeepSeek judge); term precision 26 → 31–33; misattributions 0.08 → 0.03; grounded 88.6 → 93.2 with citations; 84% of sentences checkable ([[vanilla-vs-best]]).
+- Vanilla vs best on held-out: composite +4.2 [95% CI −0.3, +8.8] under Qwen, +2.5 [−0.1, +5.3] under DeepSeek, so say "probably better, not resolved at 37 visits"; resolved: term precision +4.5 [+2.3, +6.7], ROUGE-L +2.2, grounding with citations +5.3 [+3.2, +7.8]; misattributions 0.08 → 0.03 (not resolved); 84% of sentences checkable ([[vanilla-vs-best]], `runs/paper_stats.md`).
 - SFT: +9 ROUGE-L, misattributions ×2–3, follow-ups −9 ([[fine-tuning-findings]]).
 - Verifier: 98.7–99.6% recall on injected errors ([[verifier]]).
 - Plan items: 41 of 154 never spoken; vanilla 96.5% / best 92.9% / cited 89.4% on spoken ones ([[plan-recall-gap]]).
@@ -16,7 +16,7 @@
 - That hotwords help (transcript got slightly worse).
 - Absolute PriMock scores (terse UK GP references; ordering is the finding).
 - That the judges are validated against clinicians (they are not).
-- That 37 files separate one point (they separate about four).
+- That the composite gain is measured: its interval includes zero. Quote the resolved components (precision, ROUGE-L, grounding) and the transcript term-miss gap, whose intervals do not overlap.
 
 ## Their vocabulary to use
 attribution, completeness, Linked Evidence, order generation, mid-training, "don't benchmark-max", milestone three (eval suites / environments / RL) — see [[abridge]].

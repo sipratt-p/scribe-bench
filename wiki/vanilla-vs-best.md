@@ -32,6 +32,6 @@ Composite: 44.17 / 44.26 / **48.44** / 44.48. Grounded: 92.45 / 92.94 / 93.46 / 
 - The optimized pipeline wins on term precision, attribution, ROUGE-L and (cited) grounding/checkability. **Vanilla wins on completeness** of spoken plan items ([[plan-recall-gap]]).
 - The margin over vanilla is **2.4 points under judge 2 and 4.2 under judge 1**. Quote the range. DeepSeek is both writer and judge 2 for the best config, so judge 1's number is the safer one.
 - Term recall barely moves anywhere: the gain is fewer invented terms and fewer wrong-speaker statements, not more captured terms.
-- 37 test files separate ~4 points, not 1.
+- Paired bootstrap over the 37 test files (`runs/paper_stats.md`): composite best − vanilla +4.2 [−0.3, +8.8], not resolved; term precision +4.5 [+2.3, +6.7] and ROUGE-L +2.2 [+1.0, +3.2] resolved; cited − best grounding +5.3 [+3.2, +7.8] resolved, plan recall −6.5 [−13.3, +0.2] not.
 
 Sources: `runs/verif_eval.md`, `autoresearch/state.json`, `autoresearch/notebook.md` iterations 1 and 47, `/tmp/theirs_eval.py` and `/tmp/vanilla_extra.py` outputs (12 Sep), `runs/asr_score*.json`.
