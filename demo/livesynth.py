@@ -272,7 +272,7 @@ def _fetch_text(url: str, cap: int = 6000) -> str:
 
 
 NHS_AZ = ROOT / "data/nhs_conditions_az.json"
-NHS_MATCH_SYSTEM = """You map a working-diagnosis label from a GP consultation to the matching entry of the NHS conditions A-Z. Answer with the number of the entry that is the SAME condition (ignore modifiers such as acute, possible, likely, flare, exacerbation, early, mild, viral), or 0 if none of the candidates is the same condition. Answer with the number only."""
+NHS_MATCH_SYSTEM = """You map a working-diagnosis label from a GP consultation to the matching entry of the NHS conditions A-Z. Answer with the number of the entry that is the SAME condition or the NHS page that covers it (ignore modifiers such as acute, possible, likely, flare, exacerbation, early, mild, viral). Similar-sounding but different conditions (gastritis for gastroenteritis, ARDS for acute coronary syndrome) are NOT matches: answer 0 rather than a near miss. Answer with the number only."""
 _AZ: dict | None = None
 
 
@@ -291,7 +291,9 @@ ABBREV = {"tia": "transient ischaemic attack", "urti": "common cold upper respir
           "cva": "stroke", "pid": "pelvic inflammatory disease", "sti": "sexually transmitted infections", "dka": "diabetic ketoacidosis",
           "copd": "chronic obstructive pulmonary disease", "ibs": "irritable bowel syndrome", "ssnhl": "sudden hearing loss", "ms": "multiple sclerosis"}
 WORD_ALIAS = {"ear wax": "earwax", "wax": "earwax", "sting": "insect bites and stings", "stings": "insect bites and stings", "flu": "influenza",
-              "tension type": "tension-type", "gastro": "gastroenteritis", "hives": "urticaria hives"}
+              "tension type": "tension-type", "hives": "urticaria hives", "acute coronary syndrome": "heart attack angina", "coronary syndrome": "heart attack angina",
+              "gastroenteritis": "diarrhoea and vomiting gastroenteritis", "gastro": "diarrhoea and vomiting gastroenteritis", "myocardial infarction": "heart attack",
+              "lower respiratory tract infection": "chest infection", "upper respiratory tract infection": "common cold", "cystitis": "urinary tract infections"}
 
 
 def nhs_match(dx: str, model: str) -> tuple[str, str] | None:
