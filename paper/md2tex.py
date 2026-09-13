@@ -20,5 +20,23 @@ s = s.replace("## 2a. Related work (every reference below verified against the a
 s = s.replace("### References (verified)", "### References")
 s = s.replace("## 6a. Data licensing and ethics", "## 6a. Data licensing and ethics")
 s = re.sub(r"\*\*What an LLM-judged evaluation of ambient clinical scribes can and cannot see: an open harness and two case studies\*\*\n\nAlternative:[^\n]*\n", "", s)
+# wide tables: give the label column ~3x the width of a number column (pandoc reads relative widths from the separator dashes) and shrink tables with 7+ columns
+out, block = [], []
+def flush():
+    if not block:
+        return
+    n = block[1].count("|") - 1 if len(block) > 1 else 0
+    if len(block) > 1 and set(block[1].replace("|", "").strip()) <= set("-: ") and n >= 5:
+        block[1] = "|" + "-" * 22 + "|" + "|".join(["-" * 7] * (n - 1)) + "|"
+        if n >= 7:
+            out.append("\\begingroup\\footnotesize\n"); out.extend(block); out.append("\n\\endgroup\n"); block.clear(); return
+    out.extend(block); block.clear()
+for line in s.split("\n"):
+    if line.startswith("|"):
+        block.append(line)
+    else:
+        flush(); out.append(line)
+flush()
+s = "\n".join(out)
 Path("paper/paper.md").write_text(s)
 print("paper/paper.md written", len(s))

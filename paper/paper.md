@@ -121,7 +121,7 @@ Code, lexicon, splits, prompts, run notebooks and cached model outputs are in th
 **Table 1. Transcript layer, 57 recordings.** WER after symmetric normalization; medical-term miss over 1,741 lexicon occurrences (binomial 95% CI); DER with 250 ms collar.
 
 | System | Decoder | WER % | Term miss % [95% CI] | DER % |
-|---|---|---|---|---|
+|----------------------|-------|-------|-------|-------|
 | Nemotron-3.5 streaming 0.6B, 1.1 s chunks | transducer | 11.8 | 12.5 [10.9, 14.0] | no speakers |
 | Nemotron-3.5 offline | transducer | 11.8 | 12.5 | no speakers |
 | Parakeet-TDT 0.6B v3 | transducer | 11.2 | 15.1 [13.4, 16.8] | no speakers |
@@ -135,8 +135,10 @@ Paired over recordings: MOSS-TD − streaming term miss −3.9 [−6.3, −1.7],
 
 **Table 2. After-visit note, 37 held-out consultations, judge 1, writer on official release weights.** Means, and paired bootstrap 95% CI of the difference from vanilla. Vanilla = Nemotron streaming → untuned Qwen3.8-27B. Parakeet = Parakeet-TDT v3 → same writer. Two-pass Qwen = Sortformer + Parakeet v3 → role map → same writer. v1 = MOSS-TD with anonymous labels → same writer. Best / cited = the search's accepted configuration with DeepSeek V4 Flash (official build) as writer.
 
+\begingroup\footnotesize
+
 | Metric | Vanilla | Parakeet | Two-pass Qwen | v1 | Best | Best, cited | Two-pass Qwen − vanilla | Best − vanilla | Cited − vanilla |
-|---|---|---|---|---|---|---|---|---|---|
+|----------------------|-------|-------|-------|-------|-------|-------|-------|-------|-------|
 | Composite | 41.0 | 40.0 | 43.0 | 40.0 | 42.3 | 42.2 | +2.0 [−1.0, +5.7] | +1.3 [−3.8, +6.2] | +1.2 [−3.8, +6.3] |
 | Composite + 0.2 grounded | 58.7 | 57.7 | 61.0 | 57.9 | 59.3 | 60.4 | +2.3 [−0.8, +6.0] | +0.6 [−4.2, +5.4] | +1.7 [−3.3, +6.9] |
 | Term precision | 26.4 | 24.8 | 25.8 | 25.8 | 28.9 | 31.1 | −0.6 [−2.1, +0.8] | **+2.5 [+0.5, +4.5]** | **+4.7 [+2.4, +7.1]** |
@@ -148,6 +150,9 @@ Paired over recordings: MOSS-TD − streaming term miss −3.9 [−6.3, −1.7],
 | Grounded sentences % | 88.6 | 88.6 | 90.1 | 89.8 | 85.2 | 91.3 | +1.4 [−1.0, +3.9] | **−3.4 [−6.6, −0.2]** | **+2.7 [+0.4, +5.1]** |
 | Cited / linked % | 0 / – | 0 / – | 0 / – | 0 / – | 0 / – | 78.9 / 74.3 | – | – | – |
 
+\endgroup
+
+
 Judge 2 (the official DeepSeek build, i.e. the writer judging itself): vanilla 45.1, best 44.4, cited 43.3; best − vanilla −0.7 [−4.5, +3.0], cited − vanilla −1.7 [−5.6, +2.0]; term precision still resolved (+2.5 [+0.6, +4.5] and +4.7 [+2.4, +7.1]). Cited − best (judge 1): grounded **+6.1 [+3.2, +8.9]**, precision +2.1 [+0.0, +4.4], ROUGE-L −0.6 [−1.7, +0.6], plan recall +4.1 [−1.1, +9.1]. Best − two-pass Qwen: composite −0.8 [−5.2, +3.5]; precision **+3.2 [+1.1, +5.3]**, ROUGE-L **+1.8 [+0.7, +2.9]**, plan recall **−9.0 [−15.3, −2.1]**, grounded **−4.9 [−7.7, −2.0]**.
 
 Search-time build of the writer (community-modified), same judge and visits, for the record: best 45.3 (+4.2 [−0.3, +8.8]), cited 44.1 (+3.1 [−1.2, +7.9]); term precision +4.5 [+2.3, +6.7] / +6.5 [+4.2, +8.7]; ROUGE-L +2.2 [+1.0, +3.2]; plan recall +0.6 [−5.3, +6.5] / −6.0 [−12.3, +0.2]; grounded −0.8 [−4.0, +2.4] / +4.6 [+2.3, +6.9]; cited 88.8% / linked 84.0%. Model-free metrics of official minus modified build on the best configuration: term recall −3.1 [−6.3, −0.0], precision −2.0 [−4.2, +0.1], ROUGE-L −0.7 [−1.6, +0.2].
@@ -155,7 +160,7 @@ Search-time build of the writer (community-modified), same judge and visits, for
 **Table 3. Live view, 57 visits, per version (original judge).**
 
 | Metric | v2 | v4 | v5 | v5 + retrieval | v5 + retrieval, official weights |
-|---|---|---|---|---|---|
+|----------------------|-------|-------|-------|-------|-------|
 | Reference diagnosis ever in top-3 | 52 | 49 | 56 | 55 | 56 |
 | Ever top-1 | 35 | 31 | 44 | 41 | 39 |
 | Had it before the GP said it | 48 / 51 | 49 / 49 | 54 / 54 | 52 / 52 | 53 / 53 |
@@ -169,7 +174,7 @@ Paired v5 − v2: top-3 +0.07 [+0.02, +0.14]; contradictions −0.18 [−0.33, �
 **Table 3b. Live view v5, cross-judged item by item.**
 
 | Quantity | timeline prompt, DeepSeek | item prompt, DeepSeek | item prompt, Gemma 4 | item prompt, Qwen3.8 |
-|---|---|---|---|---|
+|----------------------|-------|-------|-------|-------|
 | Diagnosis ever in top-3 | 56 / 57 | 51 / 57 | 51 / 57 | 47 / 57 |
 | Flags judged genuine (of 3) | 3 | 1 | 3 | 1 |
 | Plan suggestions agree / extra / contradict (87) | 26 / 58 / 3 | 67 / 5 / 15 | 21 / 65 / 1 | 32 / 54 / 1 |
