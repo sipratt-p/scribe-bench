@@ -30,7 +30,7 @@ Ambient clinical scribes turn a recorded consultation into a draft note, and are
 
 **Judges.** Judge 1 Qwen3.8-27B-FP8 (vLLM, thinking off) for all per-note judgments; judge 2 DeepSeek V4 Flash for confirmation of accepted configs. Judge benchmark on injected errors: Qwen 99.1% recall / 6.5% false positive, DeepSeek 95.7% / 4.5%, Gemma 4 98.7% / 5.5%.
 
-**Statistics.** Paired bootstrap over visits (10,000 resamples) for differences; binomial or Wilson intervals for rates; Spearman ρ and Cohen's κ for judge agreement. All reported in `runs/paper_stats.md`.
+**Statistics.** Paired bootstrap over visits (10,000 resamples) for differences, with the recording as the sampling unit for transcript metrics and the visit for note and live metrics; binomial or Wilson intervals for rates; Spearman ρ and Cohen's κ for judge agreement. We report every per-metric interval rather than a single headline; the composite is an engineering objective for the search, not a claim, and we do not correct for multiple comparisons because the point is the pattern across metrics, not any one test. All numbers are in `runs/paper_stats.md`.
 
 **Compute.** One workstation with two RTX PRO 6000 (Blackwell) GPUs and a Mac Studio; about $49 of rented H200 time for fine-tuning. Everything else local.
 
