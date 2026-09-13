@@ -69,7 +69,7 @@ DEV_N = 20
 # note-model endpoints the loop may choose between (judge stays fixed for comparability)
 NOTE_MODELS = {
     "qwen27b": ("http://localhost:8004/v1", "qwen3.8-27b"),
-    "dsv4flash": ("http://100.90.251.52:8600/v1", "v4-flash"),
+    "dsv4flash": ("http://100.90.251.52:8600/v1", "v4-flash"),    "dsv4flash_official": ("http://localhost:8000/v1", "DeepSeek-V4-Flash-DSpark"),
 }
 
 
