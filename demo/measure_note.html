@@ -97,7 +97,7 @@
   <div class="k">What it is</div><p>Statements pinned on the wrong person: the patient's mother's diabetes written as the patient's, a symptom the doctor asked about recorded as one the patient reported. One of clinician-defined quality dimensions used in deployed-scribe evaluations.</p>
   <div class="k">How it is measured</div><p>A judge model reads our note against the human transcript and counts four kinds of wrong attribution.</p>
   <div class="k">Our numbers</div><p class="num">Vanilla 0.08 per note, first two-pass design 0.11, best and cited 0.03.</p>
-  <div class="k">What moved it</div><p>Naming the doctor. With anonymous speaker labels the note writer made as many attribution errors as with no labels at all. One added step, asking a model which speaker is the clinician before writing, cut the errors by two thirds.</p>
+  <div class="k">What moved it, and a caveat</div><p>Naming the doctor. With anonymous speaker labels the note writer made as many attribution errors as with no labels at all. One added step, asking a model which speaker is the clinician before writing, cut the errors by two thirds under the main judge. But a check with three different judge models on the same 74 notes found they barely agree on which notes contain a misattribution (pairwise kappa from −0.02 to +0.29, no note flagged by all three), and one of them reverses the direction. This is the one measurement here where the direction of the result depends on which model judges it.</p>
 </div>
 <div class="card">
   <h3>Edit effort and length ratio</h3>

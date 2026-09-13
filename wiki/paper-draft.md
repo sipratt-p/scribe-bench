@@ -10,7 +10,7 @@
 Alternative: *Measuring the scribe, not the model: an open evaluation harness for ambient clinical documentation with LLM judges*
 
 ## Abstract (≈200 words)
-Ambient clinical scribes turn a recorded consultation into a draft note, and are increasingly evaluated on clinician-defined dimensions scored by LLM judges. We release an open harness that reproduces that style of evaluation on public data (PriMock57 audio, ACI-Bench notes, a 7,092-term primary-care lexicon) and use it for two studies. Study 1 evaluates the after-visit pipeline. Across seven open speech recognizers, word error rate varies within a point while medical-term loss varies twofold, separating language-model decoders (8.4% [7.1, 9.7]) from classic decoders (12.5–15.1%); the effect replicates on a synthetic second corpus. Speaker diarization alone does not change the note; naming the clinician before writing cuts misattributions by two thirds. An overnight search over 131 pipeline variants gains term precision (+4.5 [+2.3, +6.7]) but its composite gain (+4.2 [−0.3, +8.8]) is not resolved at n = 37, and the search removed span citations because its objective had no verifiability term; re-scored with one, citations halve unsupported sentences (+5.3 grounded [+3.2, +7.8]). A quarter of reference plan items were never spoken, exposing a ground-truth flaw in completeness metrics. Study 2 evaluates an in-visit decision-support view on the same visits: prompt rules reduce red flags from 61 to 3 (all judged genuine) without losing diagnosis coverage (56/57), while guideline retrieval adds volume, not agreement. Two judges agree on ranking (ρ = 0.80) but not on attribution (κ ≈ 0), and a reinforcement-learning pass they disagree on in sign. We argue these evaluations are useful for ordering pipelines and for catching objective failures, and unsafe as absolute quality claims without clinician calibration.
+Ambient clinical scribes turn a recorded consultation into a draft note, and are increasingly evaluated on clinician-defined dimensions scored by LLM judges. We release an open harness that reproduces that style of evaluation on public data (PriMock57 audio, ACI-Bench notes, a 7,092-term primary-care lexicon) and use it for two studies. Study 1 evaluates the after-visit pipeline. Across seven open speech recognizers, word error rate varies within a point while medical-term loss varies twofold, separating language-model decoders (8.4% [7.1, 9.7]) from classic decoders (12.5–15.1%); the effect replicates on a synthetic second corpus. Speaker diarization alone does not change the note; naming the clinician before writing cuts misattributions by two thirds. An overnight search over 131 pipeline variants gains term precision (+4.5 [+2.3, +6.7]) but its composite gain (+4.2 [−0.3, +8.8]) is not resolved at n = 37, and the search removed span citations because its objective had no verifiability term; re-scored with one, citations halve unsupported sentences (+5.3 grounded [+3.2, +7.8]). A quarter of reference plan items were never spoken, exposing a ground-truth flaw in completeness metrics. Study 2 evaluates an in-visit decision-support view on the same visits: prompt rules reduce red flags from 61 to 3 (all judged genuine) without losing diagnosis coverage (56/57), while guideline retrieval adds volume, not agreement. Three judges agree on ranking (ρ = 0.80 between the two scoring the composite) but not on attribution: pairwise κ from −0.02 to +0.29, no note flagged by all three, and the third judge reverses the direction of the attribution difference between pipelines; a reinforcement-learning pass the first two disagree on in sign. We argue these evaluations are useful for ordering pipelines and for catching objective failures, and unsafe as absolute quality claims without clinician calibration.
 
 ## 1. Introduction
 - Ambient scribes are deployed at scale, and the evaluation method described in the vendor and research literature is clinician-defined dimensions (attribution, completeness, fairness) scored by LLM judges validated against expert review.
@@ -18,7 +18,7 @@ Ambient clinical scribes turn a recorded consultation into a draft note, and are
 - Contributions:
   1. **scribe-bench**: an open harness over PriMock57 and ACI-Bench with seven ASR runners, note generation against any OpenAI-compatible server, a claim-level verifier with an injected-error benchmark, LLM-judge scorers for attribution, completeness and grounding, an autoresearch loop with a held-out gate and a second judge, and a replayed in-visit decision-support view with its own timeline scoring. Code, lexicon, splits, prompts and cached outputs released.
   2. **Findings that transferred** across a change of data, judge or metric: decoder type drives medical-term loss; role mapping, not diarization, fixes attribution; span citations trade completeness for grounding; overlap metrics and clinician dimensions diverge under fine-tuning.
-  3. **Findings about the evaluation itself**: an objective without a verifiability term removes the verifiability feature; 27% of reference plan items are unspoken, so completeness against the note over-credits guessing; two capable judges rank pipelines alike (ρ = 0.80) but disagree on attribution (κ ≈ 0) and on the sign of an RL result; a model judging its own outputs cannot detect its own escalation errors.
+  3. **Findings about the evaluation itself**: an objective without a verifiability term removes the verifiability feature; 27% of reference plan items are unspoken, so completeness against the note over-credits guessing; capable judges rank pipelines alike (ρ = 0.80) but three of them disagree on attribution (pairwise κ −0.02 to +0.29, no note flagged by all three) and two disagree on the sign of an RL result; a model judging its own outputs cannot detect its own escalation errors.
   4. **An in-visit case study** showing that prompt-level rules, not retrieval, moved the safety numbers, with confidence intervals.
 
 ## 2. Setup
@@ -59,7 +59,7 @@ Citations cost ~1 ROUGE-L and buy 4–5 term-precision points on every ACI split
 Item-level audit of the held-out plan items: 41 of 154 reference plan items were never stated in the conversation (silent test orders, drugs written but not discussed). On spoken items the cited writer captures 101/113 vs 105/113 uncited vs 110/114 vanilla; on unspoken items 16 vs 19 vs 11. Half the cited writer's headline plan-recall gap is refusal to invent. Four prompt variants aimed at plan recall gained up to +1.3 on dev and none held on test. Recommendation: score completeness against transcript-stated items, which is also closer to a completeness-of-follow-ups dimension as used in clinician-defined rubrics.
 
 ### 3.6 Overlap metrics and clinician dimensions diverge under fine-tuning (ACI-Bench)
-One epoch of LoRA on 2,804 open pairs: Qwen3.8-27B ROUGE-L 34.2 → 43.2, term precision 66 → 79; misattributions ×2–3 (0.08 → 0.23 on test1), follow-up recall −4 to −9 points; citation behaviour erased (99.6% → 9–16% cited) because targets carried none. Untuned Nemotron 3 Ultra 550B sits a point below untuned Qwen 27B on ROUGE-L with the fewest misattributions of any base model. Ordering that held: tuning > base quality > size.
+One epoch of LoRA on 2,804 open pairs, per-encounter paired bootstrap over 120 ACI-Bench encounters (Table 5): ROUGE-L +8.6 [+7.2, +10.0], term recall +4.8 [+2.9, +6.6], term precision +10.2 [+7.9, +12.6]; and, judged by the same model, misattributions per note +0.11 [+0.04, +0.18] and follow-up recall −4.5 [−7.3, −2.0] (97.4 → 92.9). Every interval excludes zero: the tune that wins every overlap metric loses on both clinician dimensions. Citation behaviour was erased (99.6% → 9–16% cited) because the targets carried none. Untuned Nemotron 3 Ultra 550B sits a point below untuned Qwen 27B on ROUGE-L with the fewest misattributions of any base model. Ordering that held: tuning > base quality > size.
 
 ### 3.7 A reinforcement-learning pass the judges disagree about
 Expert iteration on the local writer (sample 8, keep 2, LoRA, four rounds, reward = composite + grounding + linking with a length band; predictions logged before the first sample). Dev 46.2 → 51.0. Held-out: 41.5 → 40.5 under judge 1, 44.3 → 45.9 under judge 2. Style transferred (99.5% cited, notes 19% shorter, edit effort −25%); content did not (term recall −2). None of the predicted reward-hacking signatures appeared in four rounds. At 20 training transcripts this is memorization, and the sign disagreement between judges is the point.
@@ -76,7 +76,7 @@ Expert iteration on the local writer (sample 8, keep 2, LoRA, four rounds, rewar
 ## 5. What the judges can and cannot see
 - **Ranking, yes.** Per-note composites from the two judges correlate at ρ = 0.80 over 74 notes; both order vanilla < best.
 - **Levels, no.** Judge 2 scores every note 2–4 points higher; plan recall means differ by 5 points (ρ = 0.54).
-- **Attribution, not at all.** Judge 1 flags 4/74 notes, judge 2 1/74; raw agreement 0.93 is base rate, κ = −0.02. The misattribution penalty carries 40 points per event in the composite, so this is the term most exposed to judge choice.
+- **Attribution, not at all.** On the same 74 notes, Qwen flags 4, DeepSeek 1, Gemma 4 flags 13; pairwise κ −0.02 (Qwen–DeepSeek), +0.29 (Qwen–Gemma), +0.12 (DeepSeek–Gemma); four notes are flagged by two judges and none by all three. Gemma also reverses the direction of the pipeline difference (vanilla 0.135 vs best 0.216 per note, against 0.08 vs 0.03 under Qwen). The misattribution penalty carries 40 points per event in the composite, so this is the term most exposed to judge choice, and the one dimension where the paper can make no directional claim at all.
 - **Self-judging.** In Study 2 the writer and the judge are the same model; it cannot detect its own over-escalation (the anaphylaxis-vs-antihistamine disagreement is judged "contradicts" both ways).
 - **Objective design.** Two failures were caused by the metric, not the model: citations removed (3.4) and unspoken plan items credited (3.5). Both were found by re-scoring, not by a new model.
 - **RL sign disagreement** (3.7).
@@ -90,13 +90,45 @@ Code, lexicon, splits, prompts, run notebooks and cached model outputs are in th
 
 ## Figures and tables (list)
 1. Table 1: ASR matrix (WER, term miss with CIs, DER, speakers) — from [[decoder-finding]].
-2. Figure 1: term miss vs WER scatter, decoder family coloured (to draw).
+2. Figure 1: term miss vs WER scatter, decoder family coloured — drawn, below.
 3. Table 2: held-out note metrics for vanilla / v1 / best / cited with bootstrap CIs — from `runs/paper_stats.md`.
 4. Figure 2: the search's dev-vs-test trajectory — drawn, below.
 5. Table 3: live-view versions with CIs — from `runs/paper_stats.md`.
 6. Figure 3: per-visit red flags and contradictions, v2 vs v5 — drawn, below.
-7. Table 4: judge agreement.
+7. Table 4: three-judge agreement. 8. Table 5: ACI-Bench fine-tuning with per-encounter CIs.
 8. Appendix A: run log ([[live-experiments]], [[autoresearch-loop]]); Appendix B: prompts; Appendix C: verifier benchmark ([[verifier]]); Appendix D: fairness ([[fairness]]).
+
+## Figure 1. Medical-term miss rate against word error rate, seven open ASR systems
+<div style="overflow-x:auto"><svg viewBox="0 0 560 340" role="img" aria-label="Medical-term miss rate against word error rate for seven ASR systems; language-model decoders sit below classic decoders at similar WER" style="max-width:100%;height:auto;font-family:IBM Plex Mono,Menlo,monospace;font-size:11px">
+<line x1="52" y1="296.0" x2="544" y2="296.0" stroke="currentColor" stroke-opacity=".15"/><text x="46" y="300.0" text-anchor="end" fill="currentColor">7%</text>
+<line x1="52" y1="233.8" x2="544" y2="233.8" stroke="currentColor" stroke-opacity=".15"/><text x="46" y="237.8" text-anchor="end" fill="currentColor">9%</text>
+<line x1="52" y1="171.6" x2="544" y2="171.6" stroke="currentColor" stroke-opacity=".15"/><text x="46" y="175.6" text-anchor="end" fill="currentColor">11%</text>
+<line x1="52" y1="109.3" x2="544" y2="109.3" stroke="currentColor" stroke-opacity=".15"/><text x="46" y="113.3" text-anchor="end" fill="currentColor">13%</text>
+<line x1="52" y1="47.1" x2="544" y2="47.1" stroke="currentColor" stroke-opacity=".15"/><text x="46" y="51.1" text-anchor="end" fill="currentColor">15%</text>
+<text x="134.0" y="310" text-anchor="middle" fill="currentColor">10%</text>
+<text x="298.0" y="310" text-anchor="middle" fill="currentColor">11%</text>
+<text x="462.0" y="310" text-anchor="middle" fill="currentColor">12%</text>
+<text x="298" y="334" text-anchor="middle" fill="currentColor">word error rate</text>
+<text transform="rotate(-90)" x="-156" y="14" text-anchor="middle" fill="currentColor">medical-term miss rate</text>
+<circle cx="201.2" cy="258.4" r="5" fill="#1E7B4F"/>
+<text x="209.2" y="262.4" text-anchor="start" fill="currentColor">MOSS-TD +150 hotwords</text>
+<circle cx="189.8" cy="252.8" r="5" fill="#1E7B4F"/>
+<text x="197.8" y="280.8" text-anchor="start" fill="currentColor">MOSS-TD plain</text>
+<circle cx="224.2" cy="247.5" r="5" fill="#1E7B4F"/>
+<text x="232.2" y="299.5" text-anchor="start" fill="currentColor">MOSS-TD complaint hotwords</text>
+<circle cx="389.8" cy="215.4" r="5" fill="#1E7B4F"/>
+<text x="397.8" y="219.4" text-anchor="start" fill="currentColor">Canary-Qwen 2.5B</text>
+<circle cx="427.6" cy="126.1" r="5" fill="#8A5A0F"/>
+<text x="419.6" y="130.1" text-anchor="end" fill="currentColor">Nemotron 3.5 offline</text>
+<circle cx="425.9" cy="119.0" r="5" fill="#8A5A0F"/>
+<text x="417.9" y="147.0" text-anchor="end" fill="currentColor">Nemotron 3.5 streaming</text>
+<circle cx="332.4" cy="43.7" r="5" fill="#8A5A0F"/>
+<text x="340.4" y="47.7" text-anchor="start" fill="currentColor">Sortformer + Parakeet v3</text>
+<circle cx="332.4" cy="43.7" r="5" fill="#8A5A0F"/>
+<text x="340.4" y="59.7" text-anchor="start" fill="currentColor">Parakeet-TDT v3</text>
+<text x="544" y="28" text-anchor="end" fill="currentColor">green = language-model decoder · amber = transducer decoder</text></svg></div>
+
+*Eight configurations of seven systems on the 57 PriMock57 recordings. WER spans about two points; medical-term loss spans about seven. Colour is decoder family.*
 
 ## Figure 2. Overnight search: dev composite per iteration, held-out test where run
 <div style="overflow-x:auto"><svg viewBox="0 0 760 300" role="img" aria-label="Overnight search: dev-set composite per iteration, held-out test composite where run, accepted points marked" style="max-width:100%;height:auto;font-family:IBM Plex Mono,Menlo,monospace;font-size:11px">
@@ -284,8 +316,6 @@ Code, lexicon, splits, prompts, run notebooks and cached model outputs are in th
 *Bars: unique red flags raised per visit (amber = v2, green = v5). Crosses: contradicting plan suggestions at the end of the visit (top row v2, bottom row v5). v5 raises flags in two visits, both genuine.*
 
 ## To do before submission
-- Bootstrap CIs for the ACI-Bench fine-tuning table (per-encounter data exists in `runs/effort_notes_*.json`).
-- A third judge (Gemma 4 or a second open model) on the 74-note attribution set to see whether κ ≈ 0 is DeepSeek's under-flagging or a general problem.
-- Figure 1 (term miss vs WER scatter) drawn; Figures 2 and 3 done.
+- Done 13 Sep: related work, Figures 1–3, per-encounter CIs for the fine-tuning table, a third attribution judge (result: no agreement, so the attribution claims are now stated as unresolved rather than as a two-thirds reduction).
 - Related work: drafted (section 2a); verify each citation's authors and venue before submission.
 - A clinician read of 20 notes and the six live-view items as a "v2 paper" hook, or as a small appendix if one can be arranged before the deadline.

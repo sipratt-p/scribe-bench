@@ -13,6 +13,9 @@ Every clinician-dimension number comes from an LLM judge with thinking disabled 
 | DeepSeek V4 Flash | 95.7% | 4.5% |
 | Gemma 4 26B-A4B | 98.7% | 5.5% |
 
+## Three-judge attribution check (13 Sep)
+Gemma 4 26B-A4B re-judged the same 74 held-out notes (vanilla + best) for misattribution. Flags: Qwen 4, DeepSeek 1, Gemma 13. Pairwise κ: Qwen–DeepSeek −0.02, Qwen–Gemma +0.29, DeepSeek–Gemma +0.12; no note flagged by all three. Gemma reverses the pipeline direction (vanilla 0.135 vs best 0.216 per note). The "misattributions 0.08 → 0.03" result therefore rests on one judge and should be described as unresolved. See `runs/paper_stats.md` and [[paper-draft]].
+
 ## Judge gap
 Judge 1 − judge 2 composite on the same notes is the reward-hacking meter in [[expert-iteration]]. Round 0 (base cited Qwen): −2.85. Round 1: −5.65 (DeepSeek scores tuned notes *higher* than Qwen does; prediction 4 expected the opposite).
 
