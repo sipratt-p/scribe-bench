@@ -116,3 +116,22 @@ Plain-language definitions for everything used in this wiki. Grouped by where th
 | BAA | Business associate agreement | The contract a health system needs before sending PHI to a vendor like OpenAI. |
 | VPC | Virtual private cloud | The health system's own isolated cloud environment. |
 | CDS | Clinical decision support | Abridge's in-progress voice agent that answers clinician questions during a visit. |
+
+## In-visit decision support (separate experiment)
+
+| Term | Stands for | What it means here |
+|---|---|---|
+| Decision support / CDS | Clinical decision support | Output meant to change what the clinician does during the visit, as opposed to a note written afterwards. |
+| Differential | Differential diagnosis | The ranked list of conditions that could explain the presentation; here top-3 with evidence and what is missing. |
+| Discriminating question | | The one question whose answer best separates the top two diagnoses, or rules out the most dangerous one. |
+| Red flag / act now | | A feature that needs urgent action (chest pain with sweating, sudden weakness, anaphylaxis signs). Precision matters more than recall because false alarms cause alert fatigue. |
+| Plan suggested vs plan stated | | Guideline-based actions the model proposes, kept apart from actions the GP has actually said. Scored as agrees / extra / contradicts against the GP's note. |
+| Assumptions under test | | What the top diagnosis is leaning on and the finding that would overturn it. |
+| Revision | | An announced change of belief at a tick, with the transcript evidence that caused it; scored as toward or away from the GP's final diagnosis. |
+| Lookup | | A background NHS / NICE CKS search for a new differential entry, distilled into key questions, red flags, first-line management and safety-netting and fed to the next tick. |
+| NICE CKS | National Institute for Health and Care Excellence, Clinical Knowledge Summaries | UK primary-care guideline summaries; blocks direct fetches, so only search snippets are used. |
+| Tick / snapshot | | One re-synthesis of the live view, every 20 s of visit time by default. |
+| Lead time | | How long before the GP stated the diagnosis the live view already had it in its top-3. |
+| Activity log | | The page panel listing every task (synthesis, lookup, revision, scoring) with visit time and wall-clock duration. |
+| SearXNG | | The self-hosted meta-search engine on the beast that the lookups go through. |
+| Tailscale Serve / MagicDNS | | How the demo is exposed to the phone on the private tailnet (http://seth-cosmo-studio/live); HTTPS certificate issuance failed, so plain HTTP. |
