@@ -1,0 +1,37 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Attribution Labelling</title>
+<style>
+:root{--bg:#F4F6F8;--surface:#fff;--ink:#172029;--muted:#5C6B78;--line:#CAD3DB;--accent:#0F6B8A;--soft:#DDEEF4;--bad:#B3261E;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0F151B;--surface:#161E26;--ink:#E4EAF0;--muted:#94A3B1;--line:#2E3A46;--accent:#52B7D6;--soft:#12303B;--bad:#F28B82;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.5 "Public Sans",-apple-system,Helvetica,Arial,sans-serif;padding:20px clamp(16px,3vw,40px) 80px}
+h1{font-family:Newsreader,Georgia,serif;font-weight:500;font-size:26px;margin:0 0 6px}.k{font-family:"IBM Plex Mono",Menlo,monospace;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 14px;margin:10px 0}
+input,select,button,textarea{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink)}button.p{background:var(--accent);color:#fff;border-color:var(--accent);cursor:pointer}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.col{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;max-height:62vh;overflow:auto;white-space:pre-wrap;font-size:13.5px}
+.guide{background:var(--soft);border-left:3px solid var(--accent);padding:8px 12px;border-radius:4px;margin:8px 0;font-size:13px}
+.q{margin:10px 0}.q label{margin-right:14px}
+</style></head><body>
+<div class="k">private · human attribution labels · 74 held-out notes</div>
+<h1>Does this note attribute anything to the wrong person?</h1>
+<div class="guide"><b>What to look for.</b> Read the transcript (Doctor / Patient lines), then the draft note. Count every statement in the note that is pinned on the wrong person: (A) a relative's or other person's condition written as the patient's own; (B) something the doctor asked about or suggested written as something the patient reported; (C) something the patient said written as a clinician finding or decision; (D) any other wrong-person statement. Count each occurrence once. Ignore facts that are merely missing or invented but correctly attributed. Do not confer with the other rater.</div>
+<div class="bar"><span>Rater <input id="rater" placeholder="your initials" size="8"></span><span>Note <select id="pick"></select></span><span id="pos" class="k"></span><button id="prev">← prev</button><button id="next">next →</button><button class="p" id="save">Save this note</button><a id="dl" href="#" download="attribution_labels.json">Download all labels</a><span id="status" class="k"></span></div>
+<div class="grid"><div><div class="k">Transcript (human, with speakers)</div><div class="col" id="tx"></div></div><div><div class="k">Draft note</div><div class="col" id="note"></div></div></div>
+<div class="bar" style="flex-direction:column;align-items:flex-start">
+<div class="q">Misattributions found: <input id="count" type="number" min="0" max="20" value="0" style="width:5em"> <span class="k">(0 = none)</span></div>
+<div class="q">Types present: <label><input type="checkbox" class="t" value="A">A relative/other as patient</label><label><input type="checkbox" class="t" value="B">B doctor's question as patient report</label><label><input type="checkbox" class="t" value="C">C patient statement as clinician finding</label><label><input type="checkbox" class="t" value="D">D other</label></div>
+<div class="q" style="width:100%">Quote each misattributed sentence (one per line):<br><textarea id="ex" rows="3" style="width:100%"></textarea></div>
+<div class="q">Confidence: <label><input type="radio" name="c" value="high" checked>high</label><label><input type="radio" name="c" value="low">low</label></div>
+</div>
+<script>
+const $=i=>document.getElementById(i);let notes=[],idx=0;const KEY='attr_labels_v1';
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return{}}}
+function store(o){try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+function key(n){return n.cfg+'|'+n.id}
+function show(){const n=notes[idx];$('pick').value=idx;$('pos').textContent=(idx+1)+' / '+notes.length+' · '+n.cfg+' · '+n.id;$('tx').textContent=n.dialogue;$('note').textContent=n.note.replace(/\[\[[\d,\s]+\]\]/g,'');
+ const L=load()[key(n)]||{};$('count').value=L.count||0;document.querySelectorAll('.t').forEach(c=>c.checked=(L.types||[]).includes(c.value));$('ex').value=(L.examples||[]).join('\n');document.querySelector('input[name=c][value='+(L.confidence||'high')+']').checked=true;$('status').textContent=L.saved?'saved '+L.saved:'unsaved'}
+function save(){const n=notes[idx];const o=load();o[key(n)]={cfg:n.cfg,id:n.id,rater:$('rater').value,count:+$('count').value,types:[...document.querySelectorAll('.t:checked')].map(c=>c.value),examples:$('ex').value.split('\n').map(s=>s.trim()).filter(Boolean),confidence:document.querySelector('input[name=c]:checked').value,saved:new Date().toISOString()};store(o);$('status').textContent='saved';refreshDl()}
+function refreshDl(){const o=load();$('dl').href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({rater:$('rater').value,labels:o},null,1))}
+$('save').onclick=save;$('prev').onclick=()=>{idx=Math.max(0,idx-1);show()};$('next').onclick=()=>{idx=Math.min(notes.length-1,idx+1);show()};$('pick').onchange=e=>{idx=+e.target.value;show()};
+fetch('/api/label/notes').then(r=>r.json()).then(d=>{notes=d;// shuffle deterministically so raters don't see cfg order
+ notes.sort((a,b)=>(a.id+a.cfg).localeCompare(b.id+b.cfg));$('pick').innerHTML=notes.map((n,i)=>`<option value="${i}">${i+1}</option>`).join('');show();refreshDl()});
+</script></body></html>

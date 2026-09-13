@@ -34,9 +34,11 @@ MODELS = {
     "dsflash": (f"http://{BEAST}:8000/v1", "DeepSeek-V4-Flash-Abliterated", "DeepSeek V4 Flash NVFP4 (MoE, DSpark draft), 2 GPUs"),
     "qwen27b": (f"http://{BEAST}:8004/v1", "qwen3.8-27b", "Qwen3.8-27B dense FP8, 1 GPU"),
     "flashnext": (f"http://{BEAST}:8003/v1", "Qwen3.8-Flash-Next-ablit-nvfp4", "Qwen3.8-Flash-Next NVFP4 (MoE), 1 GPU"),
+    "gemma": ("http://localhost:8500/v1", "gemma4-vision", "Gemma 4 26B-A4B (Mac, judge only)"),
+    "dsflash_official": (f"http://{BEAST}:8000/v1", "DeepSeek-V4-Flash-DSpark", "DeepSeek V4 Flash NVFP4 official weights (DSpark draft), 2 GPUs"),
 }
-THINK_OFF = {"dsflash": {"thinking": False}, "qwen27b": {"enable_thinking": False}, "flashnext": {"enable_thinking": False}}
-THINK_LOW = {"dsflash": {"thinking": True, "reasoning_effort": "low"}, "qwen27b": {"enable_thinking": False}, "flashnext": {"enable_thinking": False}}
+THINK_OFF = {"dsflash": {"thinking": False}, "dsflash_official": {"thinking": False}, "qwen27b": {"enable_thinking": False}, "flashnext": {"enable_thinking": False}, "gemma": {"enable_thinking": False}}
+THINK_LOW = {"dsflash": {"thinking": True, "reasoning_effort": "low"}, "dsflash_official": {"thinking": True, "reasoning_effort": "low"}, "qwen27b": {"enable_thinking": False}, "flashnext": {"enable_thinking": False}, "gemma": {"enable_thinking": False}}
 SEARX = os.environ.get("SCRIBE_SEARX", "http://127.0.0.1:8890")  # beast SearXNG via `ssh -N -L 8890:127.0.0.1:8890 beast`
 LOOKUPS = ROOT / "runs/live_synth/lookups"
 THINK = os.environ.get("SCRIBE_LIVE_THINK", "0") == "1"  # thinking-low synthesis: +0.5 s/tick, no throughput loss, but can starve the JSON on long prompts
@@ -559,6 +561,17 @@ def churn(snapshots: list[dict]) -> dict:
 @router.get("/live", response_class=HTMLResponse)
 def live_page():
     return (ROOT / "demo/live.html").read_text()
+
+
+@router.get("/label", response_class=HTMLResponse)
+def label_page():
+    return (ROOT / "demo/label.html").read_text()
+
+
+@router.get("/api/label/notes")
+def label_notes():
+    p = ROOT / "runs/paper_notes_74.json"
+    return json.loads(p.read_text()) if p.exists() else []
 
 
 @router.get("/measurements/live", response_class=HTMLResponse)
