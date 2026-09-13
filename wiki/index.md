@@ -38,6 +38,9 @@ Ambient clinical scribe evaluation harness, built 11–12 Sep 2026 for the Abrid
 - [[live-synthesis]] — separate experiment: in-visit decision support on the live transcript (demo `/live`)
 - [[live-experiments]] — the run log for it: every version L0–L5, results side by side, what each taught, the search story
 
+## Paper
+- [[paper-draft]] — workshop-paper draft: title, abstract, sections, tables, figure list, to-do; statistics in `runs/paper_stats.md`
+
 ## Meta
 - [[open-questions]] — what is unresolved and what to run next
 - [[sources]] — raw files behind every page
