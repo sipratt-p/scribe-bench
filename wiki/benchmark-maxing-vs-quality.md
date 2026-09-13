@@ -1,6 +1,6 @@
 # Benchmark-maxing vs quality-maxing
 
-The July workshop records NVIDIA advising Abridge not to benchmark-max ([[abridge]]). This project did both, and the split is explicit.
+A common piece of advice in model development is not to benchmark-max. This project did both, and the split is explicit.
 
 ## Benchmark-maxing, by construction
 - The [[autoresearch-loop]] itself: one composite on 57 mock UK GP consultations, an LLM proposer writing prompt wordings. Evidence: repeated dev gains that failed the 37-file test gate.

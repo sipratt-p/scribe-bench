@@ -87,14 +87,14 @@
 </div>
 <div class="card">
   <h3>Plan-item recall (completeness)</h3>
-  <div class="k">What it is</div><p>The plan is the set of actions at the end of a visit: prescriptions, tests, referrals, when to come back, when to go to A&amp;E. This is the share of the doctor's plan items that a judge could find in our note. It is the closest thing here to what Abridge calls completeness.</p>
+  <div class="k">What it is</div><p>The plan is the set of actions at the end of a visit: prescriptions, tests, referrals, when to come back, when to go to A&amp;E. This is the share of the doctor's plan items that a judge could find in our note. It is the closest thing here to the completeness dimension in clinician-defined rubrics.</p>
   <div class="k">How it is measured</div><p>A judge model lists the plan items in the doctor's note, then checks each one against our note. A second version only counts items that were actually said aloud during the visit.</p>
   <div class="k">Our numbers</div><p class="num">All items: vanilla 80.8, best 81.2, cited 76.0. Spoken items only: vanilla 96.5, best 92.9, cited 89.4.</p>
   <div class="k">What we learned</div><p>The five-point drop under citations looked like the cost of citing. Then we checked the items one by one: 41 of the 154 plan items in the doctors' notes were never said in the room (a blood test ordered silently, a drug written down but not discussed). A writer can only get those by guessing, and the uncited writer sometimes guessed right. Counting only spoken items, the cited note is 3.5 points behind, not 5, and vanilla is the best of the three at capturing what was said. That is the honest open problem: the precision rules cost some completeness.</p>
 </div>
 <div class="card">
   <h3>Misattributions per note (attribution)</h3>
-  <div class="k">What it is</div><p>Statements pinned on the wrong person: the patient's mother's diabetes written as the patient's, a symptom the doctor asked about recorded as one the patient reported. One of Abridge's named quality dimensions.</p>
+  <div class="k">What it is</div><p>Statements pinned on the wrong person: the patient's mother's diabetes written as the patient's, a symptom the doctor asked about recorded as one the patient reported. One of clinician-defined quality dimensions used in deployed-scribe evaluations.</p>
   <div class="k">How it is measured</div><p>A judge model reads our note against the human transcript and counts four kinds of wrong attribution.</p>
   <div class="k">Our numbers</div><p class="num">Vanilla 0.08 per note, first two-pass design 0.11, best and cited 0.03.</p>
   <div class="k">What moved it</div><p>Naming the doctor. With anonymous speaker labels the note writer made as many attribution errors as with no labels at all. One added step, asking a model which speaker is the clinician before writing, cut the errors by two thirds.</p>
@@ -116,7 +116,7 @@
   <h3>Citation coverage and linked sentences</h3>
   <div class="k">What they are</div><p>Coverage: the share of sentences that carry a pointer to transcript lines. Linked: the share of sentences whose own cited lines actually support them, so a reader can check the claim by looking exactly where the note points.</p>
   <div class="k">Our numbers</div><p class="num">Uncited notes: none. Cited: 88.8% of sentences cited, 84.0% linked.</p>
-  <div class="k">Why this matters for the product</div><p>Abridge's Linked Evidence lets a doctor click a sentence and see the transcript. Our version generates the pointer at writing time, so a checker can run before the doctor sees the draft, and the doctor's click lands on the exact lines.</p>
+  <div class="k">Why this matters for the product</div><p>Commercial scribes offer on-demand evidence linking: a doctor clicks a sentence and sees the transcript. Our version generates the pointer at writing time, so a checker can run before the doctor sees the draft, and the doctor's click lands on the exact lines.</p>
 </div>
 <div class="card">
   <h3>Verifier recall on injected errors</h3>
@@ -125,9 +125,9 @@
 </div>
 <div class="card">
   <h3>The composite, and the second judge</h3>
-  <div class="k">What it is</div><p>The overnight search needed one number to optimize. The composite blends 30% term recall, 30% term precision, 20% ROUGE-L, 20% plan recall, minus a penalty of 40 points per misattribution. It is our formula, not Abridge's.</p>
+  <div class="k">What it is</div><p>The overnight search needed one number to optimize. The composite blends 30% term recall, 30% term precision, 20% ROUGE-L, 20% plan recall, minus a penalty of 40 points per misattribution. It is our formula, not a vendor's.</p>
   <div class="k">The lesson it taught</div><p>It had no term for "is this claim verifiable", so the search threw citations away eight times: they only showed up as a small recall cost. A score that does not value the trust feature will remove the trust feature. We added grounding to the score afterwards; with it, cited and uncited tie.</p>
-  <div class="k">Judges</div><p>All the judged numbers come from a local model reading the notes, with a second, different model confirming anything the search accepted. The two judges disagree on the size of the win: about four points by one, two and a half by the other. Neither has been checked against a real clinician, which is the step Abridge's own method treats as what makes a score trustworthy.</p>
+  <div class="k">Judges</div><p>All the judged numbers come from a local model reading the notes, with a second, different model confirming anything the search accepted. The two judges disagree on the size of the win: about four points by one, two and a half by the other. Neither has been checked against a real clinician, which is the step the vendor evaluation literature treats as what makes a score trustworthy.</p>
 </div>
 
 <h2 id="story">How the numbers improved, in order</h2>
@@ -163,7 +163,7 @@
 <p class="eyebrow" style="margin-top:6px">Dev-set composites, 20 consultations the search tuned on: 44.2 / 44.3 / 48.4 / 44.5. Judge 1 is Qwen3.8-27B, judge 2 is DeepSeek V4 Flash, which is also the best config's note writer.</p>
 
 <h2 id="limits">What we cannot claim</h2>
-<div class="warn"><p><b>The vanilla pipeline is not Abridge's product.</b> It is an unoptimized baseline built from open models. Abridge's system is fine-tuned on millions of real encounters and has its own evidence-linking feature.</p></div>
+<div class="warn"><p><b>The vanilla pipeline is not any vendor's product.</b> It is an unoptimized baseline built from open models. Deployed systems are fine-tuned on large volumes of real encounters and have their own evidence-linking features.</p></div>
 <div class="callout"><p><b>The judges are models, not clinicians.</b> Every attribution, completeness and grounding number is a local model's reading. The two judges we use disagree on the size of the gain. A clinician reading a sample is the missing step.</p></div>
 <div class="callout"><p><b>The headline gain is not statistically resolved.</b> Best minus vanilla on the composite is +4.2 with a 95% bootstrap interval of −0.3 to +8.8 over the 37 held-out visits. What is resolved: term precision (+4.5, interval +2.3 to +6.7), ROUGE-L (+2.2, +1.0 to +3.2), and grounding with citations (+5.3, +3.2 to +7.8). Read the composite as "probably better", not as a measured four points.</p></div>
 <div class="callout"><p><b>Absolute scores are low by construction.</b> The reference notes are terse UK GP notes; the ordering between pipelines is the finding, not the level.</p></div>

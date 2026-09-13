@@ -35,14 +35,14 @@ Plain-language definitions for everything used in this wiki. Grouped by where th
 | ROUGE-L | Recall-Oriented Understudy for Gisting Evaluation, longest common subsequence | Word-overlap score with the reference note. Rewards fluent, similar wording; blind to who-said-what. |
 | BERTScore | | Overlap in meaning rather than exact words, using an embedding model. |
 | Term recall / term precision | | Of the medical terms in the reference note, how many we kept (recall); of the terms we wrote, how many are in the reference (precision). Precision is the hallucination guard. |
-| Plan items / plan recall | | The actions in a note (prescriptions, tests, referrals, follow-ups, safety-netting). Recall = share a judge can find in the draft. Proxy for Abridge's "completeness" ([[plan-recall-gap]]). |
+| Plan items / plan recall | | The actions in a note (prescriptions, tests, referrals, follow-ups, safety-netting). Recall = share a judge can find in the draft. Proxy for a completeness dimension ([[plan-recall-gap]]). |
 | Safety-netting | | UK GP term: telling the patient when to come back or call (e.g. "go to A&E if …"). |
 | Attribution / misattribution | | Whether a statement is pinned to the right person. Family history written as the patient's own is the classic misattribution. |
 | Third-party leak | | Personal information about someone other than the patient (a relative, a colleague) ending up in the note. |
 | Grounded | | A note sentence the judge finds supported by the transcript. |
 | Citation / span citation | | A note sentence ending with the transcript line numbers that support it, written as double brackets. |
 | Linked | | A cited sentence whose *own* cited lines actually support it ([[citations-and-verifiability]]). |
-| Linked Evidence | | Abridge's product feature: highlight a note sentence, see the supporting transcript. On demand, not at generation time. |
+| on-demand evidence linking | | commercial products feature: highlight a note sentence, see the supporting transcript. On demand, not at generation time. |
 | Verifier | | A small model that checks each cited claim against its lines and flags unsupported ones or leaks ([[verifier]]). |
 | Injected errors | | Deliberate corruptions (flip a "no", change a number, swap a drug, invent a finding, add a leak) used to measure whether the verifier catches them. |
 | Edit effort / edits per 100 words | | Character edits needed to turn the draft into the reference note, per 100 reference words. A proxy for how much work the doctor has to do. |
@@ -52,7 +52,7 @@ Plain-language definitions for everything used in this wiki. Grouped by where th
 | Gate (drop_flagged) | | Running the verifier on the draft and deleting sentences it flags. Rejected by the loop. |
 | Transcript correction | | Asking an LLM to fix misheard medical terms before note writing. Rejected by the loop four times. |
 | Composite | | One blended number: 0.3 term recall + 0.3 term precision + 0.2 ROUGE-L + 0.2 plan recall − 40 × misattributions per note ([[metrics]]). |
-| Clinician-defined dimensions | | Abridge's whitepaper term for note-quality measures doctors specified (attribution, completeness, …), scored by LLM judges validated against expert review. |
+| Clinician-defined dimensions | | the vendor evaluation literature term for note-quality measures doctors specified (attribution, completeness, …), scored by LLM judges validated against expert review. |
 | Fairness stratification | | Splitting scores by patient gender or age to see if quality differs ([[fairness]]). |
 
 ## Models, training, and inference
@@ -61,7 +61,7 @@ Plain-language definitions for everything used in this wiki. Grouped by where th
 |---|---|---|
 | Open-weight | | A model whose weights you can download and run yourself (Qwen, DeepSeek, Nemotron), as opposed to a frontier API (GPT, Claude). |
 | Frontier API / frontier model | | The largest closed models reached over an API. In the design, used only for coding, orders and chart questions. |
-| Dense vs MoE | Mixture of experts | Dense: every parameter is used for every token (Qwen 27B). MoE: only a subset of "expert" blocks fires per token (DeepSeek, Nemotron Nano/Ultra). Abridge found dense models took mid-training better. |
+| Dense vs MoE | Mixture of experts | Dense: every parameter is used for every token (Qwen 27B). MoE: only a subset of "expert" blocks fires per token (DeepSeek, Nemotron Nano/Ultra).  |
 | 30B-A3B, 550B-A55B | | MoE size notation: total parameters, and how many are active per token. |
 | Reasoning / thinking mode | | Models that write a hidden chain of thought before answering. Turned off everywhere here (`enable_thinking=false`); it hurt note quality in published tests. |
 | Judge / LLM-as-judge | | Using a model to score another model's output against a rubric ([[judges]]). |
@@ -73,7 +73,7 @@ Plain-language definitions for everything used in this wiki. Grouped by where th
 | Adapter | | The saved LoRA weights; applied on top of the base model. |
 | Merge (and unload) | | Folding the adapter into the base weights so the model runs as one. |
 | Epoch | | One pass over the training data. |
-| Mid-training / continued pretraining | | Abridge's programme: keep pretraining an open model on their clinical corpus before task-specific tuning. |
+| Mid-training / continued pretraining | | Keep pretraining an open model on a domain corpus before task-specific tuning. |
 | Post-training | | Everything after pretraining: SFT, RL, preference tuning. |
 | RL | Reinforcement learning | Updating a model from a reward signal rather than fixed targets. Not done here except the expert-iteration exercise. |
 | Expert iteration / rejection-sampling fine-tuning | | Sample several outputs, keep the best by reward, fine-tune on those, repeat. The cheapest RL-shaped loop ([[expert-iteration]]). |
@@ -90,13 +90,12 @@ Plain-language definitions for everything used in this wiki. Grouped by where th
 | Cache by hash | | Every LLM call is keyed by its inputs, so reruns are free. |
 | vLLM / SGLang / llama-server / oMLX / mlx_lm | | Inference servers. vLLM and SGLang on the beast's NVIDIA GPUs; llama-server, oMLX and mlx_lm on the Mac's Apple silicon. |
 | NeMo / Riva / NIM / Triton / TensorRT-LLM | | NVIDIA's training framework, speech deployment product, packaged inference containers, serving server, and inference engine, respectively. |
-| Megatron-Bridge / Axolotl | | Training frameworks; Abridge found the NVIDIA one 3× slower for a 122B full fine-tune. |
 | FP8 / NVFP4 / 4-bit | | Quantization levels: fewer bits per weight, smaller and faster, slight quality cost. |
 | bf16 | bfloat16 | The standard 16-bit training precision. |
 | PLE offload | Per-layer embedding CPU offload | A vLLM trick needed to fit Flash-Next on one GPU. |
 | H200 / B200 / RTX PRO 6000 Blackwell | | NVIDIA GPUs: rented data-centre cards (H200, B200) vs the two workstation cards in the beast. |
 | Eager mode | | Running a model without compiled graphs; slower but avoids compatibility bugs. |
-| MTP heads | Multi-token prediction | Extra prediction heads some models ship for faster decoding; a checkpoint-export bug Abridge hit. |
+| MTP heads | Multi-token prediction | Extra prediction heads some models ship for faster decoding. |
 
 ## Clinical and data terms
 
@@ -110,12 +109,12 @@ Plain-language definitions for everything used in this wiki. Grouped by where th
 | GP | General practitioner | UK primary-care doctor. |
 | A&E / LAS | Accident and emergency / London Ambulance Service | UK terms in the PriMock plan items. |
 | FBC / TSH | Full blood count / thyroid-stimulating hormone | Common blood tests that appear as unspoken plan items. |
-| CDI | Clinical documentation integrity | Coding the note for billing; one of Abridge's ten eval tasks. |
+| CDI | Clinical documentation integrity | Coding the note for billing. |
 | EHR / Epic / FHIR | Electronic health record / the dominant EHR vendor / the interoperability standard | Where the note lands and where chart context comes from. Haiku and Hyperspace are Epic's mobile and desktop apps. |
 | PHI | Protected health information | Why residency (keeping data inside the health system) matters. |
 | BAA | Business associate agreement | The contract a health system needs before sending PHI to a vendor like OpenAI. |
 | VPC | Virtual private cloud | The health system's own isolated cloud environment. |
-| CDS | Clinical decision support | Abridge's in-progress voice agent that answers clinician questions during a visit. |
+| CDS | Clinical decision support | Tools that answer clinician questions or suggest actions during a visit. |
 
 ## In-visit decision support (separate experiment)
 

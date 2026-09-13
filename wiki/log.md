@@ -8,7 +8,7 @@ All times Pacific. Numbers on this page are pointers; the pages they link to car
 - ASR matrix on PriMock57: MOSS-TD, Nemotron streaming (offline and 1.1 s chunks), Parakeet v3, Sortformer+Parakeet, Canary-Qwen, Nano Omni ([[models]], [[decoder-finding]]).
 - Note generation on ACI-Bench and PriMock57 with Qwen3.8-27B; citation variant; verifier with injected errors ([[verifier]]).
 - RunPod 2×H200 (~$36): Qwen 27B LoRA SFT on 2,804 pairs; Nemotron Nano attempts (NaN on Blackwell locally); Ultra 550B base on the Mac Studio ([[fine-tuning-findings]], [[infrastructure]]).
-- Abridge-dimension judges (attribution, completeness, fairness) reproduced with Gemma 4 ([[judges]], [[fairness]]).
+- Clinician-dimension judges (attribution, completeness, fairness) reproduced with Gemma 4 ([[judges]], [[fairness]]).
 - Second pod (1×H200, ~$13): Nemotron Nano LoRA with small adapter.
 - Demo UI built: cached + live modes, explain toggle, learnings section ([[deliverables]]).
 - DeepSeek V4 Flash added as a note model; Flash-Next dropped (serving crashes) ([[models]]).
@@ -19,7 +19,7 @@ All times Pacific. Numbers on this page are pointers; the pages they link to car
 - Synthetic ACI-Bench audio (Kokoro) confirms the decoder trend on a second corpus ([[decoder-finding]]).
 - /experiments page added to the demo; contrast fixed; plain-language guide added.
 - Vanilla pipeline scored on the loop composite (dev 44.17 / test 40.82) ([[vanilla-vs-best]]).
-- Artifact updated with loop outcome and interviewer phrasing; then corrected from the 22 Jul Abridge×NVIDIA workshop summary ([[abridge]]).
+- Private brief updated with the loop outcome.
 - Verifiability re-score (grounded / linked) of vanilla, v1, best, best+cite ([[citations-and-verifiability]]).
 - Four cited prompt variants for plan recall: none held on test. Item-level gap analysis: 41 of 154 reference plan items never spoken ([[plan-recall-gap]]).
 - Expert-iteration RL exercise queued behind plan-recall, predictions logged first; round 0 and round 1 done by 14:30 ([[expert-iteration]]).

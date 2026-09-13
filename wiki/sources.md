@@ -10,8 +10,7 @@
 | Vanilla judge-2 and spoken-plan numbers | `/tmp/theirs_eval.py`, `/tmp/vanilla_extra.py` outputs (12 Sep; copied into [[vanilla-vs-best]]) |
 | Fairness, effort, SFT logs | `runs/fairness.log`, `runs/effort_notes_*.json`, `runs/sft_*.log` |
 | Demo data | `demo/data/*.json`, `demo/summary.json`, `demo/README.md` |
-| Artifact HTML | scratchpad `abridge-frontier-stack.html` (published v11) |
-| Abridge workshop summary | `~/Downloads/Abridge_DeveloperWorkshop_7_22_26_Summary.docx`; text in scratchpad `abridge_workshop.txt` |
+| Private brief HTML | scratchpad (not part of the published material) |
 | Session transcript | `~/.claude/projects/-Users-sethcosmo/e65b945e-2a1a-4146-8438-9fa5bdfeb67a.jsonl` |
 | Memory | `~/.claude/projects/-Users-sethcosmo/memory/` |
 

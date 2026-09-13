@@ -4,11 +4,12 @@ import re, sys, html
 from pathlib import Path
 import markdown
 W = Path(__file__).parent
-order = ["index","glossary","overview","interview-narrative","log","decoder-finding","role-mapping","citations-and-verifiability",
+PRIVATE = {"abridge","interview-narrative","nvidia-engagement"}
+order = ["index","glossary","overview","log","decoder-finding","role-mapping","citations-and-verifiability",
          "fine-tuning-findings","verifier","plan-recall-gap","vanilla-vs-best","fairness","metrics","judges","autoresearch-loop",
          "expert-iteration","benchmark-maxing-vs-quality","two-pass-asr","models","datasets","infrastructure","abridge",
-         "nvidia-engagement","deliverables","live-synthesis","live-experiments","paper-draft","open-questions","sources","README"]
-pages = {p.stem: p.read_text() for p in W.glob("*.md")}
+         "deliverables","live-synthesis","live-experiments","paper-draft","open-questions","sources","README"]
+pages = {p.stem: p.read_text() for p in W.glob("*.md") if p.stem not in PRIVATE}
 order += [k for k in sorted(pages) if k not in order]
 def title(md): 
     m = re.search(r"^# (.+)$", md, re.M); return m.group(1) if m else "untitled"

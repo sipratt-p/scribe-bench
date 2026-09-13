@@ -12,7 +12,7 @@ Item-level gap analysis (test, 37 consultations, Qwen judge extracts items from 
 (Counts differ by one between runs because item extraction is an LLM call.)
 
 Reading
-- **The metric was wrong.** Of 154 reference plan items, ~41 are decisions the GP wrote but never said (a TSH, a full blood count, "prescribe naproxen"). A writer can only get those by guessing; the uncited writer sometimes guesses right and is rewarded. Plan recall should count transcript-stated items only, which is also closer to Abridge's completeness dimension ([[abridge]]).
+- **The metric was wrong.** Of 154 reference plan items, ~41 are decisions the GP wrote but never said (a TSH, a full blood count, "prescribe naproxen"). A writer can only get those by guessing; the uncited writer sometimes guesses right and is rewarded. Plan recall should count transcript-stated items only, which is also closer to a completeness dimension ([[abridge]]).
 - **Half the cited writer's headline gap is refusing to invent.** On spoken items it is 3.5 points behind uncited, not 5.
 - **Vanilla is best at spoken plan capture (96.5%).** The precision-first instruction and the citation rule both trade completeness for fewer invented terms. This is the most concrete open problem ([[open-questions]]).
 - The seven real misses of the cited writer are safety-netting and follow-up actions said in the room (same-day face-to-face, blue-light ambulance, inhaler dose increase, A&E safety-net, pregnancy test, "contact the clinic if no better", paracetamol). A target for [[expert-iteration]].

@@ -1,11 +1,10 @@
 # Index
 
-Ambient clinical scribe evaluation harness, built 11–12 Sep 2026 for the Abridge interview (Sun 13 Sep, 2pm). Everything measured locally on open data; ~$49 of rented H200 time in total.
+Ambient clinical scribe evaluation harness, built 11–12 Sep 2026 for the study (Sun 13 Sep, 2pm). Everything measured locally on open data; ~$49 of rented H200 time in total.
 
 ## Start here
 - [[glossary]] — acronyms and jargon in plain language, grouped by topic
 - [[overview]] — what was built, the one-paragraph result, and how to read the rest
-- [[interview-narrative]] — how to say it to an interviewer, with what not to claim
 - [[log]] — dated timeline of the work
 
 ## Findings
@@ -30,8 +29,6 @@ Ambient clinical scribe evaluation harness, built 11–12 Sep 2026 for the Abrid
 - [[models]] — every ASR and note model tried, with numbers
 - [[datasets]] — PriMock57, ACI-Bench, the lexicon, the synthetic corpus
 - [[infrastructure]] — beast, Mac, ports, pods, cost, gotchas
-- [[abridge]] — what Abridge actually runs and measures (public + the July workshop doc)
-- [[nvidia-engagement]] — what the numbers mean for the NVIDIA account
 
 ## Deliverables
 - [[deliverables]] — the artifact, the demo, the repo, the experiments page

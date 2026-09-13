@@ -24,6 +24,6 @@ Two measures added: **grounded** = share of note sentences a judge finds support
 
 Dev (20): composite 44.17 / 48.44 / 44.48; grounded 92.45 / 93.46 / 96.03; linked 0 / 0 / 88.06.
 
-Reading: the uncited best is *no better grounded than vanilla*; its win was precision and attribution. With grounding in the score, cited and uncited tie on test and both lead vanilla by ~4. The cited config is the one to ship; it is the only one the [[verifier]] can check per span. Abridge's product has Linked Evidence (on demand); the vanilla pipeline here does not, so "0 linked" describes the baseline, not Abridge ([[abridge]]).
+Reading: the uncited best is *no better grounded than vanilla*; its win was precision and attribution. With grounding in the score, cited and uncited tie on test and both lead vanilla by ~4. The cited config is the one to ship; it is the only one the [[verifier]] can check per span. commercial products has on-demand evidence linking (on demand); the vanilla pipeline here does not, so "0 linked" describes the baseline, not Abridge ([[abridge]]).
 
 Sources: `runs/verif_eval.md`, `runs/verif_eval.json`, `autoresearch/verif_eval.py`, `autoresearch/notebook.md` (cite rows 6–11, 21, 49, 64, 85, 88), `RESULTS.md` note tables.

@@ -24,6 +24,5 @@
 
 Published leaderboard context (not ours): ACI+PriMock comparison (Jul 2026, 0–1 composite): GPT-5.4 reasoning-off 0.515, DeepSeek V4 Flash 0.506, Gemma 4 E4B 0.498; MedBench v5 record generation (0–100): Opus 4.7 81.0, GPT-5.5 79.7, Kimi K2.6 79.1, GLM-5.1 77.6, DeepSeek V4 Pro 73.0, MedGemma 1.5 59.1.
 
-Abridge's own finding (July workshop): dense Qwen 3.6 27B took their mid-training recipe better than Qwen/Nemotron MoE → argues against fine-tuning DeepSeek Flash / Flash-Next ([[abridge]]).
 
 Sources: `RESULTS.md`, `runs/asr_score*.json`, artifact section 5, [[fine-tuning-findings]].

@@ -8,6 +8,6 @@ The frontier design keeps the live transcript and the final transcript as differ
 - **Note model**: open-weight, reasoning off, span citations required ([[citations-and-verifiability]]).
 - **Verifier** ahead of the clinician ([[verifier]]); **frontier router** only for coding/orders/chart questions.
 
-Why pass 2 is a *decoder* argument and not a *latency* argument: [[decoder-finding]]. What the July workshop says Abridge actually runs for pass 1 (a third-party provider, evaluating Nemotron Speech via vLLM): [[abridge]].
+Why pass 2 is a *decoder* argument and not a *latency* argument: [[decoder-finding]].
 
 Sources: artifact sections 1–3 ([[deliverables]]); `scribe_bench/asr_*.py`, `autoresearch/asr_variants.py`.

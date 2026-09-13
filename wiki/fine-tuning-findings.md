@@ -1,6 +1,6 @@
 # Fine-tuning findings
 
-**Tag: transferred** (held across three ACI splits and two model families; the July workshop reports the same dense-vs-MoE shape from Abridge's side, see [[abridge]]).
+**Tag: transferred** (held across three ACI splits and two model families).
 
 ACI-Bench, 3-split mean, notes from the human transcript, Qwen judge for the clinician dimensions:
 
@@ -18,7 +18,7 @@ Same 24 encounters, ROUGE-L: Qwen base 36.8, Ultra base 35.7, Nano base 31.1, Na
 
 Reading
 - **Tuning first, base quality second, size a distant third.** One epoch of LoRA (1 h 53 m on one H200) moves Qwen +9 ROUGE-L, +12 term precision.
-- **The tune that wins ROUGE loses on Abridge's dimensions.** Misattributions double or triple (mostly family history written as the patient's own); follow-up recall drops up to 9 points; the small Nano adapter falls to 78%. Overlap metrics reward fluent, complete-looking notes; clinician-defined dimensions catch what fluency hides → the case for the [[verifier]] and for training on clinician edit deltas.
+- **The tune that wins ROUGE loses on clinician-defined dimensions.** Misattributions double or triple (mostly family history written as the patient's own); follow-up recall drops up to 9 points; the small Nano adapter falls to 78%. Overlap metrics reward fluent, complete-looking notes; clinician-defined dimensions catch what fluency hides → the case for the [[verifier]] and for training on clinician edit deltas.
 - **Scale bought safety, not fidelity.** Untuned Ultra has the fewest misattributions of any base model and the worst term precision.
 - **Citations must be in the SFT targets** or the tune erases them ([[citations-and-verifiability]]).
 - Edit effort (chars to reach the reference per 100 ref words): Qwen base 428, +cite 435, SFT 465, Nano base 468, Ultra 445, Nano tuned 458.

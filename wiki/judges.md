@@ -16,7 +16,7 @@ Every clinician-dimension number comes from an LLM judge with thinking disabled 
 ## Judge gap
 Judge 1 − judge 2 composite on the same notes is the reward-hacking meter in [[expert-iteration]]. Round 0 (base cited Qwen): −2.85. Round 1: −5.65 (DeepSeek scores tuned notes *higher* than Qwen does; prediction 4 expected the opposite).
 
-Known judge habits: DeepSeek flags almost no misattributions for any config (0.00–0.03) and scores plan recall higher (84–88 vs 76–81). Qwen is stricter on attribution. Neither is validated against clinicians, which Abridge's whitepaper treats as the step that makes a metric real ([[abridge]]).
+Known judge habits: DeepSeek flags almost no misattributions for any config (0.00–0.03) and scores plan recall higher (84–88 vs 76–81). Qwen is stricter on attribution. Neither is validated against clinicians, which the vendor evaluation literature treats as the step that makes a metric real ([[abridge]]).
 
 Prompt gotchas: verdict must come after reasoning (`JUDGE_SYSTEM`, `parse_verdict`); DeepSeek produced degenerate `begin_of_sentence` repeats on some notes (regenerated); `_llm` in the demo retries.
 

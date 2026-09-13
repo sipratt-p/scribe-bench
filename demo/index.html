@@ -127,7 +127,7 @@
 
 <div class="delta">
   <h2>Delta on this recording</h2>
-  <div class="explain">Green is the better number for the doctor. ROUGE-L is word-overlap with the note the real clinician wrote, a rough fluency and coverage score. Term precision is the share of medical terms in the draft that the clinician's note also contains: low precision means the draft mentions things the doctor would not have written. Misattributions and follow-ups come from a judge model reading the note against the transcript, the same style of evaluation Abridge describes in its evaluation whitepaper.</div>
+  <div class="explain">Green is the better number for the doctor. ROUGE-L is word-overlap with the note the real clinician wrote, a rough fluency and coverage score. Term precision is the share of medical terms in the draft that the clinician's note also contains: low precision means the draft mentions things the doctor would not have written. Misattributions and follow-ups come from a judge model reading the note against the transcript, the same style of evaluation described in the vendor evaluation literature.</div>
   <div id="delta"></div>
 </div>
 
@@ -143,7 +143,7 @@
     <li><b>Citations buy grounding cheaply.</b> Requiring a transcript line per sentence cost ~1 ROUGE-L and added 2–5 points of medical-term precision on every corpus. On the held-out PriMock set it halved unsupported sentences (11.4% → 6.8%) and left 84% of sentences checkable against the exact lines they cite. The cost is plan-item recall (81 → 76), which is the next thing being fixed.</li>
     <li><b>A small judge with the citation in front of it catches 99% of injected errors</b> (fabricated findings, third-party leaks, drug swaps) with 3.5–5.5% flags on clean claims. Misses are subtle negation and number edits, which is where clinician edit deltas should train a classifier.</li>
     <li><b>Fine-tuning is the lever, and it has a cost.</b> One epoch of LoRA on 2,800 open pairs moved Qwen3.8-27B +9 ROUGE-L and +12 term precision, and doubled or tripled misattributions while dropping follow-up recall up to 9 points. Overlap metrics reward fluency; clinician-defined dimensions catch what fluency hides.</li>
-    <li><b>Scale bought safety, not fidelity.</b> Untuned Nemotron Ultra (550B) sits a point below untuned Qwen 27B on ROUGE-L and 8 below on term precision, with the cleanest attribution of any base model. Ordering that held everywhere: tuning &gt; base quality &gt; size. Abridge's own July workshop notes report the same: dense 27B models took their mid-training recipe better than MoE variants.</li>
+    <li><b>Scale bought safety, not fidelity.</b> Untuned Nemotron Ultra (550B) sits a point below untuned Qwen 27B on ROUGE-L and 8 below on term precision, with the cleanest attribution of any base model. Ordering that held everywhere: tuning &gt; base quality &gt; size.</li>
     <li><b>Citations must be in the fine-tuning targets.</b> The tune erased citation behaviour (99.6% → 10% of sentences cited) because the training notes had none.</li>
   </ol>
   <h3>Found by the overnight search loop: candidates, not conclusions</h3>
