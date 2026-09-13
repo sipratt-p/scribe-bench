@@ -85,9 +85,36 @@ def summarize(rows: list[dict]) -> dict:
     top3 = [r for r in dx_present if r["score"].get("dx_first_top3_t") is not None]
     top1 = [r for r in dx_present if r["score"].get("dx_first_top1_t") is not None]
     leads = [r["targets"]["diagnosis_t"] - r["score"]["dx_first_top3_t"] for r in top3 if r["targets"].get("diagnosis_t") is not None]
-    q = [v for r in rows for v in (r["score"].get("questions_asked") or {}).values()]
-    rf = [v for r in rows for vs in (r["score"].get("red_flags") or {}).values() for v in (vs if isinstance(vs, list) else [vs])]
+    def uniq_q(r):
+        seen, out = set(), []
+        for idx, v in (r["score"].get("questions_asked") or {}).items():
+            try:
+                qtxt = (r["snapshots"][int(idx)]["synth"].get("next_question") or "").strip().lower()
+            except (ValueError, IndexError):
+                qtxt = str(idx)
+            if qtxt and qtxt not in seen:
+                seen.add(qtxt)
+                out.append(bool(v))
+        return out
+
+    def uniq_rf(r):
+        seen, out = set(), []
+        for idx, vs in (r["score"].get("red_flags") or {}).items():
+            try:
+                feats = [f.get("feature") if isinstance(f, dict) else str(f) for f in (r["snapshots"][int(idx)]["synth"].get("red_flags") or [])]
+            except (ValueError, IndexError):
+                feats = []
+            vs = vs if isinstance(vs, list) else [vs]
+            for f, v in zip(feats, vs):
+                key = (f or "").strip().lower()
+                if key and key not in seen:
+                    seen.add(key)
+                    out.append(bool(v))
+        return out
+    q = [v for r in rows for v in uniq_q(r)]
+    rf = [v for r in rows for v in uniq_rf(r)]
     ps = [v for r in rows for v in (r["score"].get("plan_suggested_final") or [])]
+    rv = [v for r in rows for vs in (r["score"].get("revisions") or {}).values() for v in (vs if isinstance(vs, list) else [vs])]
     lat = [x for r in rows for x in r["latency"]]
     lat_s = sorted(lat)
     flags = sum(len(r["flags"]) for r in rows)
@@ -97,9 +124,11 @@ def summarize(rows: list[dict]) -> dict:
         "dx_top3_median_t": sorted(r["score"]["dx_first_top3_t"] for r in top3)[len(top3) // 2] if top3 else None,
         "dx_before_gp_said_it": f"{sum(1 for x in leads if x > 0)}/{len(leads)}",
         "dx_lead_median_s": sorted(leads)[len(leads) // 2] if leads else None,
-        "q_suggested": len(q), "q_hit_rate": round(100 * sum(1 for v in q if v) / max(len(q), 1), 1),
-        "rf_raised": len(rf), "rf_genuine": sum(1 for v in rf if v), "rf_precision": round(100 * sum(1 for v in rf if v) / max(len(rf), 1), 1),
+        "q_suggested_unique": len(q), "q_hit_rate": round(100 * sum(1 for v in q if v) / max(len(q), 1), 1),
+        "rf_raised_unique": len(rf), "rf_genuine": sum(1 for v in rf if v), "rf_precision": round(100 * sum(1 for v in rf if v) / max(len(rf), 1), 1),
+        "visits_with_red_flags": sum(1 for r in rows if uniq_rf(r)),
         "plan_sug_total": len(ps), "plan_sug_agree": ps.count("agrees"), "plan_sug_extra": ps.count("extra"), "plan_sug_contradict": ps.count("contradicts"),
+        "revisions_total": len(rv), "revisions_toward": rv.count("toward"), "revisions_away": rv.count("away"),
         "premature_complaint_rate": round(100 * sum(1 for r in rows if r["premature_complaint"]) / max(n, 1), 1),
         "top1_flips_mean": round(sum(r["score"]["churn"]["top1_dx_changes"] for r in rows) / max(n, 1), 2),
         "vanished_items_mean": round(sum(r["score"]["churn"]["vanished_items"] for r in rows) / max(n, 1), 2),

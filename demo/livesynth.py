@@ -146,9 +146,11 @@ SYNTH_SYSTEM = """You are an in-visit clinical decision-support assistant listen
 "safety_netting_stated": list of when-to-return / emergency advice the clinician has actually given.
 "safety_netting_suggested": list of up to 3 safety-netting points that fit the working diagnosis and have NOT been given yet.
 "plan_suggested": list of up to 4 objects {"item": suggested action, "basis": short guideline or reasoning tag such as "NICE CKS gastroenteritis"} that fit the working diagnosis and have NOT been stated yet. Suggestions only; never present them as the clinician's plan.
+"assumptions": for the top diagnosis, up to 3 objects {"assumption": what the view is leaning on, "would_change_if": the finding or answer that would overturn it}. Empty until there is a top diagnosis.
+"revisions": list of objects for beliefs changed AT THIS TICK ONLY, compared with the previous view: {"was": earlier belief, "now": new belief, "because": the new transcript evidence}. Cover complaint changes, differential reorderings/removals, likelihood changes, red flags withdrawn, and assumptions overturned. Empty list if nothing changed. Never repeat a revision from an earlier tick.
 "gaps": list of up to 4 history items a GP would normally establish for this complaint that have NOT been covered yet.
 "terms": list of up to 12 medical terms heard so far.
-Rules: everything under history, findings, plan_stated, safety_netting_stated and evidence must come from the transcript; suggestions live only in the *_suggested keys and next_question. The moment the clinician states something that was in plan_suggested or safety_netting_suggested, move it to plan_stated / safety_netting_stated and remove it from the suggested list. Once a next_question has been answered in the transcript, replace it with a new one or "". Keep earlier items unless contradicted. Prefer updating the previous view to rewriting it. Short phrases."""
+Rules: actively challenge the earlier view every tick: if new information contradicts an assumption, revise the differential and say so in "revisions". Everything under history, findings, plan_stated, safety_netting_stated and evidence must come from the transcript; suggestions live only in the *_suggested keys and next_question. The moment the clinician states something that was in plan_suggested or safety_netting_suggested, move it to plan_stated / safety_netting_stated and remove it from the suggested list. Once a next_question has been answered in the transcript, replace it with a new one or "". Keep earlier items unless contradicted. Prefer updating the previous view to rewriting it. Short phrases."""
 
 REF_SYSTEM = """From this clinician's note extract: "diagnosis": the working diagnosis or impression as a short phrase (or "" if none is stated); "plan": list of plan items (prescriptions, tests, referrals, follow-up, safety-netting) as short phrases. Output one JSON object only."""
 
@@ -160,7 +162,8 @@ Answer one JSON object:
 "dx_first_top1": earliest snapshot index where it is first in the differential, or null;
 "questions_asked": for each snapshot index that had a non-empty next_question, true if the clinician later asks that question in substance (after that snapshot's time), else false, as an object {index: bool};
 "red_flags": for each snapshot that had red flags, an object {index: [true/false per flag]} where true means the feature was genuinely present in the transcript AND is a genuine act-now concern;
-"plan_suggested_final": for each plan_suggested item in the LAST snapshot: "agrees" (the clinician's note has the same action), "extra" (reasonable, not in the note), or "contradicts" (the note or transcript goes against it), as a list in order."""
+"plan_suggested_final": for each plan_suggested item in the LAST snapshot: "agrees" (the clinician's note has the same action), "extra" (reasonable, not in the note), or "contradicts" (the note or transcript goes against it), as a list in order;
+"revisions": for each snapshot that lists revisions, an object {index: ["toward"|"away"|"neutral" per revision]} where "toward" means the revision moved the view closer to the reference diagnosis/plan, "away" further from it, "neutral" unrelated."""
 
 WORD = re.compile(r"[A-Za-z][A-Za-z'-]+")
 
@@ -340,9 +343,10 @@ def score_timeline(rec: dict, snapshots: list[dict], targets: dict, model: str) 
             v["next_question"] = ""  # repeated question: judge it once
         else:
             last_q = v.get("next_question") or ""
+        revs = [f"{r.get('was')} -> {r.get('now')} ({r.get('because')})" for r in (v.get("revisions") or []) if isinstance(r, dict)]
         snaps.append(f"[{i}] t={s['t']:.0f}s differential={[d.get('dx') for d in (v.get('differential') or []) if isinstance(d, dict)]} "
                      f"next_question={json.dumps(v.get('next_question') or '')} red_flags={[f.get('feature') for f in (v.get('red_flags') or []) if isinstance(f, dict)]} "
-                     f"plan_suggested={[p.get('item') for p in (v.get('plan_suggested') or []) if isinstance(p, dict)]}")
+                     f"plan_suggested={[p.get('item') for p in (v.get('plan_suggested') or []) if isinstance(p, dict)]}" + (f" revisions={revs}" if revs else ""))
     listing = "\n".join(f"{i + 1}. {p}" for i, p in enumerate(targets["plan"]))
     js = parse_json(_llm(SCORE_SYSTEM, f"REFERENCE DIAGNOSIS: {targets['diagnosis'] or '(none)'}\n\nREFERENCE PLAN:\n{listing}\n\nTRANSCRIPT:\n{timed_transcript(rec)}\n\nSNAPSHOTS:\n" + "\n".join(snaps), 700, model=model)) or {}
     n = len(snapshots)
@@ -351,7 +355,7 @@ def score_timeline(rec: dict, snapshots: list[dict], targets: dict, model: str) 
         return snapshots[int(i)]["t"] if isinstance(i, int) and not isinstance(i, bool) and 0 <= i < n else None
     return {"dx_first_top3_t": snap_t(js.get("dx_first_top3")), "dx_first_top1_t": snap_t(js.get("dx_first_top1")),
             "questions_asked": js.get("questions_asked") or {}, "red_flags": js.get("red_flags") or {},
-            "plan_suggested_final": js.get("plan_suggested_final") or []}
+            "plan_suggested_final": js.get("plan_suggested_final") or [], "revisions": js.get("revisions") or {}}
 
 
 def churn(snapshots: list[dict]) -> dict:
@@ -431,6 +435,9 @@ def live_stream(cid: str, speed: float = 4.0, interval: float = 20.0, model: str
             state["pending"] = False
             todo = new_dx_to_lookup(js, state["refs"], state["inflight"])
         dxs = [d.get("dx") for d in (js.get("differential") or []) if isinstance(d, dict)]
+        for r in (js.get("revisions") or []):
+            if isinstance(r, dict) and (r.get("was") or r.get("now")):
+                act(upto_t, "revised", "done", f"{r.get('was')} → {r.get('now')} · because: {r.get('because')}")
         act(upto_t, "synthesis", "done", f"differential {dxs}" + (f" · next question set" if js.get("next_question") else "") + (f" · {len(js.get('red_flags') or [])} red flag(s)" if js.get("red_flags") else ""), int(1000 * lat))
         q.put({"event": "synthesis", "t": upto_t, "latency_s": lat, "snapshot": len(state["snapshots"]) - 1, "synth": js})
         for dx in todo:
