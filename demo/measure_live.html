@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Decision Support Measurements</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root { --bg:#F4F6F8; --surface:#FFFFFF; --ink:#172029; --muted:#5C6B78; --line:#CAD3DB; --accent:#0F6B8A; --accent-soft:#DDEEF4; --live:#8A5A0F; --live-soft:#F5EBD8; --ok:#1E7B4F; --ok-soft:#DDF1E6; --bad:#B3261E; --bad-soft:#F9E1DF;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace; --sans:"Public Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; --serif:"Newsreader",Georgia,serif; color-scheme:light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme=light]) { --bg:#0F151B; --surface:#161E26; --ink:#E4EAF0; --muted:#94A3B1; --line:#2E3A46; --accent:#52B7D6; --accent-soft:#12303B; --live:#D9A441; --live-soft:#33270F; --ok:#6CCB93; --ok-soft:#12301F; --bad:#F28B82; --bad-soft:#3A1917; color-scheme:dark; } }
+  :root[data-theme=dark] { --bg:#0F151B; --surface:#161E26; --ink:#E4EAF0; --muted:#94A3B1; --line:#2E3A46; --accent:#52B7D6; --accent-soft:#12303B; --live:#D9A441; --live-soft:#33270F; --ok:#6CCB93; --ok-soft:#12301F; --bad:#F28B82; --bad-soft:#3A1917; color-scheme:dark; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:15px; line-height:1.55; padding-inline:clamp(16px,4vw,48px); padding-block:24px 80px; }
+  .wrap { max-width:92ch; margin:0 auto; }
+  .eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  h1 { font-family:var(--serif); font-weight:500; font-size:34px; line-height:1.15; margin:4px 0 8px; text-wrap:balance; }
+  h2 { font-family:var(--serif); font-weight:500; font-size:24px; margin:36px 0 8px; }
+  h3 { font-size:16px; margin:22px 0 6px; }
+  p { max-width:78ch; } .lede { font-size:17px; color:var(--muted); max-width:80ch; }
+  a { color:var(--accent); }
+  .toc { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13.5px; margin:10px 0 0; } .toc a { text-decoration:none; border-bottom:1px dotted var(--accent); }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:12px 0; }
+  .card h3 { margin:0 0 4px; font-family:var(--serif); font-weight:500; font-size:20px; }
+  .card .k { font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-top:10px; }
+  .card .k:first-of-type { margin-top:6px; }
+  .card p { margin:2px 0 0; }
+  .num { font-variant-numeric:tabular-nums; }
+  table { border-collapse:collapse; width:100%; font-size:13.5px; margin:8px 0 2px; display:block; overflow-x:auto; font-variant-numeric:tabular-nums; }
+  th, td { border-top:1px solid var(--line); padding:5px 8px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { font-family:var(--mono); font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
+  td.best { color:var(--ok); font-weight:600; } td.worse { color:var(--bad); }
+  .callout { border-left:3px solid var(--accent); padding:4px 0 4px 14px; margin:14px 0; }
+  .warn { border-left:3px solid var(--live); background:var(--live-soft); padding:8px 14px; border-radius:4px; margin:14px 0; }
+  .story { counter-reset:step; } .story .card { position:relative; padding-left:56px; }
+  .story .card::before { counter-increment:step; content:counter(step); position:absolute; left:16px; top:14px; font-family:var(--serif); font-size:24px; color:var(--live); }
+  @media (max-width:600px) { h1 { font-size:28px; } .story .card { padding-left:44px; } .story .card::before { left:12px; } }
+</style>
+</head>
+<body><div class="wrap">
+<div class="eyebrow">scribe-bench · <a href="/live">live page</a> · <a href="/measurements/note">after-visit note measurements</a> · <a href="/">main demo</a></div>
+<h1>How we measure the live view, and how it got better</h1>
+<p class="lede">This is the "during the visit" mode: the streaming transcript arrives as the recording plays, and every 20 seconds a local model updates a view meant to help the doctor act before the patient leaves. Because it runs while the conversation is still happening, it is judged on different things from the after-visit note: was it early, was it right, did it alarm anyone for nothing, and did it change its mind when it should. Everything below is measured on the same 57 recorded consultations, replayed on their real timeline, and scored against what the doctor actually diagnosed and planned.</p>
+<div class="toc"><a href="#how">How to read this</a><a href="#what">What the view produces</a><a href="#timing">Timing measurements</a><a href="#quality">Quality measurements</a><a href="#safety">Safety measurements</a><a href="#stability">Stability and speed</a><a href="#story">How the numbers improved</a><a href="#table">The full table</a><a href="#limits">What we can't claim</a></div>
+
+<h2 id="how">How to read this</h2>
+<p>The ground truth for this mode is the doctor's own note, which contains their diagnosis and plan, plus the timed human transcript, which tells us the moment the doctor first said the diagnosis or a plan item aloud. So "early" always means "before the doctor said it", and "right" means "the same as what the doctor concluded".</p>
+<p>One caution up front. "The live view had the diagnosis five minutes before the doctor said it" does not mean it knew something the doctor did not. Doctors usually state their diagnosis at the end, after examining and while explaining the plan; the model commits as soon as the patient has described the symptoms. It is the same information, reached earlier. The parts that could genuinely add something are the suggested question, the red flags, and the safety-netting the doctor has not given yet, and those are exactly the parts with the false-alarm risk.</p>
+<p>Four versions are compared: the first decision-support prompt (<b>v2</b>), a "danger first" version (<b>v4</b>), the current version with a hold and stated-only flags (<b>v5</b>), and v5 with NHS guideline pages fed into every update (<b>v5 + NHS</b>). The version numbers skip because v1 was a scribe view, not decision support, and v3 added machinery without changing the prompt.</p>
+
+<h2 id="what">What the view produces every 20 seconds</h2>
+<div class="card">
+  <p><b>Working differential:</b> up to five possible diagnoses, most likely first, each with the transcript evidence for it and what would confirm or rule it out. Time-critical possibilities carry a tag instead of pushing the likely one out.</p>
+  <p><b>Ask next:</b> the single question that would best separate the top two, or rule out the most dangerous one.</p>
+  <p><b>Flags:</b> features the patient actually said that need action, in two tiers: "act now" (ambulance, A&amp;E, same-hour assessment) and "check today" (ask or examine for it before the visit ends).</p>
+  <p><b>Plan the doctor has stated</b> versus <b>plan suggestions</b> with a guideline basis, kept separate so a suggestion can never be mistaken for something the doctor decided. Same split for <b>safety-netting</b> (when to come back or call).</p>
+  <p><b>Assumptions under test:</b> what the top diagnosis is leaning on and what would overturn it. <b>Revisions:</b> beliefs changed at this update, with the evidence that changed them.</p>
+  <p><b>Scribe view:</b> history so far, findings, what a GP would normally still ask, possible mishearings, terms heard.</p>
+</div>
+
+<h2 id="timing">Timing measurements</h2>
+<div class="card">
+  <h3>Diagnosis in the top-3, and when</h3>
+  <div class="k">What it is</div><p>Whether the doctor's diagnosis ever appeared among the view's top candidates, and the visit time when it first did. Also whether it reached the number-one slot.</p>
+  <div class="k">How it is measured</div><p>A judge model reads the doctor's note to extract the diagnosis, then walks the sequence of live snapshots to find the first one that lists the same condition, allowing for different wording.</p>
+  <div class="k">Our numbers</div><p class="num">Ever in top-3: v2 52 of 57, v4 49, v5 56, v5 + NHS 55. Median time to get there: 1:20, 0:40, 1:00, 1:00. Ever number one: 35, 31, 44, 41.</p>
+  <div class="k">What moved it</div><p>v4's "consider the dangerous diagnosis first" rule pushed the likely diagnosis out of a three-slot list. v5 kept five slots and tagged the dangerous ones instead, which is why coverage jumped to 56 of 57. The one miss is a visit where the doctor wrote "likely migraine" but never said it aloud.</p>
+</div>
+<div class="card">
+  <h3>Lead time over the doctor</h3>
+  <div class="k">What it is</div><p>For visits where the doctor stated the diagnosis aloud: how much earlier the live view had it in its top-3.</p>
+  <div class="k">Our numbers</div><p class="num">v5: 54 of 54 visits earlier, median lead 5 minutes 36 seconds. v2: 48 of 51, median 4:54.</p>
+  <div class="k">How to read it</div><p>See the caution above. This measures how fast the view reads the history, not whether it out-diagnosed anyone. It is still what an in-visit assistant should do.</p>
+</div>
+
+<h2 id="quality">Quality measurements</h2>
+<div class="card">
+  <h3>Suggested questions the doctor went on to ask</h3>
+  <div class="k">What it is</div><p>Of the "ask next" questions the view suggested, the share the doctor later asked in substance. A relevance check: were the suggestions the right questions for that visit?</p>
+  <div class="k">How it is measured</div><p>Each distinct suggested question is checked by a judge against the rest of the timed transcript, after the moment it was suggested. Repeats of the same question are counted once.</p>
+  <div class="k">Our numbers</div><p class="num">v2 80.8% of 219, v4 93.3% of 149, v5 86.9% of 229, v5 + NHS 82.6% of 224.</p>
+  <div class="k">What it cannot tell you</div><p>A question the doctor asked anyway added nothing. A high rate means "relevant", not "insightful". The questions the doctor did not ask are the interesting ones, and nobody has read them yet.</p>
+</div>
+<div class="card">
+  <h3>Plan suggestions: agree, extra, contradict</h3>
+  <div class="k">What it is</div><p>At the end of the visit, each plan suggestion the view made is compared with the doctor's actual plan: the same action (agree), reasonable but not in the plan (extra), or against what the doctor decided or the transcript says (contradict). Contradictions are the harm number.</p>
+  <div class="k">Our numbers</div><p class="num">v2 37 / 108 / 13. v4 82 / 67 / 6. v5 43 / 73 / 3. v5 + NHS 47 / 104 / 5.</p>
+  <div class="k">What we learned</div><p>In v2 the 13 contradictions clustered in two visits where the differential was wrong: impacted ear wax was never considered, so the view suggested hearing tests and a scan; a rash with travel history was told to watch and wait despite dengue and meningitis being on the view's own list. Confident suggestions inherit a wrong differential. By v5 the three remaining contradictions are arguable calls, not errors: "look in the ear" on the ear-wax visit is the doctor's own plan in other words, and "treat as anaphylaxis" against a doctor who gave antihistamines and called an ambulance. Feeding NHS pages in added suggestions but not agreement, and re-imported urgency on the insect-sting visit.</p>
+</div>
+<div class="card">
+  <h3>Revisions, toward or away</h3>
+  <div class="k">What it is</div><p>The view announces when it changes its mind ("was: X, now: Y, because: ..."). Each announced revision is judged as moving toward the doctor's eventual diagnosis and plan, away from it, or neither. This is the "does it challenge its earlier assumptions" measure.</p>
+  <div class="k">Our numbers</div><p class="num">v4 489 toward, 20 away, of 1,258 revisions. v5 459 toward, 35 away. v5 + NHS 503 toward, 15 away.</p>
+</div>
+
+<h2 id="safety">Safety measurements</h2>
+<div class="card">
+  <h3>Red flags raised, and how many were genuine</h3>
+  <div class="k">What it is</div><p>A red flag is the view saying "act now" or "check today". Precision is the share of those that a judge accepts as a feature the patient actually stated and a real concern. False alarms are the rest. For a patient sitting in the room, an early false alarm is frightening; for a doctor, a stream of them means the flags get ignored.</p>
+  <div class="k">How it is measured</div><p>Each distinct flag is checked against the transcript up to the moment it was raised: was the feature really said, and does its tier fit. Flags repeated across updates count once.</p>
+  <div class="k">Our numbers</div><p class="num">v2: 61 raised, 54 genuine, 7 false alarms. v4: 62 raised, 52 genuine, 10 false. v5: 3 raised, 3 genuine, in 2 visits. v5 + NHS: 6 raised, 6 genuine, in 3 visits.</p>
+  <div class="k">What moved it</div><p>Three rules. A flag may only quote something actually said, so "thunderclap headache not yet excluded" goes into the "what would confirm it" list instead of an alarm. Nothing alarming is allowed in the first 90 seconds or before the complaint is known, and this is enforced in code, not just asked of the model. And every flag carries a tier so "worth checking today" is not dressed up as an emergency. The three v5 flags were "can't breathe that well right now" and "chest is tight" on a genuine anaphylaxis visit, and "vaginal bleeding with lower abdominal pain".</p>
+</div>
+<div class="card">
+  <h3>Premature complaint</h3>
+  <div class="k">What it is</div><p>The share of visits where the view's first statement of the complaint differed from its final one: committing from small talk. The classic failure was "sore throat" at 20 seconds from a greeting, corrected to "itchy red skin" at 40.</p>
+  <div class="k">Our numbers</div><p class="num">v2 7.0%, v4 5.3%, v5 7.0%, v5 + NHS 5.3%. Under the 90-second hold a wrong first guess no longer triggers anything, so this became cosmetic.</p>
+</div>
+
+<h2 id="stability">Stability and speed</h2>
+<div class="card">
+  <h3>Top-1 flips and vanished items</h3>
+  <div class="k">What they are</div><p>How often the number-one diagnosis changed between consecutive updates, and how many listed items disappeared from one update to the next. A view that flaps is a view nobody trusts.</p>
+  <div class="k">Our numbers</div><p class="num">Flips per visit: v2 0.19, v4 0.37, v5 0.75, v5 + NHS 0.63. Vanished items per visit: 1.6 to 2.3.</p>
+  <div class="k">The trade-off</div><p>v5 re-derives the differential from the whole transcript at every update, which fixed a bug where the model anchored on its own empty first list for a whole visit. The cost is more reordering. Five slots reorder more than three.</p>
+</div>
+<div class="card">
+  <h3>Latency</h3>
+  <div class="k">What it is</div><p>How long each update takes the model, mean and 95th percentile. It has to stay well under the 20-second update interval or the view falls behind the conversation.</p>
+  <div class="k">Our numbers</div><p class="num">With four visits evaluated in parallel: v2 5.1 / 7.3 s, v4 10.0 / 10.0, v5 7.1 / 9.6, v5 + NHS 7.1 / 10.6. On the demo page with one visit it is 2 to 6 seconds. The model runs at about 220 tokens per second on the two local GPUs.</p>
+</div>
+<div class="card">
+  <h3>Mishearing flags</h3>
+  <div class="k">What it is</div><p>Words in the streaming transcript that sit one edit away from a medical term, or that fuse into one ("met form in" for metformin). Precision is checked against the human transcript: was the word really different, and was the suggested term really said.</p>
+  <div class="k">Our numbers</div><p class="num">26 flags across 57 visits, 57.7% precise. Sparse by design: the streaming model mostly substitutes real words, which no spelling check can see. This is what the after-visit transcriber exists to fix.</p>
+</div>
+
+<h2 id="story">How the numbers improved, in order</h2>
+<div class="story">
+<div class="card"><h3>A scribe that shows its work early</h3><p>The first live page was the after-visit note, updated as the visit went. It worked, and it was pointed out that the doctor gets the same note afterwards anyway, so the value of streaming it was small. The only in-visit outputs that change what a doctor does are decision support.</p></div>
+<div class="card"><h3>Decision support, first prompt (v2)</h3><p>Differential, next question, red flags, plan suggestions kept apart from the stated plan. Early and mostly right: 52 of 57 diagnoses in the top-3, five minutes ahead. But 13 contradicting suggestions in the two visits where the differential was wrong, and 7 false alarms.</p></div>
+<div class="card"><h3>Danger first (v4)</h3><p>Rules to exclude the time-critical diagnosis first, to know whether the consult is remote and whether the patient has been examined, and to keep simple examinable causes in the list. Both dangerous cases fixed, contradictions halved. But the dangerous entries evicted the likely diagnosis from a three-slot list, and the model raised hedged flags a judge rightly rejected. The reviewer's note: jumping to red flags early is frightening for a patient. A bug in this version also anchored the model on an empty first list for ten visits; it was caught by reading the per-visit files before reporting.</p></div>
+<div class="card"><h3>Hold, stated-only flags, five slots (v5)</h3><p>Flags went from 62 raised with 10 false to 3 raised, all genuine. Diagnosis coverage rose to 56 of 57. Contradictions fell to 3, all arguable. Cost: the top diagnosis reorders twice as often.</p></div>
+<div class="card"><h3>Guideline lookups (v5 + NHS)</h3><p>Every new differential entry now fetches its NHS page, and specialist conditions fall back to a professional reference and, last, to Wikipedia marked low-trust. With 191 lookups feeding the updates, suggestions grew but agreement did not, and the NHS anaphylaxis page pushed emergency advice back onto an insect-sting visit that v5 had calmed. Reference material is not a free win; its value would have to be measured on the correctness of first-line wording, which needs a clinician.</p></div>
+</div>
+
+<h2 id="table">The full table, 57 consultations, 1,566 updates each</h2>
+<table>
+<thead><tr><th>Measurement</th><th>v2</th><th>v4</th><th>v5</th><th>v5 + NHS</th><th>Better is</th></tr></thead>
+<tbody>
+<tr><td>Doctor's diagnosis ever in top-3</td><td>52 / 57</td><td class="worse">49 / 57</td><td class="best">56 / 57</td><td>55 / 57</td><td>higher</td></tr>
+<tr><td>Ever number one</td><td>35</td><td>31</td><td class="best">44</td><td>41</td><td>higher</td></tr>
+<tr><td>Median time to top-3</td><td>1:20</td><td class="best">0:40</td><td>1:00</td><td>1:00</td><td>lower</td></tr>
+<tr><td>Earlier than the doctor said it</td><td>48 / 51</td><td>49 / 49</td><td class="best">54 / 54</td><td>52 / 52</td><td>higher</td></tr>
+<tr><td>Median lead over the doctor</td><td>4:54</td><td>5:39</td><td>5:36</td><td>5:35</td><td>context</td></tr>
+<tr><td>Suggested questions later asked</td><td>80.8%</td><td class="best">93.3%</td><td>86.9%</td><td>82.6%</td><td>higher</td></tr>
+<tr><td>Red flags raised / genuine</td><td>61 / 54</td><td class="worse">62 / 52</td><td class="best">3 / 3</td><td>6 / 6</td><td>precise</td></tr>
+<tr><td>Plan suggestions agree / extra / contradict</td><td class="worse">37 / 108 / 13</td><td>82 / 67 / 6</td><td class="best">43 / 73 / 3</td><td>47 / 104 / 5</td><td>fewer contradict</td></tr>
+<tr><td>Revisions toward / away</td><td>–</td><td>489 / 20</td><td>459 / 35</td><td>503 / 15</td><td>more toward</td></tr>
+<tr><td>Wrong complaint on first update</td><td>7.0%</td><td>5.3%</td><td>7.0%</td><td>5.3%</td><td>lower</td></tr>
+<tr><td>Top-1 flips per visit</td><td class="best">0.19</td><td>0.37</td><td class="worse">0.75</td><td>0.63</td><td>lower</td></tr>
+<tr><td>Latency mean / p95 (4 in parallel)</td><td class="best">5.1 / 7.3 s</td><td>10.0 / 10.0 s</td><td>7.1 / 9.6 s</td><td>7.1 / 10.6 s</td><td>lower</td></tr>
+<tr><td>Guideline lookups used</td><td>–</td><td>8</td><td>6</td><td>191</td><td>context</td></tr>
+</tbody>
+</table>
+<p class="eyebrow" style="margin-top:6px">Writer and judge are both DeepSeek V4 Flash on the local GPUs. Diagnosis and plan ground truth come from the doctor's note; timing ground truth from the human transcript.</p>
+
+<h2 id="limits">What we cannot claim</h2>
+<div class="warn"><p><b>Nothing here has been read by a clinician.</b> Every genuine-or-false-alarm call, every agree-or-contradict, is a model's judgment of a model's output. The three flags and three contradictions in v5 are exactly what a doctor should look at first.</p></div>
+<div class="callout"><p><b>No chart.</b> The only input is the spoken conversation. The visits the view missed (hypothyroidism, possible MS) are ones where history alone was not enough; a real deployment would have the medication and problem lists.</p></div>
+<div class="callout"><p><b>Replay, not live audio.</b> The streaming transcript is real streaming output, replayed on the timeline of the human transcript. The consultation modality (phone, video, in person) is inferred from what was said; in production it would be known.</p></div>
+<div class="callout"><p><b>"Earlier than the doctor" is about reading speed, not insight.</b> See the caution at the top.</p></div>
+</div></body>
+</html>

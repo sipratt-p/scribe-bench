@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>After-Visit Note Measurements</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root { --bg:#F4F6F8; --surface:#FFFFFF; --ink:#172029; --muted:#5C6B78; --line:#CAD3DB; --accent:#0F6B8A; --accent-soft:#DDEEF4; --theirs:#8A5A0F; --theirs-soft:#F5EBD8; --ok:#1E7B4F; --ok-soft:#DDF1E6; --bad:#B3261E; --bad-soft:#F9E1DF;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace; --sans:"Public Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; --serif:"Newsreader",Georgia,serif; color-scheme:light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme=light]) { --bg:#0F151B; --surface:#161E26; --ink:#E4EAF0; --muted:#94A3B1; --line:#2E3A46; --accent:#52B7D6; --accent-soft:#12303B; --theirs:#D9A441; --theirs-soft:#33270F; --ok:#6CCB93; --ok-soft:#12301F; --bad:#F28B82; --bad-soft:#3A1917; color-scheme:dark; } }
+  :root[data-theme=dark] { --bg:#0F151B; --surface:#161E26; --ink:#E4EAF0; --muted:#94A3B1; --line:#2E3A46; --accent:#52B7D6; --accent-soft:#12303B; --theirs:#D9A441; --theirs-soft:#33270F; --ok:#6CCB93; --ok-soft:#12301F; --bad:#F28B82; --bad-soft:#3A1917; color-scheme:dark; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:15px; line-height:1.55; padding-inline:clamp(16px,4vw,48px); padding-block:24px 80px; }
+  .wrap { max-width:92ch; margin:0 auto; }
+  .eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  h1 { font-family:var(--serif); font-weight:500; font-size:34px; line-height:1.15; margin:4px 0 8px; text-wrap:balance; }
+  h2 { font-family:var(--serif); font-weight:500; font-size:24px; margin:36px 0 8px; }
+  h3 { font-size:16px; margin:22px 0 6px; }
+  p { max-width:78ch; } .lede { font-size:17px; color:var(--muted); max-width:80ch; }
+  a { color:var(--accent); }
+  .toc { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13.5px; margin:10px 0 0; } .toc a { text-decoration:none; border-bottom:1px dotted var(--accent); }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:12px 0; }
+  .card h3 { margin:0 0 4px; font-family:var(--serif); font-weight:500; font-size:20px; }
+  .card .k { font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-top:10px; }
+  .card .k:first-of-type { margin-top:6px; }
+  .card p { margin:2px 0 0; }
+  .num { font-variant-numeric:tabular-nums; }
+  table { border-collapse:collapse; width:100%; font-size:13.5px; margin:8px 0 2px; display:block; overflow-x:auto; font-variant-numeric:tabular-nums; }
+  th, td { border-top:1px solid var(--line); padding:5px 8px; text-align:left; vertical-align:top; white-space:nowrap; }
+  th { font-family:var(--mono); font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
+  td.best { color:var(--ok); font-weight:600; } td.worse { color:var(--bad); }
+  .callout { border-left:3px solid var(--accent); padding:4px 0 4px 14px; margin:14px 0; }
+  .warn { border-left:3px solid var(--theirs); background:var(--theirs-soft); padding:8px 14px; border-radius:4px; margin:14px 0; }
+  .story { counter-reset:step; } .story .card { position:relative; padding-left:56px; }
+  .story .card::before { counter-increment:step; content:counter(step); position:absolute; left:16px; top:14px; font-family:var(--serif); font-size:24px; color:var(--accent); }
+  .legend span { display:inline-block; padding:1px 8px; border-radius:4px; margin-right:6px; font-size:12px; }
+  @media (max-width:600px) { h1 { font-size:28px; } .story .card { padding-left:44px; } .story .card::before { left:12px; } }
+</style>
+</head>
+<body><div class="wrap">
+<div class="eyebrow">scribe-bench · <a href="/">main demo</a> · <a href="/measurements/live">live decision support measurements</a> · <a href="/experiments">experiments</a></div>
+<h1>How we measure the after-visit note, and how it got better</h1>
+<p class="lede">This is the "transcribe, then write the note" mode of the demo: the recording is transcribed after the visit, the note is written from that transcript, and a checker reads the note before a doctor would. Everything below is measured on 57 recorded mock GP consultations (PriMock57) that come with a human transcript and the note the real doctor wrote, so every number is a comparison against something a person produced. Read the definitions first if the words are new; the numbers make more sense once you know what each one can and cannot see.</p>
+<div class="toc"><a href="#how">How to read this</a><a href="#transcript">Transcript measurements</a><a href="#note">Note measurements</a><a href="#trust">Trust measurements</a><a href="#story">How the numbers improved</a><a href="#table">The full table</a><a href="#limits">What we can't claim</a></div>
+
+<h2 id="how">How to read this</h2>
+<p>There are two layers. The <b>transcript</b> is what the speech recognizer heard; it is scored against what was actually said. The <b>note</b> is what the writing model produced from that transcript; it is scored against the note the doctor actually wrote. A perfect transcript can still produce a bad note, and a mediocre transcript can produce a good one, which is why both layers are measured separately.</p>
+<p>Two vocabulary items recur. <b>Recall</b> answers "of the things that should be there, how many did we get?" <b>Precision</b> answers "of the things we put in, how many should be there?" A note that lists every drug the patient ever took has high recall and low precision; a note that says almost nothing has high precision and low recall. A doctor needs both, but they fail in different ways: low recall means something is missing, low precision means something is invented.</p>
+<p>Three pipelines are compared throughout. <span class="legend"><span style="background:var(--theirs-soft);color:var(--theirs)">Vanilla</span></span> is the unoptimized baseline: a fast streaming transcriber's output written straight into a note by an untuned model. <span class="legend"><span style="background:var(--accent-soft);color:var(--accent)">Best</span></span> is what an overnight search found: a slower after-visit transcriber that also labels speakers, a step that names which speaker is the doctor, a "prefer precision" instruction, and a different writing model. <span class="legend"><span style="background:var(--ok-soft);color:var(--ok)">Best, cited</span></span> is the same with one extra rule: every sentence in the note must point at the transcript line it came from. The numbers quoted are from the 37 consultations held out from the search, so the search could not have tuned to them.</p>
+
+<h2 id="transcript">Transcript measurements</h2>
+<div class="card">
+  <h3>Word error rate (WER)</h3>
+  <div class="k">What it is</div><p>The share of words the transcriber got wrong: substituted, dropped, or invented, divided by the number of words actually spoken. Ten percent means roughly one word in ten is off.</p>
+  <div class="k">How it is measured</div><p>Both the machine transcript and the human transcript are normalized the same way (fillers like "um" removed, British and American spellings unified, numbers written the same way) and then aligned word by word.</p>
+  <div class="k">Why it matters, and why it is not enough</div><p>It is the standard speech-recognition score, so it is what vendors quote. But most of the errors it counts are harmless ("gonna" for "going to", a dropped "yeah"). It cannot tell the difference between losing a filler word and losing a drug name.</p>
+  <div class="k">Our numbers, all 57 recordings</div><p class="num">Vanilla streaming transcriber 11.8%. After-visit transcriber 10.6% (10.3% without the medical-term hints). Seven different systems sat within about a point of each other.</p>
+</div>
+<div class="card">
+  <h3>Medical-term miss rate</h3>
+  <div class="k">What it is</div><p>Of the medical words the patient and doctor actually said (drug names, conditions, body parts, tests), the share the transcriber lost. This is the number a doctor feels when they read a transcript.</p>
+  <div class="k">How it is measured</div><p>A list of 7,092 primary-care medical terms was built from two open medical-dialogue datasets. The human transcripts contain 1,741 occurrences of those terms; we count how many the machine transcript failed to reproduce.</p>
+  <div class="k">Our numbers</div><p class="num">Vanilla 12.7%. After-visit transcriber 8.6% (8.4% plain). The NVIDIA models split the same way: the ones with a classic fast decoder lost 12 to 15%, the ones with a language-model decoder lost 8 to 10%.</p>
+  <div class="k">What we learned</div><p>This was the finding that held up everywhere: it is the type of decoder, not the speed, that decides whether rare medical words survive. Running the fast streaming model slowly, on the whole recording, did not help it at all. This is why the design has a second, different transcriber run after the visit.</p>
+</div>
+<div class="card">
+  <h3>Diarization error rate (DER) and misattributed words</h3>
+  <div class="k">What it is</div><p>Diarization is working out who spoke when. DER is the share of speaking time given to the wrong person, missed, or invented. Misattributed words is the simpler version: the share of words pinned on the wrong speaker.</p>
+  <div class="k">How it is measured</div><p>The recordings have separate doctor and patient microphones, so the true speaker for every moment is known. Machine speaker labels are compared with a small tolerance around each boundary.</p>
+  <div class="k">Our numbers</div><p class="num">The streaming transcriber has no speaker labels at all. The after-visit transcriber: DER 11.7%, about 1% of words on the wrong speaker. NVIDIA's separate diarization model matched it.</p>
+  <div class="k">What we learned</div><p>Knowing that there are two speakers turned out not to help the note by itself. What helped was the next step: telling the note writer which of the two is the doctor.</p>
+</div>
+
+<h2 id="note">Note measurements</h2>
+<div class="card">
+  <h3>Medical-term recall and precision</h3>
+  <div class="k">What they are</div><p>Recall: of the medical terms in the doctor's real note, the share our note also contains. Precision: of the medical terms in our note, the share the doctor's note also contains. Precision is the guard against invented findings and medications.</p>
+  <div class="k">How they are measured</div><p>Same 7,092-term list, applied to both notes, then the overlap is counted. No judgment call involved.</p>
+  <div class="k">Our numbers, held-out 37</div><p class="num">Recall: vanilla 52.1, best 52.7, cited 51.9. Precision: vanilla 26.4, best 30.9, cited 32.9.</p>
+  <div class="k">What moved it</div><p>Recall barely changed anywhere, which tells you the gain was not "capturing more". Precision rose by about a quarter: fewer terms the doctor would not have written. The "prefer precision" instruction and the citation rule are where that came from. Low absolute precision is partly the data: these GP notes are terse, about 136 words, against 250-word machine notes.</p>
+</div>
+<div class="card">
+  <h3>ROUGE-L</h3>
+  <div class="k">What it is</div><p>A word-overlap score with the doctor's note: how much of the wording, in order, is shared. It is the standard automatic score for summaries.</p>
+  <div class="k">Why it is treated with suspicion here</div><p>It rewards fluent, complete-looking text and is blind to who said what. Earlier in the project a fine-tuned model gained nine ROUGE points and at the same time doubled its wrong-speaker errors. So it is reported, but it never decides anything on its own.</p>
+  <div class="k">Our numbers</div><p class="num">Vanilla 21.8, best 23.9, cited 22.7.</p>
+</div>
+<div class="card">
+  <h3>Plan-item recall (completeness)</h3>
+  <div class="k">What it is</div><p>The plan is the set of actions at the end of a visit: prescriptions, tests, referrals, when to come back, when to go to A&amp;E. This is the share of the doctor's plan items that a judge could find in our note. It is the closest thing here to what Abridge calls completeness.</p>
+  <div class="k">How it is measured</div><p>A judge model lists the plan items in the doctor's note, then checks each one against our note. A second version only counts items that were actually said aloud during the visit.</p>
+  <div class="k">Our numbers</div><p class="num">All items: vanilla 80.8, best 81.2, cited 76.0. Spoken items only: vanilla 96.5, best 92.9, cited 89.4.</p>
+  <div class="k">What we learned</div><p>The five-point drop under citations looked like the cost of citing. Then we checked the items one by one: 41 of the 154 plan items in the doctors' notes were never said in the room (a blood test ordered silently, a drug written down but not discussed). A writer can only get those by guessing, and the uncited writer sometimes guessed right. Counting only spoken items, the cited note is 3.5 points behind, not 5, and vanilla is the best of the three at capturing what was said. That is the honest open problem: the precision rules cost some completeness.</p>
+</div>
+<div class="card">
+  <h3>Misattributions per note (attribution)</h3>
+  <div class="k">What it is</div><p>Statements pinned on the wrong person: the patient's mother's diabetes written as the patient's, a symptom the doctor asked about recorded as one the patient reported. One of Abridge's named quality dimensions.</p>
+  <div class="k">How it is measured</div><p>A judge model reads our note against the human transcript and counts four kinds of wrong attribution.</p>
+  <div class="k">Our numbers</div><p class="num">Vanilla 0.08 per note, first two-pass design 0.11, best and cited 0.03.</p>
+  <div class="k">What moved it</div><p>Naming the doctor. With anonymous speaker labels the note writer made as many attribution errors as with no labels at all. One added step, asking a model which speaker is the clinician before writing, cut the errors by two thirds.</p>
+</div>
+<div class="card">
+  <h3>Edit effort and length ratio</h3>
+  <div class="k">What they are</div><p>Edit effort is the number of character edits needed to turn our note into the doctor's note, per 100 words of the doctor's note: a proxy for how much work the doctor would do to fix it. Length ratio is our note's length divided by the doctor's.</p>
+  <div class="k">Where they were used</div><p>On the larger ACI-Bench dataset, and as a guard in the reinforcement-learning experiment, where shorter notes were the first thing the trained model learned. Not part of the main comparison because the PriMock notes are so short that every machine note is "too long".</p>
+</div>
+
+<h2 id="trust">Trust measurements</h2>
+<div class="card">
+  <h3>Grounded sentences</h3>
+  <div class="k">What it is</div><p>The share of sentences in our note that a judge finds supported by the human transcript. The unsupported remainder are sentences with no basis in what was said.</p>
+  <div class="k">Our numbers</div><p class="num">Vanilla 88.6%, best 87.9%, cited 93.2%. So roughly one sentence in nine is unsupported in the uncited notes, and one in fifteen in the cited one.</p>
+  <div class="k">What we learned</div><p>The uncited best is no better grounded than vanilla. Its win was precision and attribution, not fewer unsupported sentences. Citations are what halved them.</p>
+</div>
+<div class="card">
+  <h3>Citation coverage and linked sentences</h3>
+  <div class="k">What they are</div><p>Coverage: the share of sentences that carry a pointer to transcript lines. Linked: the share of sentences whose own cited lines actually support them, so a reader can check the claim by looking exactly where the note points.</p>
+  <div class="k">Our numbers</div><p class="num">Uncited notes: none. Cited: 88.8% of sentences cited, 84.0% linked.</p>
+  <div class="k">Why this matters for the product</div><p>Abridge's Linked Evidence lets a doctor click a sentence and see the transcript. Our version generates the pointer at writing time, so a checker can run before the doctor sees the draft, and the doctor's click lands on the exact lines.</p>
+</div>
+<div class="card">
+  <h3>Verifier recall on injected errors</h3>
+  <div class="k">What it is</div><p>How good the checker is. We take cited notes, deliberately corrupt a quarter of the sentences (flip a "no", change a number, swap a drug, invent a finding, add a relative's private detail), and ask a small judge model whether each sentence is supported by its cited lines.</p>
+  <div class="k">Our numbers</div><p class="num">The checker caught 98.7 to 99.6% of the injected errors across three test sets, while flagging 3.5 to 5.5% of clean sentences. Invented findings and privacy leaks were caught every time; the misses were subtle edits like a dropped "no".</p>
+</div>
+<div class="card">
+  <h3>The composite, and the second judge</h3>
+  <div class="k">What it is</div><p>The overnight search needed one number to optimize. The composite blends 30% term recall, 30% term precision, 20% ROUGE-L, 20% plan recall, minus a penalty of 40 points per misattribution. It is our formula, not Abridge's.</p>
+  <div class="k">The lesson it taught</div><p>It had no term for "is this claim verifiable", so the search threw citations away eight times: they only showed up as a small recall cost. A score that does not value the trust feature will remove the trust feature. We added grounding to the score afterwards; with it, cited and uncited tie.</p>
+  <div class="k">Judges</div><p>All the judged numbers come from a local model reading the notes, with a second, different model confirming anything the search accepted. The two judges disagree on the size of the win: about four points by one, two and a half by the other. Neither has been checked against a real clinician, which is the step Abridge's own method treats as what makes a score trustworthy.</p>
+</div>
+
+<h2 id="story">How the numbers improved, in order</h2>
+<div class="story">
+<div class="card"><h3>The vanilla baseline and the first design tied</h3><p>A streaming transcript into an untuned note model scored 40.8 on the composite. Adding a better, speaker-labelled transcript scored 39.6. Diarization alone changed nothing the note metrics could see.</p></div>
+<div class="card"><h3>Naming the doctor</h3><p>One step that maps the anonymous speaker labels to Doctor and Patient before writing. Misattributions fell by two thirds and the composite rose about two points. The first thing the overnight search accepted.</p></div>
+<div class="card"><h3>A different writer, and a precision-first instruction</h3><p>Switching the note model and adding "prioritize high-precision terminology, do not invent follow-ups or medications" took the held-out composite to 45.0. Term precision went from 26 to 31. The search tried about 130 variants in total; everything else it proposed either lost on the held-out set or was a rewording of this.</p></div>
+<div class="card"><h3>Citations, rejected then reinstated</h3><p>The search rejected citations because its score never valued them. Re-scored with a grounding term, the cited version tied the uncited one on the held-out set while halving unsupported sentences and making 84% of sentences checkable. The cited version is the one the demo now shows as proposed.</p></div>
+<div class="card"><h3>The plan-recall cost, explained</h3><p>Four prompt changes aimed at plan completeness looked good on the search set and failed on the held-out set. The item-level check showed a quarter of the doctors' plan items were never spoken. The metric was partly wrong; the remaining real gap is a handful of safety-netting sentences per 37 visits.</p></div>
+<div class="card"><h3>Reinforcement learning, as an exercise</h3><p>Four rounds of "sample eight notes, keep the best two, train on them" on the local writer moved the search set by five points and the held-out set by nothing the two judges could agree on. Style transferred (every sentence cited, notes 20% shorter), content did not. At 20 training transcripts it is memorization, and the two judges disagreeing on the sign is the reason to validate the judge before optimizing against it.</p></div>
+</div>
+
+<h2 id="table">The full table, held-out 37 consultations</h2>
+<table>
+<thead><tr><th>Measurement</th><th>Vanilla</th><th>First design</th><th>Best</th><th>Best, cited</th><th>Better is</th></tr></thead>
+<tbody>
+<tr><td>Composite (judge 1)</td><td>40.8</td><td>39.6</td><td class="best">45.0</td><td>44.1</td><td>higher</td></tr>
+<tr><td>Composite + grounding</td><td>58.5</td><td>57.6</td><td>62.6</td><td class="best">62.7</td><td>higher</td></tr>
+<tr><td>Composite (judge 2)</td><td>44.4</td><td>–</td><td class="best">46.8</td><td>–</td><td>higher</td></tr>
+<tr><td>Medical-term recall</td><td>52.1</td><td class="best">54.4</td><td>52.7</td><td>51.9</td><td>higher</td></tr>
+<tr><td>Medical-term precision</td><td>26.4</td><td>25.8</td><td>30.9</td><td class="best">32.9</td><td>higher</td></tr>
+<tr><td>ROUGE-L</td><td>21.8</td><td>20.6</td><td class="best">23.9</td><td>22.7</td><td>higher</td></tr>
+<tr><td>Plan recall, all items</td><td>80.8</td><td>79.0</td><td class="best">81.2</td><td class="worse">76.0</td><td>higher</td></tr>
+<tr><td>Plan recall, spoken items</td><td class="best">96.5</td><td>–</td><td>92.9</td><td>89.4</td><td>higher</td></tr>
+<tr><td>Misattributions per note</td><td>0.08</td><td class="worse">0.11</td><td class="best">0.03</td><td class="best">0.03</td><td>lower</td></tr>
+<tr><td>Grounded sentences</td><td>88.6%</td><td>89.8%</td><td>87.9%</td><td class="best">93.2%</td><td>higher</td></tr>
+<tr><td>Sentences cited</td><td>0</td><td>0</td><td>0</td><td class="best">88.8%</td><td>higher</td></tr>
+<tr><td>Linked to their cited lines</td><td>–</td><td>–</td><td>–</td><td class="best">84.0%</td><td>higher</td></tr>
+<tr><td>Transcript WER (all 57)</td><td>11.8</td><td colspan="3" class="best">10.6</td><td>lower</td></tr>
+<tr><td>Transcript medical-term miss (all 57)</td><td>12.7</td><td colspan="3" class="best">8.6</td><td>lower</td></tr>
+</tbody>
+</table>
+<p class="eyebrow" style="margin-top:6px">Dev-set composites, 20 consultations the search tuned on: 44.2 / 44.3 / 48.4 / 44.5. Judge 1 is Qwen3.8-27B, judge 2 is DeepSeek V4 Flash, which is also the best config's note writer.</p>
+
+<h2 id="limits">What we cannot claim</h2>
+<div class="warn"><p><b>The vanilla pipeline is not Abridge's product.</b> It is an unoptimized baseline built from open models. Abridge's system is fine-tuned on millions of real encounters and has its own evidence-linking feature.</p></div>
+<div class="callout"><p><b>The judges are models, not clinicians.</b> Every attribution, completeness and grounding number is a local model's reading. The two judges we use disagree on the size of the gain. A clinician reading a sample is the missing step.</p></div>
+<div class="callout"><p><b>37 consultations separate about four points, not one.</b> Differences smaller than that between columns should be read as ties.</p></div>
+<div class="callout"><p><b>Absolute scores are low by construction.</b> The reference notes are terse UK GP notes; the ordering between pipelines is the finding, not the level.</p></div>
+<div class="callout"><p><b>Medical-term hints in the transcriber were not a real gain.</b> The search preferred them by about a point on the note score, but the transcript itself got slightly worse. Treated as noise.</p></div>
+</div></body>
+</html>

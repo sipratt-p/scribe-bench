@@ -561,6 +561,16 @@ def live_page():
     return (ROOT / "demo/live.html").read_text()
 
 
+@router.get("/measurements/live", response_class=HTMLResponse)
+def measurements_live():
+    return (ROOT / "demo/measure_live.html").read_text()
+
+
+@router.get("/measurements/note", response_class=HTMLResponse)
+def measurements_note():
+    return (ROOT / "demo/measure_note.html").read_text()
+
+
 @router.get("/api/live/{cid}")
 def live_stream(cid: str, speed: float = 4.0, interval: float = 20.0, model: str = "dsflash"):
     model = model if model in MODELS else "dsflash"
