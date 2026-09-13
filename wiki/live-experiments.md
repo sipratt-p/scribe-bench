@@ -3,7 +3,7 @@
 Companion to [[live-synthesis]] (the design and the current numbers). This page is the run log: what each version changed, why, what it scored, and what it taught. All runs: 57 PriMock consultations, streaming-ASR transcript replayed on the human utterance timeline, one synthesis every 20 s of visit time (1,566 ticks per run), DeepSeek V4 Flash on the beast as writer and as judge, ground truth = the GP's note and the timed human transcript. Per-visit files under `runs/live_synth/eval*/`, summaries `runs/live_synth/eval_summary*.md`.
 
 | # | When (12–13 Sep) | Version | What changed | Scored on |
-|---|---|---|---|---|
+|---|---|---|---|---|---|
 | L0 | 19:30 | v1 scribe-in-a-hurry | first page: complaint / history / findings / plan / safety-netting / gaps / terms; mishearing flags; end-of-visit "which final plan items had the live view already caught" | 2 visits by hand |
 | L1 | 20:30 | v2 decision support | differential (top-3, evidence, missing), ask-next, red flags, plan stated vs suggested, safety-netting given vs to add; timeline scoring vs the GP's note | 57 visits |
 | L2 | 21:00 | v3 lookups + activity log | NHS + NICE CKS lookup per new differential entry, distilled and fed to the next tick; activity log panel; thinking-low tested | page only |
@@ -14,21 +14,23 @@ Companion to [[live-synthesis]] (the design and the current numbers). This page 
 | L6 | 13 Sep 09:30 | v5 + NHS lookups | same prompt; tier-1 NHS lookups actually feeding the ticks (191 used) | 57 visits |
 
 ## Results side by side
-| Metric | v2 (L1) | v4 (L4b) | v5 (L5) | v5 + NHS lookups (L6) |
+| Metric | v2 (L1) | v4 (L4b) | v5 (L5) | v5 + NHS lookups (L6) | L6 on official weights (L7) |
 |---|---|---|---|---|
-| GP's diagnosis ever in live top-3 | 52 / 57 | 49 / 57 | **56 / 57** | 55 / 57 |
-| Ever top-1 | 35 | 31 | **44** | 41 |
-| Median time to top-3 | 1:20 | 0:40 | 1:00 | 1:00 |
-| Had it before the GP said it | 48 / 51 | 49 / 49 | **54 / 54** (lead 5:36) | 52 / 52 (lead 5:35) |
-| Suggested questions later asked | 80.8% of 219 | **93.3%** of 149 | 86.9% of 229 | 82.6% of 224 |
-| Red flags raised / genuine | 61 / 54 | 62 / 52 | **3 / 3** | 6 / 6 (3 visits) |
-| Plan suggestions agree / extra / contradict | 37 / 108 / 13 | 82 / 67 / 6 | 43 / 73 / **3** | 47 / 104 / 5 |
-| Revisions toward / away | – | 489 / 20 | 459 / 35 | 503 / 15 |
-| Wrong complaint on first tick | 7.0% | 5.3% | 7.0% | 5.3% |
-| Top-1 flips per visit | 0.19 | 0.37 | 0.75 | 0.63 |
-| Mishearing flags precision (vs human transcript) | 57.7% of 26 | same | same | same |
-| Latency mean / p95, 4 visits in parallel | 5.1 / 7.3 s | 10.0 / 10.0 s | 7.1 / 9.6 s | 7.1 / 10.6 s |
-| Guideline lookups actually used | – | 8 | 6 | **191** |
+| GP's diagnosis ever in live top-3 | 52 / 57 | 49 / 57 | **56 / 57** | 55 / 57 | 56 / 57 |
+| Ever top-1 | 35 | 31 | **44** | 41 | 39 |
+| Median time to top-3 | 1:20 | 0:40 | 1:00 | 1:00 | 1:00 |
+| Had it before the GP said it | 48 / 51 | 49 / 49 | **54 / 54** (lead 5:36) | 52 / 52 (lead 5:35) | 53 / 53 (lead 5:35) |
+| Suggested questions later asked | 80.8% of 219 | **93.3%** of 149 | 86.9% of 229 | 82.6% of 224 | 86.9% of 199 |
+| Red flags raised / genuine | 61 / 54 | 62 / 52 | **3 / 3** | 6 / 6 (3 visits) | 1 / 1 (1 visit) |
+| Plan suggestions agree / extra / contradict | 37 / 108 / 13 | 82 / 67 / 6 | 43 / 73 / **3** | 47 / 104 / 5 | 34 / 111 / 1 |
+| Revisions toward / away | – | 489 / 20 | 459 / 35 | 503 / 15 | 482 / 32 |
+| Wrong complaint on first tick | 7.0% | 5.3% | 7.0% | 5.3% | 3.5% |
+| Top-1 flips per visit | 0.19 | 0.37 | 0.75 | 0.63 | 0.58 |
+| Mishearing flags precision (vs human transcript) | 57.7% of 26 | same | same | same | same |
+| Latency mean / p95, 4 visits in parallel | 5.1 / 7.3 s | 10.0 / 10.0 s | 7.1 / 9.6 s | 7.1 / 10.6 s | 6.7 / 11.5 s (3 in parallel) |
+| Guideline lookups actually used | – | 8 | 6 | **191** | 200 |
+
+**L7 (13 Sep, after the interview):** L6 re-run with the official release build of DeepSeek V4 Flash as writer and timeline judge (the earlier runs used a community-modified "abliterated" build of the same weights). Paired over the 57 visits, L7 − L6 has no measure whose interval excludes zero, and L7 − L1 reproduces the four resolved v5 effects at the same size (`runs/paper_stats.md`, script `autoresearch/live_ci.py`). The writer build is not what the live-view results depend on.
 
 ## What each run taught
 - **L0**: the value of streaming a scribe is small; the after-visit note delivers the same content. Complaint declared from small talk at 20 s and corrected at 40 s: early wrong commitment is the failure class. Seth: "shouldn't we be helping with diagnostics?"
