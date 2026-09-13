@@ -93,7 +93,60 @@
   <div><label>&nbsp;</label><button id="run" class="secondary">Run live</button></div>
   <div style="grid-column:1/-1"><button id="explain-btn" class="secondary" style="padding:6px 12px">▸ Explain the jargon</button> <span class="steps">for people who know tech but not this field</span></div>
 </div>
-<details class="arch"><summary>Architecture and harness: what runs where, what is cached, what is live</summary>
+<details class="arch" open><summary>Architecture and harness</summary>
+<div style="overflow-x:auto"><svg class="arch-svg" viewBox="0 0 980 560" role="img" aria-label="Two pipelines from the same audio, vanilla and proposed, and the harness that scores both against the human transcript and the GP note">
+<style>
+.arch-svg{max-width:100%;height:auto;font-family:"Public Sans",-apple-system,Helvetica,Arial,sans-serif;font-size:12px}
+.arch-svg .bx rect{fill:var(--surface);stroke:var(--ink);stroke-width:1.2}.arch-svg .bx .t{font-weight:600;fill:var(--ink)}.arch-svg .bx .s{font-size:10.5px;fill:var(--muted)}
+.arch-svg .live rect{stroke:var(--accent);stroke-width:1.6}.arch-svg .live .t{fill:var(--accent)}
+.arch-svg .cache rect{stroke:var(--muted);stroke-dasharray:4 3}
+.arch-svg .truth rect{fill:var(--accent-soft);stroke:var(--accent)}
+.arch-svg .van rect{stroke:var(--theirs);stroke-width:1.6}.arch-svg .van .t{fill:var(--theirs)}
+.arch-svg .ar{stroke:var(--ink);stroke-width:1.2;fill:none}.arch-svg .ar.live{stroke:var(--accent)}.arch-svg .lb{font-size:10.5px;fill:var(--muted)}
+.arch-svg .zone{fill:none;stroke:var(--line);stroke-dasharray:6 4}.arch-svg .zl{font-family:"IBM Plex Mono",Menlo,monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;fill:var(--muted)}
+.arch-svg .lg{font-size:10.5px;fill:var(--muted)}
+</style>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+<rect class="zone" x="8" y="8" width="964" height="300" rx="8"/><text class="zl" x="20" y="26">Pipelines · GPU box (ASR, DeepSeek) + Mac (note model, verifier)</text>
+<g class="bx"><rect x="20" y="60" width="120" height="60" rx="5"/><text x="80.0" y="82" text-anchor="middle" class="t">Encounter audio</text><text x="80.0" y="98" text-anchor="middle" class="s">57 PriMock visits</text></g>
+<g class="bx van"><rect x="200" y="50" width="180" height="60" rx="5"/><text x="290.0" y="72" text-anchor="middle" class="t">Streaming ASR</text><text x="290.0" y="88" text-anchor="middle" class="s">Nemotron-3.5 0.6B · 1.1 s chunks · no speakers</text></g>
+<g class="bx van"><rect x="640" y="50" width="170" height="60" rx="5"/><text x="725.0" y="72" text-anchor="middle" class="t">Note model</text><text x="725.0" y="88" text-anchor="middle" class="s">untuned Qwen 27B · plain prompt</text></g>
+<g class="bx van"><rect x="850" y="50" width="110" height="60" rx="5"/><text x="905.0" y="72" text-anchor="middle" class="t">Note</text><text x="905.0" y="88" text-anchor="middle" class="s">no citations</text></g>
+<line class="ar" x1="140" y1="80" x2="198" y2="80" marker-end="url(#ah)"/>
+<line class="ar" x1="380" y1="80" x2="638" y2="80" marker-end="url(#ah)"/><text class="lb" x="509.0" y="74.0" text-anchor="middle">text, no speakers</text>
+<line class="ar" x1="810" y1="80" x2="848" y2="80" marker-end="url(#ah)"/>
+<text class="zl" x="200" y="42" style="fill:var(--theirs)">Vanilla · unoptimized baseline</text>
+<text class="zl" x="200" y="162" style="fill:var(--accent)">Proposed · after-visit pass</text>
+<g class="bx live"><rect x="200" y="170" width="180" height="64" rx="5"/><text x="290.0" y="192" text-anchor="middle" class="t">After-visit ASR</text><text x="290.0" y="208" text-anchor="middle" class="s">MOSS-TD 0.9B · LLM decoder · speaker labels</text></g>
+<g class="bx live"><rect x="410" y="170" width="140" height="64" rx="5"/><text x="480.0" y="192" text-anchor="middle" class="t">Role map</text><text x="480.0" y="208" text-anchor="middle" class="s">S01/S02 → Doctor/Patient · one LLM call</text></g>
+<g class="bx live"><rect x="580" y="170" width="180" height="64" rx="5"/><text x="670.0" y="192" text-anchor="middle" class="t">Note model + citations</text><text x="670.0" y="208" text-anchor="middle" class="s">v2: DeepSeek V4 Flash · precision-first · [[line]] per sentence</text></g>
+<g class="bx live"><rect x="790" y="170" width="170" height="64" rx="5"/><text x="875.0" y="192" text-anchor="middle" class="t">Verifier</text><text x="875.0" y="208" text-anchor="middle" class="s">claim ↔ cited lines · flags unsupported + third-party details</text></g>
+<line class="ar" x1="140" y1="100" x2="170" y2="100" marker-end="url(#ah)"/>
+<path class="ar" d="M170 100 V 202 H 198" marker-end="url(#ah)"/>
+<line class="ar" x1="380" y1="202" x2="408" y2="202" marker-end="url(#ah)"/>
+<line class="ar" x1="550" y1="202" x2="578" y2="202" marker-end="url(#ah)"/>
+<line class="ar" x1="760" y1="202" x2="788" y2="202" marker-end="url(#ah)"/>
+<path class="ar" d="M875 234 V 270 H 640" marker-end="url(#ah)"/>
+<g class="bx live"><rect x="520" y="250" width="120" height="44" rx="5"/><text x="580.0" y="272" text-anchor="middle" class="t">Cited note</text><text x="580.0" y="288" text-anchor="middle" class="s">+ verifier flags</text></g>
+<rect class="zone" x="8" y="318" width="964" height="234" rx="8"/><text class="zl" x="20" y="336">Harness · scores both pipelines against what a person produced</text>
+<g class="bx truth"><rect x="20" y="360" width="170" height="64" rx="5"/><text x="105.0" y="382" text-anchor="middle" class="t">Human transcript</text><text x="105.0" y="398" text-anchor="middle" class="s">per-speaker timestamps (two mics)</text></g>
+<g class="bx truth"><rect x="20" y="450" width="170" height="64" rx="5"/><text x="105.0" y="472" text-anchor="middle" class="t">GP's own note</text><text x="105.0" y="488" text-anchor="middle" class="s">diagnosis + plan</text></g>
+<g class="bx"><rect x="230" y="360" width="200" height="64" rx="5"/><text x="330.0" y="382" text-anchor="middle" class="t">Transcript metrics</text><text x="330.0" y="398" text-anchor="middle" class="s">WER · medical-term miss (7,092-term lexicon) · DER</text></g>
+<g class="bx"><rect x="230" y="450" width="200" height="64" rx="5"/><text x="330.0" y="472" text-anchor="middle" class="t">Note metrics</text><text x="330.0" y="488" text-anchor="middle" class="s">term recall/precision · ROUGE-L · plan recall · edit effort</text></g>
+<g class="bx live"><rect x="470" y="405" width="190" height="64" rx="5"/><text x="565.0" y="427" text-anchor="middle" class="t">LLM judges</text><text x="565.0" y="443" text-anchor="middle" class="s">misattribution · plan items · grounded / linked</text></g>
+<g class="bx live"><rect x="700" y="360" width="120" height="50" rx="5"/><text x="760.0" y="382" text-anchor="middle" class="t">Judge 1</text><text x="760.0" y="398" text-anchor="middle" class="s">Qwen3.8-27B</text></g>
+<g class="bx live"><rect x="700" y="420" width="120" height="50" rx="5"/><text x="760.0" y="442" text-anchor="middle" class="t">Judge 2</text><text x="760.0" y="458" text-anchor="middle" class="s">DeepSeek V4 Flash</text></g>
+<g class="bx live"><rect x="700" y="480" width="120" height="50" rx="5"/><text x="760.0" y="502" text-anchor="middle" class="t">Judge 3</text><text x="760.0" y="518" text-anchor="middle" class="s">Gemma 4 · attribution check</text></g>
+<g class="bx"><rect x="850" y="380" width="110" height="110" rx="5"/><text x="905.0" y="402" text-anchor="middle" class="t">['Search loop']</text><text x="905.0" y="418" text-anchor="middle" class="s">131 variants</text><text x="905.0" y="431" text-anchor="middle" class="s">dev 20 → test 37</text><text x="905.0" y="444" text-anchor="middle" class="s">→ judge-2 gate</text></g>
+<line class="ar" x1="190" y1="392" x2="228" y2="392" marker-end="url(#ah)"/>
+<line class="ar" x1="190" y1="482" x2="228" y2="482" marker-end="url(#ah)"/>
+<line class="ar" x1="430" y1="482" x2="468" y2="450" marker-end="url(#ah)"/>
+<line class="ar" x1="190" y1="470" x2="468" y2="430" marker-end="url(#ah)"/>
+<line class="ar" x1="660" y1="437" x2="698" y2="437" marker-end="url(#ah)"/>
+<line class="ar" x1="820" y1="437" x2="848" y2="437" marker-end="url(#ah)"/>
+<text class="lg" x="20" y="554">Solid teal = added in the proposed design · dashed = ground truth from the dataset · amber = vanilla baseline · every judged number: model reads, no clinician validation</text>
+</svg></div>
+<details><summary>In words</summary>
 <div class="k">Two pipelines on the same audio</div>
 <ol>
 <li><b>Vanilla (left).</b> Streaming recognizer (Nemotron-3.5 0.6B, 1.1 s chunks, no speaker labels) → untuned note model, plain prompt. An unoptimized baseline, not any vendor's product.</li>
@@ -111,6 +164,7 @@
 <li>Search: an overnight loop over nine pipeline knobs with a 20/37 dev/test split and a second judge as the gate; every row on the <a href="/experiments">experiments page</a>.</li>
 <li>Where things run: Mac (this server, oMLX note model :8600, Gemma judge :8500) and the GPU box (vLLM endpoints, ASR runners).</li>
 </ul>
+</details>
 </details>
 <div class="explain">This page compares two ways of turning a recorded doctor visit into the clinical note the doctor has to sign. Left is a vanilla, unoptimized pipeline: the streaming, real-time transcript written straight into a note; right adds a second, slower pass after the visit and checks the draft before the doctor sees it. Every number is measured against the human transcript and the note the real clinician wrote for that same visit.</div>
 <div class="status" id="status"></div>
