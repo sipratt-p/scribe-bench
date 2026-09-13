@@ -134,13 +134,33 @@
 <div class="story">
 <div class="card"><h3>The vanilla baseline and the first design tied</h3><p>A streaming transcript into an untuned note model scored 40.8 on the composite. Adding a better, speaker-labelled transcript scored 39.6. Diarization alone changed nothing the note metrics could see.</p></div>
 <div class="card"><h3>Naming the doctor</h3><p>One step that maps the anonymous speaker labels to Doctor and Patient before writing. Under the main judge, misattributions fell by two thirds and the composite rose about two points; it was the first thing the overnight search accepted. Three judge models later failed to agree on which notes contain a misattribution at all, so the size and even the direction of this effect are unresolved.</p></div>
-<div class="card"><h3>A different writer, and a precision-first instruction</h3><p>Switching the note model and adding "prioritize high-precision terminology, do not invent follow-ups or medications" took the held-out composite to 45.0. Term precision went from 26 to 31. The search tried about 130 variants in total; everything else it proposed either lost on the held-out set or was a rewording of this.</p></div>
+<div class="card"><h3>A different writer, and a precision-first instruction</h3><p>Switching the note model and adding "prioritize high-precision terminology, do not invent follow-ups or medications" took the held-out composite to 45.0 on the build the search ran on. Re-run with that model's official release weights it scores 42.3: most of the four-point gain was the build, not the recipe. Term precision went from 26 to 31. The search tried about 130 variants in total; everything else it proposed either lost on the held-out set or was a rewording of this.</p></div>
 <div class="card"><h3>Citations, rejected then reinstated</h3><p>The search rejected citations because its score never valued them. Re-scored with a grounding term, the cited version tied the uncited one on the held-out set while halving unsupported sentences and making 84% of sentences checkable. The cited version is the one the demo now shows as proposed.</p></div>
 <div class="card"><h3>The plan-recall cost, explained</h3><p>Four prompt changes aimed at plan completeness looked good on the search set and failed on the held-out set. The item-level check showed a quarter of the doctors' plan items were never spoken. The metric was partly wrong; the remaining real gap is a handful of safety-netting sentences per 37 visits.</p></div>
 <div class="card"><h3>Reinforcement learning, as an exercise</h3><p>Four rounds of "sample eight notes, keep the best two, train on them" on the local writer moved the search set by five points and the held-out set by nothing the two judges could agree on. Style transferred (every sentence cited, notes 20% shorter), content did not. At 20 training transcripts it is memorization, and the two judges disagreeing on the sign is the reason to validate the judge before optimizing against it.</p></div>
 </div>
 
-<h2 id="table">The full table, held-out 37 consultations</h2>
+<h2 id="table">The full table, held-out 37 consultations, official writer weights</h2>
+<table>
+<thead><tr><th>Measurement</th><th>Vanilla</th><th>Two-pass + role map, same writer as vanilla</th><th>Best</th><th>Best, cited</th><th>Better is</th></tr></thead>
+<tbody>
+<tr><td>Composite (judge 1)</td><td>41.0</td><td class="best">43.0</td><td>42.3</td><td>42.2</td><td>higher</td></tr>
+<tr><td>Composite + grounding</td><td>58.7</td><td class="best">61.0</td><td>59.3</td><td>60.4</td><td>higher</td></tr>
+<tr><td>Composite (judge 2, the writer itself)</td><td class="best">45.1</td><td>–</td><td>44.4</td><td>43.3</td><td>higher</td></tr>
+<tr><td>Medical-term recall</td><td>52.1</td><td class="best">52.9</td><td>49.6</td><td>49.8</td><td>higher</td></tr>
+<tr><td>Medical-term precision</td><td>26.4</td><td>25.8</td><td>28.9</td><td class="best">31.1</td><td>higher</td></tr>
+<tr><td>ROUGE-L</td><td>21.8</td><td>21.4</td><td class="best">23.2</td><td>22.6</td><td>higher</td></tr>
+<tr><td>Plan recall, all items</td><td>80.8</td><td class="best">81.7</td><td class="worse">72.7</td><td>76.8</td><td>higher</td></tr>
+<tr><td>Plan recall, spoken items</td><td class="best">96.5</td><td>–</td><td>87.0</td><td>89.6</td><td>higher</td></tr>
+<tr><td>Misattributions per note</td><td>0.08</td><td class="best">0.03</td><td class="best">0.03</td><td>0.05</td><td>lower</td></tr>
+<tr><td>Grounded sentences</td><td>88.6%</td><td>90.1%</td><td class="worse">85.2%</td><td class="best">91.3%</td><td>higher</td></tr>
+<tr><td>Sentences cited</td><td>0</td><td>0</td><td>0</td><td class="best">78.9%</td><td>higher</td></tr>
+<tr><td>Linked to their cited lines</td><td>–</td><td>–</td><td>–</td><td class="best">74.3%</td><td>higher</td></tr>
+</tbody>
+</table>
+<p class="eyebrow" style="margin-top:6px">"Two-pass + role map" is Sortformer + Parakeet v3 speech recognition with the clinician labelled before writing, into the same untuned local writer as vanilla: no overnight search, no second model. Best minus vanilla on the composite is +1.3, interval −3.8 to +6.2. Resolved: term precision +2.5 (+0.5 to +4.5), ROUGE-L +1.5 (+0.3 to +2.6), and, in the wrong direction, plan recall −8.1 (−13.8 to −1.7) and grounding −3.4 (−6.6 to −0.2). Citations recover grounding: +6.1 (+3.2 to +8.9) over the uncited best.</p>
+
+<h2>The same table on the build the search ran on (superseded)</h2>
 <table>
 <thead><tr><th>Measurement</th><th>Vanilla</th><th>First design</th><th>Best</th><th>Best, cited</th><th>Better is</th></tr></thead>
 <tbody>
@@ -165,7 +185,7 @@
 <h2 id="limits">What we cannot claim</h2>
 <div class="warn"><p><b>The vanilla pipeline is not any vendor's product.</b> It is an unoptimized baseline built from open models. Deployed systems are fine-tuned on large volumes of real encounters and have their own evidence-linking features.</p></div>
 <div class="callout"><p><b>The judges are models, not clinicians.</b> Every attribution, completeness and grounding number is a local model's reading. The two judges we use disagree on the size of the gain. A clinician reading a sample is the missing step.</p></div>
-<div class="callout"><p><b>The headline gain is not statistically resolved.</b> Best minus vanilla on the composite is +4.2 with a 95% bootstrap interval of −0.3 to +8.8 over the 37 held-out visits. What is resolved: term precision (+4.5, interval +2.3 to +6.7), ROUGE-L (+2.2, +1.0 to +3.2), and grounding with citations (+5.3, +3.2 to +7.8). Read the composite as "probably better", not as a measured four points.</p></div>
+<div class="callout"><p><b>The headline gain mostly belonged to the model build, and what is left is not statistically resolved.</b> The search ran on a community-modified build of its writer. On the official weights, best minus vanilla on the composite is +1.3 with a 95% bootstrap interval of −3.8 to +6.2 over the 37 held-out visits (it was +4.2, −0.3 to +8.8, on the modified build). What is resolved: term precision (+2.5, interval +0.5 to +4.5), ROUGE-L (+1.5, +0.3 to +2.6), grounding with citations (+6.1 over the uncited best, +3.2 to +8.9), and two losses, plan recall (−8.1) and grounding without citations (−3.4). Read the composite as "probably better", not as a measured four points.</p></div>
 <div class="callout"><p><b>Absolute scores are low by construction.</b> The reference notes are terse UK GP notes; the ordering between pipelines is the finding, not the level.</p></div>
 <div class="callout"><p><b>Medical-term hints in the transcriber were not a real gain.</b> The search preferred them by about a point on the note score, but the transcript itself got slightly worse. Treated as noise.</p></div>
 </div></body>

@@ -21,6 +21,8 @@ Accepted best: `{asr_variant: moss_hotcc, role_map: llm, prompt: base, extra: "P
 
 Contributions (dev ablations): role map ≈ +0.9, DeepSeek writer ≈ +1.6, hotwords + extra ≈ +0.8 combined.
 
+**Official weights (13 Sep evening).** The loop ran on an abliterated DeepSeek build. Re-run on the official release weights the accepted config scores test 42.26 under judge 1 (+1.25 [−3.76, +6.23] over vanilla) and 44.40 under judge 2 (−0.66 [−4.50, +3.03]); term precision and ROUGE-L gains survive at half size, plan recall and grounding become resolved losses. About three of the four reported points were the writer build. Full table in [[vanilla-vs-best]]; the held-out gate caught dev overfitting but cannot catch a gain that is constant across every candidate.
+
 ## What it rejected, and why that matters
 - **Dev gains that failed test** (the proposer overfitting 20 files): scaffold (iter 30: dev +2.3, test 40.0), verifier gate (iter 40: test 44.57 vs 44.57 tie → rejected), scaffold on best (iter 50: test 42.75), transcript correction (iter 95: dev 48.78, test 42.51; fourth time), every proposer-written prompt rewording after iteration 47.
 - **Citations**, eight times, because the score had no verifiability term ([[citations-and-verifiability]]).

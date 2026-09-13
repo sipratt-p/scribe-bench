@@ -2,7 +2,9 @@
 
 Four cited prompt variants aimed at plan recall (enumerate every action / re-read the last third / forced Plan section / "a citable plan item must be included") gained up to +1.3 plan-recall points on dev and **none held on the 37 test files** (variant D: dev 78.95 → test 75.16 vs cited baseline 76.0; composite 41.76 vs 44.10).
 
-Item-level gap analysis (test, 37 consultations, Qwen judge extracts items from the reference note, checks presence, and asks whether the transcript states the item):
+Repeated on the official-weight notes (13 Sep evening, `runs/plan_gap_official.json`): 153 items, 115 spoken; uncited best 100/115 spoken and 14/38 unspoken, cited best 103/115 and 14/38, vanilla (first audit) 110/114 and 11/41. On the official build the gap to vanilla is on *spoken* items (mostly safety-netting sentences), not refusal to invent; plan recall best − vanilla is a resolved −8.1 [−13.8, −1.7].
+
+Item-level gap analysis, search-time build (test, 37 consultations, Qwen judge extracts items from the reference note, checks presence, and asks whether the transcript states the item):
 
 | | Items | Uncited best found | Cited best found | Vanilla found |
 |---|---|---|---|---|

@@ -14,7 +14,9 @@ The composite ([[metrics]]) had no verifiability term. Citations only showed up 
 ## The re-score (12 Sep)
 Two measures added: **grounded** = share of note sentences a judge finds supported by the *human* transcript (whole transcript as evidence, same for cited and uncited); **linked** = share of sentences whose own cited lines support them (uncited notes cannot score). Composite_v = composite + 0.2 × grounded.
 
-| Test (37) | Vanilla | Best uncited | Best cited |
+Official writer weights (13 Sep evening, the numbers the paper reports): grounded vanilla 88.62 / best uncited 85.20 / best cited 91.33; cited 78.9%, linked 74.3%; cited − uncited grounded **+6.13 [+3.23, +8.91]**, precision +2.14 [+0.03, +4.39], ROUGE-L −0.60 [−1.73, +0.59], plan recall +4.09 [−1.12, +9.05]. The uncited best is now *less* grounded than vanilla (−3.4 [−6.6, −0.2]); the cited one more (+2.7 [+0.4, +5.1]). The table below is the search-time (abliterated) build.
+
+| Test (37), search-time build | Vanilla | Best uncited | Best cited |
 |---|---|---|---|
 | composite | 40.82 | 45.01 | 44.10 |
 | composite_v | 58.54 | 62.59 | 62.74 |
