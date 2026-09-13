@@ -231,7 +231,7 @@ def ref_note_text(rec: dict) -> str:
     return n if isinstance(n, str) else (n or {}).get("note", "")
 
 
-LOOKUP_SYSTEM = """You are given search snippets and page text from NHS and NICE CKS about a condition. Extract, for an in-visit assistant, one JSON object: "condition": name; "key_questions": up to 6 history questions that matter for this condition; "red_flags": up to 5 features that need urgent action; "first_line": up to 5 first-line management points; "safety_netting": up to 4 when-to-return points; "sources": the URLs used. Only content supported by the material; short phrases."""
+LOOKUP_SYSTEM = """You are given page text from the NHS website about a condition. Extract, for an in-visit assistant, one JSON object: "condition": name; "key_questions": up to 6 history questions that matter for this condition; "red_flags": up to 5 features that need urgent action; "first_line": up to 5 first-line management points; "safety_netting": up to 4 when-to-return points; "sources": the URLs used. Only content supported by the material; short phrases."""
 
 
 def _slug(dx: str) -> str:
@@ -271,8 +271,64 @@ def _fetch_text(url: str, cap: int = 6000) -> str:
     return t[m.start(): m.start() + cap] if m else t[:cap]
 
 
+NHS_AZ = ROOT / "data/nhs_conditions_az.json"
+NHS_MATCH_SYSTEM = """You map a working-diagnosis label from a GP consultation to the matching entry of the NHS conditions A-Z. Answer with the number of the entry that is the SAME condition (ignore modifiers such as acute, possible, likely, flare, exacerbation, early, mild, viral), or 0 if none of the candidates is the same condition. Answer with the number only."""
+_AZ: dict | None = None
+
+
+def nhs_az() -> dict:
+    global _AZ
+    if _AZ is None:
+        try:
+            _AZ = json.loads(NHS_AZ.read_text())
+        except OSError:
+            _AZ = {}
+    return _AZ
+
+
+ABBREV = {"tia": "transient ischaemic attack", "urti": "common cold upper respiratory tract infection", "lrti": "chest infection",
+          "uti": "urinary tract infection", "acs": "heart attack angina", "mi": "heart attack", "pe": "pulmonary embolism", "gord": "heartburn acid reflux",
+          "cva": "stroke", "pid": "pelvic inflammatory disease", "sti": "sexually transmitted infections", "dka": "diabetic ketoacidosis",
+          "copd": "chronic obstructive pulmonary disease", "ibs": "irritable bowel syndrome", "ssnhl": "sudden hearing loss", "ms": "multiple sclerosis"}
+WORD_ALIAS = {"ear wax": "earwax", "wax": "earwax", "sting": "insect bites and stings", "stings": "insect bites and stings", "flu": "influenza",
+              "tension type": "tension-type", "gastro": "gastroenteritis", "hives": "urticaria hives"}
+
+
+def nhs_match(dx: str, model: str) -> tuple[str, str] | None:
+    """Fuzzy shortlist from the NHS A-Z (token and character matching, abbreviations expanded), then one short model call to pick the same condition or none."""
+    from rapidfuzz import fuzz, process, utils
+    az = nhs_az()
+    if not az:
+        return None
+    q = re.sub(r"\(.*?\)", " ", dx).replace("/", " ")
+    q = re.sub(r"\b(acute|chronic|possible|probable|likely|suspected|early|mild|moderate|severe|viral|bacterial|flare|flare-up|exacerbation|reaction|localised|localized|allergic|of|to|the|type)\b", " ", q, flags=re.I)
+    q = " ".join(ABBREV.get(w.lower(), w) for w in q.split())
+    for a, b in WORD_ALIAS.items():
+        if re.search(r"\b" + re.escape(a) + r"\b", q, flags=re.I):
+            q = re.sub(r"\b" + re.escape(a) + r"\b", b, q, flags=re.I)
+    q = re.sub(r"\s+", " ", q).strip() or dx
+    names = list(az)
+    cands = {}
+    for scorer in (fuzz.token_set_ratio, fuzz.partial_ratio, fuzz.WRatio):
+        for n, sc, _ in process.extract(q, names, scorer=scorer, processor=utils.default_process, limit=6, score_cutoff=60):
+            cands[n] = max(cands.get(n, 0), sc)
+    if not cands:
+        return None
+    short = sorted(cands.items(), key=lambda kv: -kv[1])[:10]
+    if short[0][1] >= 97 and fuzz.token_set_ratio(q, short[0][0], processor=utils.default_process) >= 97:
+        return short[0][0], az[short[0][0]]
+    listing = "\n".join(f"{i + 1}. {n}" for i, (n, _) in enumerate(short))
+    ans = _llm(NHS_MATCH_SYSTEM, f"LABEL: {dx}\n\nCANDIDATES:\n{listing}", 8, model=model)
+    m = re.search(r"\d+", ans or "")
+    k = int(m.group(0)) if m else 0
+    if 1 <= k <= len(short):
+        n = short[k - 1][0]
+        return n, az[n]
+    return None
+
+
 def lookup(dx: str, model: str) -> dict:
-    """NHS + NICE CKS lookup for one condition, cached on disk. Returns {} if nothing usable."""
+    """NHS condition page for one differential entry (matched through the NHS A-Z, no third-party search), cached on disk."""
     slug = _slug(dx)
     if not slug:
         return {}
@@ -281,24 +337,24 @@ def lookup(dx: str, model: str) -> dict:
     if p.exists():
         return json.loads(p.read_text())
     t0 = time.time()
-    nhs = _searx(f"site:nhs.uk/conditions {dx}", 3)
-    cks = _searx(f"site:cks.nice.org.uk {dx}", 3)
     material, sources = [], []
-    for r in nhs[:2]:
-        txt = _fetch_text(r.get("url", ""))
-        if txt:
-            material.append(f"[NHS] {r.get('title', '')} <{r.get('url')}>\n{txt}")
-            sources.append(r.get("url"))
-    for r in cks[:3]:
-        material.append(f"[NICE CKS snippet] {r.get('title', '')} <{r.get('url')}>\n{r.get('content', '')}")
-        sources.append(r.get("url"))
+    hit = nhs_match(dx, model)
+    if hit:
+        name, path = hit
+        base = "https://www.nhs.uk" + path
+        for sub in ("", "symptoms/", "treatment/"):
+            txt = _fetch_text(base + sub, cap=5000 if sub == "" else 3500)
+            if txt:
+                material.append(f"[NHS] {name} <{base + sub}>\n{txt}")
+                sources.append(base + sub)
     if not material:
         out = {"condition": dx, "empty": True, "ms": int(1000 * (time.time() - t0))}
         p.write_text(json.dumps(out))
         return out
     js = parse_json(_llm(LOOKUP_SYSTEM, f"CONDITION: {dx}\n\nMATERIAL:\n" + "\n\n".join(material)[:14000], 700, model=model)) or {}
     js.setdefault("condition", dx)
-    js["sources"] = [u for u in (js.get("sources") or sources) if u][:5]
+    js["nhs_entry"] = hit[0]
+    js["sources"] = [u for u in (js.get("sources") or sources) if u][:4]
     js["ms"] = int(1000 * (time.time() - t0))
     js["n_material"] = len(material)
     p.write_text(json.dumps(js))
