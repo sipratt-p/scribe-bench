@@ -39,6 +39,7 @@ THINK_OFF = {"dsflash": {"thinking": False}, "qwen27b": {"enable_thinking": Fals
 THINK_LOW = {"dsflash": {"thinking": True, "reasoning_effort": "low"}, "qwen27b": {"enable_thinking": False}, "flashnext": {"enable_thinking": False}}
 SEARX = os.environ.get("SCRIBE_SEARX", "http://127.0.0.1:8890")  # beast SearXNG via `ssh -N -L 8890:127.0.0.1:8890 beast`
 LOOKUPS = ROOT / "runs/live_synth/lookups"
+THINK = os.environ.get("SCRIBE_LIVE_THINK", "0") == "1"  # thinking-low synthesis: +0.5 s/tick, no throughput loss, but can starve the JSON on long prompts
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
 
 router = APIRouter()
@@ -47,18 +48,20 @@ _LEX: set[str] | None = None
 _LEX_LONG: list[str] = []
 _ENGLISH: set[str] | None = None
 _MED: list[str] = []
+_INIT = threading.RLock()
 
 
 def lexicon():
     global _LEX, _LEX_LONG, _ENGLISH
-    if _LEX is None:
-        terms = [t.strip().lower() for t in (ROOT / "data/lexicon.txt").read_text().splitlines() if t.strip()]
-        _LEX = set(terms) | {w for t in terms for w in t.split()}
-        _LEX_LONG = sorted({t for t in _LEX if " " not in t and len(t) >= 7})
-        try:
-            _ENGLISH = {w.strip().lower() for w in open("/usr/share/dict/words")}
-        except OSError:
-            _ENGLISH = set()
+    with _INIT:
+        if _LEX is None:
+            terms = [t.strip().lower() for t in (ROOT / "data/lexicon.txt").read_text().splitlines() if t.strip()]
+            lex = set(terms) | {w for t in terms for w in t.split()}
+            try:
+                eng = {w.strip().lower() for w in open("/usr/share/dict/words")}
+            except OSError:
+                eng = set()
+            _LEX_LONG, _ENGLISH, _LEX = sorted({t for t in lex if " " not in t and len(t) >= 7}), eng, lex
     return _LEX, _LEX_LONG, _ENGLISH
 
 
@@ -72,13 +75,14 @@ def is_english(w: str) -> bool:
 def medical_terms():
     """Lexicon single words of 7+ letters that are neither ordinary English words nor one edit from one."""
     global _MED
-    if not _MED:
-        lex, lex_long, english = lexicon()
-        from rapidfuzz import process
-        from rapidfuzz.distance import Levenshtein
-        eng_long = [w for w in english if len(w) >= 6 and w.isalpha()]
-        cand = [t for t in lex_long if t.isalpha() and not is_english(t)]
-        _MED = [t for t in cand if not process.extractOne(t, eng_long, scorer=Levenshtein.distance, score_cutoff=1)]
+    lex, lex_long, english = lexicon()
+    with _INIT:
+        if not _MED:
+            from rapidfuzz import process
+            from rapidfuzz.distance import Levenshtein
+            eng_long = [w for w in english if len(w) >= 6 and w.isalpha()]
+            cand = [t for t in lex_long if t.isalpha() and not is_english(t)]
+            _MED = [t for t in cand if not process.extractOne(t, eng_long, scorer=Levenshtein.distance, score_cutoff=1)]
     return _MED
 
 
@@ -294,11 +298,11 @@ def reference_block(refs: dict, dxs: list[str]) -> str:
     return ("\n\nREFERENCE MATERIAL (NHS / NICE CKS lookups for the current differential; use it for next_question, red_flags, *_suggested, and cite the source in \"basis\"):\n" + "\n".join(parts)) if parts else ""
 
 
-def synthesize_once(text: str, prev: dict | None, upto_t: float, model: str, refs: dict | None = None, think: bool = True) -> dict:
+def synthesize_once(text: str, prev: dict | None, upto_t: float, model: str, refs: dict | None = None, think: bool = False) -> dict:
     dxs = [d.get("dx") for d in ((prev or {}).get("differential") or []) if isinstance(d, dict) and d.get("dx")]
     user = (f"PREVIOUS VIEW:\n{json.dumps(prev) if prev else 'none yet'}" + reference_block(refs or {}, dxs)
             + f"\n\nTRANSCRIPT SO FAR ({upto_t:.0f} s into the visit):\n{text}\n\nUpdate the view now.")
-    return parse_json(_llm(SYNTH_SYSTEM, user, model=model, think=think)) or prev or {}
+    return parse_json(_llm(SYNTH_SYSTEM, user, max_tokens=2200 if think else 1000, model=model, think=think)) or prev or {}
 
 
 def new_dx_to_lookup(synth: dict, refs: dict, inflight: set) -> list[str]:
@@ -417,7 +421,7 @@ def live_stream(cid: str, speed: float = 4.0, interval: float = 20.0, model: str
         act(upto_t, "synthesis", "started", f"{len(text.split())} words of transcript" + (f", {n_ref} reference lookups attached" if n_ref else ""))
         t0 = time.time()
         try:
-            js = synthesize_once(text, prev, upto_t, model, refs, think=True)
+            js = synthesize_once(text, prev, upto_t, model, refs, think=THINK)
         except Exception as e:  # noqa: BLE001
             js = prev or {"error": str(e)}
         lat = round(time.time() - t0, 1)
@@ -450,10 +454,10 @@ def live_stream(cid: str, speed: float = 4.0, interval: float = 20.0, model: str
                     state["flags"].extend({**f, "t": c["t"]} for f in flags)
                 yield f"data: {json.dumps({'event': 'transcript', 't': c['t'], 'text': c['text'], 'flags': flags})}\n\n"
                 i += 1
-            if now_t >= next_synth and not state["pending"] and state["transcript"]:
+            if i < len(chunks) and now_t >= next_synth and not state["pending"] and state["transcript"]:
                 state["pending"] = True
                 threading.Thread(target=synthesize, args=(min(now_t, duration),), daemon=True).start()
-                next_synth += interval
+                next_synth = now_t + interval
             try:
                 ev = q.get(timeout=0.05)
                 yield f"data: {json.dumps(ev)}\n\n"

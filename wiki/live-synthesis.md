@@ -1,4 +1,4 @@
-# Live synthesis during the visit (separate experiment)
+# Live decision support during the visit (separate experiment)
 
 **Status: built 12 Sep evening, separate from the loop and the results tables.** Nothing here feeds the composite, the head-to-head, or the demo's two main columns. Code: `demo/livesynth.py`, `demo/live.html`; sessions logged to `runs/live_synth/`.
 
@@ -28,9 +28,23 @@ Prefill is not the bottleneck; a ~500-token JSON synthesis at 47 tok/s is. The s
 ## Launching DeepSeek V4 Flash beside the demo (12 Sep 20:05, five attempts)
 Weights alone are ≈ 83 GB per GPU and the KV cache needs a fixed ≈ 3.4 GiB (DSpark draft + sparse indexer, not context-length driven), so `GPU_MEM_UTIL` 0.80 and 0.88 both fail at profiling, and 0.91 OOM'd by 200 MB during CUDA-graph capture because GPU 0 also carries the desktop (≈ 6.6 GB). Working config: `fraserprice_nop2p_scribe.sh` (copy of the no-P2P script with `--max-num-seqs 16 --max-cudagraph-capture-size 64`), `GPU_MEM_UTIL=0.90 MAX_MODEL_LEN=32768`, whisper_server stopped (it held 2.7 GB on GPU 1). Result: KV 3.55 GiB, 34k cached tokens, ≈ 8 GB free on GPU 1. The demo's audio-import mode then OOM'd (Nemotron's offline attention pad wants 2.8 GiB on top of 6.5 GB), fixed by running pass 1 on the CPU when the GPU has < 14 GB free: 71 s for a 9-minute file on 32 cores, pass 2 (MOSS-TD) 39 s on GPU 1.
 
+## v2 → v3: from scribe-in-a-hurry to decision support (12 Sep 20:30–21:30)
+Seth's challenge: "what's the value add of streaming it? shouldn't we be helping with diagnostics?" As first built, the live view was a scribe showing its work early; the after-visit note delivers the same content. The only in-visit outputs that change what the clinician does before the patient leaves are decision support, which is also where Abridge said they are heading ([[abridge]]). The page now produces, every tick:
+- **Working differential** (top 3, likelihood, transcript evidence, what would confirm/exclude), **ask next** (the single question that best separates the top two), **act now** (red flags with the danger and the action), **plan the clinician has stated** vs **plan suggestions** (with a guideline basis), **safety-netting given** vs **to add**; plus the scribe view (history, findings, gaps, terms, mishearings).
+- **Proactive lookups** (v3): every new differential entry triggers a background NHS + NICE CKS lookup through the beast's SearXNG (`ssh -N -L 8890:127.0.0.1:8890 beast`; CKS blocks direct fetches, NHS pages fetch fine, CKS contributes search snippets). DeepSeek extracts key questions, red flags, first-line management and safety-netting; cached per condition under `runs/live_synth/lookups/`; the next synthesis gets it as reference material and cites it in `basis`. ~8 s cold, 0 s cached.
+- **Activity log**: every task (synthesis tick, lookup, scoring) streamed to the page with visit time, status, detail, wall duration and source links.
+- **Scoring at the end**, against the clinician's own note: reference diagnosis and plan extracted from the note; when the GP first said the diagnosis and each plan item (timed transcript); earliest live snapshot with the diagnosis in the top-3 / top-1; whether each suggested question was later asked; red-flag precision; plan suggestions at the end as agrees / extra / contradicts; churn (top-1 flips, vanished items); latency mean and p95.
+
+Example, visit #05 (GP: "?UTI, also need to exclude pregnancy"): live top-1 = UTI from 2:11, GP said it at 7:17; lookups for UTI and diverticulitis landed at 8 s each, PID and ectopic returned nothing usable; plan suggestions at the end: 1 agrees, 1 extra, 1 contradicts. Visit #02 (eczema flare): top-1 from 1:20 vs GP at 7:07; 3 of 4 suggestions agree, none contradict; the "new soaps/detergents?" question was never asked.
+
+Reasoning cost measured: thinking off 214 tok/s, thinking on / low 244 tok/s with ~180 reasoning tokens (+0.5 s per tick, no throughput loss thanks to the DSpark draft). But on the long synthesis prompts thinking starved the JSON output at a 900-token budget, so synthesis runs with thinking off by default (`SCRIBE_LIVE_THINK=1` turns it on with a 2,200 budget).
+
+Headless evaluation over all 57 visits: `autoresearch/live_eval.py` → `runs/live_synth/eval_summary.md`. Metrics: diagnosis in top-3/top-1 ever and median time, share of visits where the view had the diagnosis before the GP said it (and the median lead), suggested-question hit rate, red-flag precision, plan-suggestion agree/extra/contradict, premature-complaint rate, stability, mishearing-flag precision against the human transcript, latency. Results land here when the run finishes.
+
 ## Caveats
 - The "live" transcript is real streaming output replayed, not streaming inference; timing is proportional word placement over utterance timestamps.
 - Mishearing flags are a heuristic (first version flagged "feeling → peeling"; fixed by treating inflections as English). Sparse by design: the streaming model mostly substitutes real words, which no edit-distance check can see.
-- The final comparison uses the same local model as a judge; no clinician validation ([[judges]]).
+- The scoring uses the same local model as a judge; no clinician validation ([[judges]]). Red-flag false alarms and plan contradictions are the numbers a clinician would have to check first.
+- Lookups are NHS patient pages plus NICE CKS snippets, not the CKS full text; the model's own knowledge still fills gaps and is not distinguished from the lookup in the UI beyond the `basis` tag.
 
 Sources: `demo/livesynth.py`, `demo/live.html`, `runs/live_synth/*.json`, `runs/demo_server.log`.
