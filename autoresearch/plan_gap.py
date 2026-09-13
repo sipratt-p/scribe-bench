@@ -24,9 +24,11 @@ IN_TRANSCRIPT = """Below is a consultation transcript and a list of plan items t
 def main():
     recs, dev, test = L.load_recs()
     judge = L.LLM("http://localhost:8004/v1", "qwen3.8-27b", workers=8)
+    unc, cit, out = (sys.argv[1:4] + ["best", "best_cite", "runs/plan_gap.json"][len(sys.argv) - 1:])[:3]
+    ALL = {**CONFIGS, "best_official": {**CONFIGS["best"], "note_model": "dsv4flash_official"}, "best_cite_official": {**CONFIGS["best_cite"], "note_model": "dsv4flash_official"}}
     notes = {}
     for name in ("best", "best_cite"):
-        cfg = CONFIGS[name]
+        cfg = ALL[{"best": unc, "best_cite": cit}[name]]
         nm = L.note_llm_for(cfg, judge)
         notes[name] = {c: L.note_for(cfg, recs[c], L.transcript_for(cfg, recs[c], judge), nm) for c in test}
 
@@ -59,7 +61,7 @@ def main():
         "neither_in_transcript": sum(1 for r in neither if r["in_transcript"]),
         "all_items_in_transcript": sum(1 for r in allitems if r["in_transcript"]),
     }
-    (ROOT / "runs/plan_gap.json").write_text(json.dumps({"summary": summary, "rows": rows}, indent=1))
+    (ROOT / out).write_text(json.dumps({"summary": summary, "rows": rows}, indent=1))
     print(json.dumps(summary, indent=1))
     print("\nItems only the uncited note captured:")
     for r in only_unc:
