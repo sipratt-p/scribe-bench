@@ -39,6 +39,6 @@ Sampling per round (dev, 160 samples): mean reward 70.22 → 74.97 → … ; mea
 - **Against the loop's best**: the tuned cited Qwen (test 40.5 j1) is still ~3.6 below the cited DeepSeek best (44.1 j1). Writer choice beat four rounds of expert iteration on the local writer.
 - **Verdict**: style transfers, content does not, at this data scale. Worth exactly what it demonstrates: the same loop on a real corpus or a clinician edit stream is a different experiment; before running it against a judge, validate the judge, because two judges disagreed on whether the result was positive.
 
-Why not GRPO: DeepSeek (284B, the best writer) cannot be trained here; with 57 consultations and an unvalidated judge, RL learns the judge's blind spots faster than the search loop can. This exercise is the reward side of Abridge's "milestone three" (eval suites, environments, RL) ([[abridge]]).
+Why not GRPO: DeepSeek (284B, the best writer) cannot be trained here; with 57 consultations and an unvalidated judge, RL learns the judge's blind spots faster than the search loop can. This exercise is the reward side of a post-training programme (eval suites, environments, RL), not the RL side.
 
 Sources: `autoresearch/expert_iter.py`, `autoresearch/expert_iter.sh`, `runs/expert_iter/notebook.md`, `runs/expert_iter/state.json`, `runs/expert_iter.log`.
