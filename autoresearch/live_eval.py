@@ -29,13 +29,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from demo.livesynth import DATA, WORD, churn, misheard, reference_targets, score_timeline, synthesize_once, timeline  # noqa: E402
+from demo.livesynth import DATA, WORD, _slug, churn, lookup, misheard, new_dx_to_lookup, reference_targets, score_timeline, synthesize_once, timeline  # noqa: E402
 
 OUT = ROOT / "runs/live_synth/eval"
+TAG = ""
+LOOKUPS_ON = True
 
 
 def run_visit(cid: str, interval: float, model: str) -> dict:
-    p = OUT / f"{cid}.json"
+    out_dir = ROOT / f"runs/live_synth/eval{('_' + TAG) if TAG else ''}"
+    p = out_dir / f"{cid}.json"
     if p.exists():
         return json.loads(p.read_text())
     rec = json.loads((DATA / f"{cid}.json").read_text())
@@ -43,13 +46,26 @@ def run_visit(cid: str, interval: float, model: str) -> dict:
     duration = rec.get("duration_s") or (chunks[-1]["t"] + 3 if chunks else 0)
     transcript, snapshots, flags, seen, recent = [], [], [], set(), []
     prev = None
+    refs, inflight, n_lookups = {}, set(), 0
+
+    def synth(text, prev, t):
+        nonlocal n_lookups
+        js = synthesize_once(text, prev, t, model, refs if LOOKUPS_ON else None)
+        if LOOKUPS_ON:
+            for dx in new_dx_to_lookup(js, refs, inflight):
+                try:
+                    refs[_slug(dx)] = lookup(dx, model)
+                    n_lookups += 1
+                except Exception as ex:  # noqa: BLE001
+                    refs[_slug(dx)] = {"condition": dx, "empty": True, "error": str(ex)}
+        return js
     next_t = interval
     i = 0
     while i < len(chunks):
         c = chunks[i]
         if c["t"] > next_t:
             t0 = time.time()
-            prev = synthesize_once(" ".join(transcript), prev, next_t, model)
+            prev = synth(" ".join(transcript), prev, next_t)
             snapshots.append({"t": next_t, "synth": prev, "latency_s": round(time.time() - t0, 1)})
             next_t += interval
             continue
@@ -60,7 +76,7 @@ def run_visit(cid: str, interval: float, model: str) -> dict:
         recent = (recent + ws)[-6:]
         i += 1
     t0 = time.time()
-    prev = synthesize_once(" ".join(transcript), prev, duration, model)
+    prev = synth(" ".join(transcript), prev, duration)
     snapshots.append({"t": duration, "synth": prev, "latency_s": round(time.time() - t0, 1)})
     targets = reference_targets(rec, model)
     sc = score_timeline(rec, snapshots, targets, model)
@@ -71,10 +87,11 @@ def run_visit(cid: str, interval: float, model: str) -> dict:
     first_c = (snapshots[0]["synth"].get("complaint") or "").strip().lower() if snapshots else ""
     last_c = (snapshots[-1]["synth"].get("complaint") or "").strip().lower() if snapshots else ""
     res = {"id": cid, "duration_s": duration, "interval": interval, "model": model, "targets": targets, "score": sc,
+           "lookups": n_lookups, "lookups_used": sum(1 for r in refs.values() if not r.get("empty")),
            "flags": flags, "flags_ok": fl_ok, "premature_complaint": bool(first_c and last_c and first_c != last_c),
            "first_complaint": first_c, "final_complaint": last_c,
            "latency": [s["latency_s"] for s in snapshots], "snapshots": snapshots}
-    OUT.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(res, indent=1))
     return res
 
@@ -135,6 +152,7 @@ def summarize(rows: list[dict]) -> dict:
         "flags_total": flags, "flags_precision": round(100 * sum(r["flags_ok"] for r in rows) / max(flags, 1), 1),
         "latency_mean_s": round(sum(lat) / max(len(lat), 1), 2), "latency_p95_s": lat_s[int(0.95 * (len(lat_s) - 1))] if lat_s else None,
         "snapshots_total": len(lat),
+        "lookups_used_total": sum(r.get("lookups_used", 0) for r in rows),
     }
 
 
@@ -144,7 +162,11 @@ def main():
     ap.add_argument("--interval", type=float, default=20.0)
     ap.add_argument("--model", default="dsflash")
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--tag", default="", help="output under runs/live_synth/eval_<tag>/ and eval_summary_<tag>.md")
+    ap.add_argument("--no-lookups", action="store_true")
     args = ap.parse_args()
+    global TAG, LOOKUPS_ON
+    TAG, LOOKUPS_ON = args.tag, not args.no_lookups
     ids = sorted(p.stem for p in DATA.glob("*.json") if "consultation" in p.stem)
     if args.ids == "dev":
         ids = ids[:20]
@@ -160,9 +182,10 @@ def main():
                   "rf", len([v for vs in (sc.get("red_flags") or {}).values() for v in (vs if isinstance(vs, list) else [vs])]),
                   "plan", sc.get("plan_suggested_final"), "lat", round(sum(r["latency"]) / max(len(r["latency"]), 1), 1), flush=True)
     summ = summarize(rows)
-    (ROOT / "runs/live_synth/eval_summary.json").write_text(json.dumps(summ, indent=1))
+    suf = ("_" + TAG) if TAG else ""
+    (ROOT / f"runs/live_synth/eval_summary{suf}.json").write_text(json.dumps(summ, indent=1))
     md = "| metric | value |\n|---|---|\n" + "\n".join(f"| {k} | {v} |" for k, v in summ.items()) + "\n"
-    (ROOT / "runs/live_synth/eval_summary.md").write_text(md)
+    (ROOT / f"runs/live_synth/eval_summary{suf}.md").write_text(md)
     print(md)
     print("DONE", flush=True)
 
