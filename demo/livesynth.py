@@ -569,9 +569,15 @@ def label_page():
 
 
 @router.get("/api/label/notes")
-def label_notes():
+def label_notes(all: int = 0):
+    """Default: the 30-note stratified subset (every note at least one LLM judge flagged for misattribution + random unflagged controls, runs/label_subset.json); ?all=1 for all 74."""
     p = ROOT / "runs/paper_notes_74.json"
-    return json.loads(p.read_text()) if p.exists() else []
+    notes = json.loads(p.read_text()) if p.exists() else []
+    sp = ROOT / "runs/label_subset.json"
+    if not all and sp.exists():
+        keep = {(x["cfg"], x["id"]) for x in json.loads(sp.read_text())}
+        notes = [n for n in notes if (n["cfg"], n["id"]) in keep]
+    return notes
 
 
 @router.get("/measurements/live", response_class=HTMLResponse)
