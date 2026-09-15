@@ -61,6 +61,7 @@ class Session:
         self.flags: list[dict] = []
         self.recent: list[str] = []
         self.seen: set[str] = set()
+        self.buf = ""
         self.pending = False
         self.synth_words = 0
         self.pool = ThreadPoolExecutor(3)
@@ -80,18 +81,22 @@ class Session:
         self.emit(ev)
 
     # ---- transcript -------------------------------------------------------------------------------------------------
-    def add_text(self, delta: str):
-        """A transcription delta from the recogniser; timestamped on arrival."""
-        if not delta.strip():
+    def add_text(self, delta: str, flush: bool = False):
+        """A transcription delta from the recogniser (sub-word pieces, leading spaces mark word starts). Buffer until a
+        word boundary so the transcript never contains split words; timestamp on arrival."""
+        self.buf += delta
+        cut = len(self.buf) if flush else max(self.buf.rfind(" "), self.buf.rfind("\n"))
+        if cut <= 0 or not self.buf[:cut].strip():
             return
+        piece, self.buf = self.buf[:cut], self.buf[cut:]
         t = self.now()
-        words = _WORD.findall(delta)
+        words = _WORD.findall(piece)
         flags = misheard(words, self.recent, self.seen)
         self.recent = (self.recent + words)[-40:]
         with self.lock:
-            self.transcript.append({"t": t, "text": delta})
+            self.transcript.append({"t": t, "text": piece})
             self.flags.extend({**f, "t": t} for f in flags)
-        self.emit({"event": "transcript", "t": t, "text": delta, "flags": flags})
+        self.emit({"event": "transcript", "t": t, "text": piece.strip(), "flags": flags})
 
     # ---- view -------------------------------------------------------------------------------------------------------
     def do_lookup(self, dx: str, t: float):
@@ -111,7 +116,7 @@ class Session:
 
     def synthesize(self):
         with self.lock:
-            text = " ".join(c["text"] for c in self.transcript)
+            text = "".join(c["text"] for c in self.transcript).strip()
             prev = self.synth
             refs = dict(self.refs)
             upto_t = self.now()
@@ -169,6 +174,7 @@ async def asr_reader(asr, sess: Session):
         if typ == "transcription.delta":
             sess.add_text(ev.get("delta") or "")
         elif typ == "transcription.done":
+            sess.add_text("", flush=True)
             sess.emit({"event": "asr_status", "status": "done", "detail": f"{len((ev.get('text') or '').split())} words final"})
         elif typ == "error":
             sess.emit({"event": "asr_status", "status": "error", "detail": ev.get("error")})

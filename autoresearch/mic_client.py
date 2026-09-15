@@ -75,10 +75,15 @@ async def run(a):
                 if e == "final":
                     return
         rt = asyncio.create_task(reader())
-        for i in range(0, len(pcm), chunk):
-            await ws.send(pcm[i:i + chunk])
-            await asyncio.sleep(max(0, (i + chunk) / 32000 - (time.time() - t0)))
-        await ws.send(json.dumps({"type": "stop"}))
+        try:
+            for i in range(0, len(pcm), chunk):
+                if rt.done():
+                    break
+                await ws.send(pcm[i:i + chunk])
+                await asyncio.sleep(max(0, (i + chunk) / 32000 - (time.time() - t0)))
+            await ws.send(json.dumps({"type": "stop"}))
+        except websockets.exceptions.ConnectionClosed:
+            print("server closed the connection", flush=True)
         try:
             await asyncio.wait_for(rt, timeout=120)
         except asyncio.TimeoutError:
