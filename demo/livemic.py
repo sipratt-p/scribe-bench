@@ -43,7 +43,7 @@ _SENT_END = re.compile(r"[.?!]\s")
 _QWORD = re.compile(r"^(what|why|how|when|where|which|who|tell me|talk me|walk me|can you|could you|would you|do you|did you|have you|are you|is there|was there|describe|explain|give me|any )", re.I)
 FAST_SYS = """You classify one sentence from a live interview transcript (no speaker labels). Reply with one JSON object only:
 {"is_question": true|false, "asked_by": "interviewer"|"candidate"|"unclear", "paraphrase": "<the question in at most 12 words, or empty>", "competency": "<one of: technical depth, problem solving, ownership and delivery, communication, collaboration, leadership or influence, learning and adaptability, other, or empty>", "bias_issue": "<empty, or a few words naming the protected characteristic if the sentence is an interviewer question about age, family, marital status, pregnancy, health, disability, religion, nationality, origin, or anything not job-related>"}
-Interviewer questions ask the candidate about their experience, skills, decisions or motivation; candidate questions ask about the role, team, process or logistics."""
+Interviewer questions ask the candidate about their experience, skills, decisions or motivation, and include imperative requests ("write a function", "design a system", "walk me through", "tell me about"); candidate questions ask about the role, team, process or logistics. Statements, answers and acknowledgements are not questions."""
 TURN_SYS = """You are a live assistant for the INTERVIEWER. You get the last interviewer question and the candidate's answer to it (from a speech recogniser, no speaker labels, may be cut off). Reply with one JSON object only:
 {"specificity": "specific"|"vague"|"unverified", "evidence": "<at most 15 words quoting the most concrete thing the candidate said, or empty>", "competency": "<one of: technical depth, problem solving, ownership and delivery, communication, collaboration, leadership or influence, learning and adaptability, other>", "next_probe": "<the single best follow-up to ask now, phrased to say aloud: turn a vague answer into specifics (what exactly did you do, what was the result, how did you measure it), or empty if the answer was specific and complete>", "concern": "<at most 12 words if the answer revealed a gap or contradiction, else empty>"}
 Never suggest questions about protected characteristics. Short, calm wording."""
@@ -137,7 +137,7 @@ class Session:
                 if not m:
                     break
                 sent, self.sent_buf = self.sent_buf[: m.end()].strip(), self.sent_buf[m.end():]
-                if sent.endswith("?") or _QWORD.match(sent):
+                if len(sent.split()) >= 4:   # every sentence goes to the 0.3 s classifier; short fragments are skipped
                     self.pool.submit(self.fast_question, sent, t)
 
     def fast_question(self, sent: str, t: float):
