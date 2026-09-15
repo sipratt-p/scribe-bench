@@ -39,6 +39,20 @@ ASR_MODEL = os.environ.get("SCRIBE_ASR_MODEL", "voxtral-realtime")
 router = APIRouter()
 
 _WORD = re.compile(r"\S+")
+_SENT_END = re.compile(r"[.?!]\s")
+_QWORD = re.compile(r"^(what|why|how|when|where|which|who|tell me|talk me|walk me|can you|could you|would you|do you|did you|have you|are you|is there|was there|describe|explain|give me|any )", re.I)
+FAST_SYS = """You classify one sentence from a live interview transcript (no speaker labels). Reply with one JSON object only:
+{"is_question": true|false, "asked_by": "interviewer"|"candidate"|"unclear", "paraphrase": "<the question in at most 12 words, or empty>", "competency": "<one of: technical depth, problem solving, ownership and delivery, communication, collaboration, leadership or influence, learning and adaptability, other, or empty>", "bias_issue": "<empty, or a few words naming the protected characteristic if the sentence is an interviewer question about age, family, marital status, pregnancy, health, disability, religion, nationality, origin, or anything not job-related>"}
+Interviewer questions ask the candidate about their experience, skills, decisions or motivation; candidate questions ask about the role, team, process or logistics."""
+
+
+def _reachable(base_url: str) -> bool:
+    import urllib.request
+    try:
+        urllib.request.urlopen(base_url.rstrip("/") + "/models", timeout=3).read(200)
+        return True
+    except Exception:  # noqa: BLE001
+        return False
 
 
 @router.get("/mic", response_class=HTMLResponse)
@@ -70,6 +84,11 @@ class Session:
         self.recent: list[str] = []
         self.seen: set[str] = set()
         self.buf = ""
+        self.sent_buf = ""            # text waiting for a sentence boundary (fast lane)
+        self.last_delta = time.time()
+        self.last_full = 0.0
+        self.words_at_full = 0
+        self.questions: list[dict] = []
         self.pending = False
         self.synth_words = 0
         self.pool = ThreadPoolExecutor(3)
@@ -104,7 +123,34 @@ class Session:
         with self.lock:
             self.transcript.append({"t": t, "text": piece})
             self.flags.extend({**f, "t": t} for f in flags)
+            self.last_delta = time.time()
         self.emit({"event": "transcript", "t": t, "text": piece.strip(), "flags": flags})
+        if self.P.name == "interview":
+            self.sent_buf += piece
+            while True:
+                m = _SENT_END.search(self.sent_buf)
+                if not m:
+                    break
+                sent, self.sent_buf = self.sent_buf[: m.end()].strip(), self.sent_buf[m.end():]
+                if sent.endswith("?") or _QWORD.match(sent):
+                    self.pool.submit(self.fast_question, sent, t)
+
+    def fast_question(self, sent: str, t: float):
+        """Fast lane: one short model call per candidate sentence, ~1 s, so questions and bias issues show within seconds."""
+        t0 = time.time()
+        try:
+            from demo.livesynth import _llm, parse_json
+            js = parse_json(_llm(FAST_SYS, f"SENTENCE: {sent}", max_tokens=120, model=self.model)) or {}
+        except Exception as e:  # noqa: BLE001
+            js = {"error": str(e)[:80]}
+        if not js.get("is_question"):
+            return
+        q = {"t": t, "asked_by": js.get("asked_by") or "unclear", "paraphrase": js.get("paraphrase") or sent[:120], "competency": js.get("competency") or "", "bias_issue": js.get("bias_issue") or "", "sentence": sent, "ms": int(1000 * (time.time() - t0))}
+        with self.lock:
+            self.questions.append(q)
+        self.emit({"event": "question", **q})
+        if q["bias_issue"]:
+            self.act("bias guard", "alert", f"{q['bias_issue']}: \"{sent[:90]}\"", q["ms"])
 
     # ---- view -------------------------------------------------------------------------------------------------------
     def do_lookup(self, dx: str, t: float):
@@ -129,10 +175,13 @@ class Session:
             refs = dict(self.refs)
             upto_t = self.now()
             self.synth_words = len(text.split())
-        self.act("synthesis", "started", f"{self.synth_words} words of transcript")
+        self.act("synthesis", "started", f"{self.synth_words} words of transcript" + (f" · {len(self.questions)} questions from the fast lane" if self.questions else ""))
         t0 = time.time()
         try:
-            js = self.P.synthesize(text, prev, upto_t, self.model, refs, self.context, think=THINK)
+            ctx = dict(self.context)
+            if self.questions:
+                ctx["questions_live"] = "\n".join(f"[{q['t']:.0f}s] {q['asked_by']}: {q['paraphrase']}" + (f"  (bias: {q['bias_issue']})" if q['bias_issue'] else "") for q in self.questions[-40:])
+            js = self.P.synthesize(text, prev, upto_t, self.model, refs, ctx, think=THINK)
         except Exception as e:  # noqa: BLE001
             js = prev or {"error": str(e)}
         lat = round(time.time() - t0, 1)
@@ -157,24 +206,31 @@ class Session:
         for dx in todo:
             self.pool.submit(self.do_lookup, dx, upto_t)
 
+    MIN_GAP_S = 8.0   # never rebuild the full view more often than this
+
     def maybe_tick(self):
-        """Called from the event loop every second: start a synthesis when the interval has passed and new words exist."""
+        """Called from the event loop every second. A full view is rebuilt when EITHER the interval has passed, OR a turn
+        seems to have ended (>= 1.5 s with no new words after >= 25 new words), with at least MIN_GAP_S between rebuilds."""
+        now = time.time()
         with self.lock:
-            due = (not self.pending) and (time.time() - self.t0 >= self.interval * (len(self.snapshots) + 1) - 0.01 or
-                                          (self.snapshots and time.time() - self.t0 - self.snapshots[-1]["t"] >= self.interval))
+            if self.pending:
+                return
             words = sum(len(c["text"].split()) for c in self.transcript)
-            if due and words > self.synth_words and words >= 8:
-                self.pending = True
-            else:
-                due = False
-        if due:
-            self.pool.submit(self.synthesize)
+            new_words = words - self.synth_words
+            since_full = now - self.last_full
+            interval_due = since_full >= self.interval
+            turn_done = new_words >= 25 and (now - self.last_delta) >= 1.5 and since_full >= self.MIN_GAP_S
+            if new_words <= 0 or words < 8 or not (interval_due or turn_done):
+                return
+            self.pending = True
+            self.last_full = now
+        self.pool.submit(self.synthesize)
 
     def dump(self) -> Path:
         OUT.mkdir(parents=True, exist_ok=True)
         p = OUT / f"{int(self.t0)}.json"
         p.write_text(json.dumps({"t0": self.t0, "model": self.model, "interval": self.interval, "pack": self.pack, "context": self.context, "transcript": self.transcript,
-                                 "snapshots": self.snapshots, "flags": self.flags, "activity": self.activity, "lookups": self.refs}, indent=1))
+                                 "snapshots": self.snapshots, "flags": self.flags, "activity": self.activity, "lookups": self.refs, "questions": self.questions}, indent=1))
         return p
 
 
@@ -201,7 +257,15 @@ async def ws_mic(ws: WebSocket, model: str = "gemma_beast", interval: float = 20
     await ws.accept()
     model = model if model in MODELS else "gemma_beast"
     pack = pack if pack in PACKS else "interview"
+    fallback = None
+    if not _reachable(MODELS[model][0]):
+        for alt in ("gemma_beast", "gemma", "qwen27b"):
+            if alt != model and _reachable(MODELS[alt][0]):
+                fallback, model = f"{MODELS[model][2]} unreachable, using {MODELS[alt][2]}", alt
+                break
     sess = Session(model, interval, pack)
+    if fallback:
+        sess.act("writer", "fallback", fallback)
     await ws.send_json({"event": "start", "id": "mic", "duration_s": 0, "speed": 1, "interval": interval, "model": MODELS[model][2], "asr": ASR_MODEL, "pack": pack_public(PACKS[pack])})
     try:
         asr = await websockets.connect(ASR_WS, max_size=None, ping_interval=20)

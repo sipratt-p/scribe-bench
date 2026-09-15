@@ -42,6 +42,8 @@ class Pack:
             v = (context or {}).get(f["key"]) or ""
             if v.strip():
                 ctx += f"\n\n{f['label'].upper()}:\n{v.strip()[:4000]}"
+        if (context or {}).get("questions_live"):
+            ctx += "\n\nQUESTIONS DETECTED SO FAR BY THE FAST LANE (who asked, paraphrase; use for questions_asked, candidate_questions and bias_guard):\n" + context["questions_live"]
         # stable prefix first (context docs, then the append-only transcript) so the server's prefix cache covers most of the prompt; the previous view last
         user = (ctx.lstrip() + f"\n\nTRANSCRIPT SO FAR ({upto_t:.0f} s into the conversation; no speaker labels, the recogniser may mishear names and product terms):\n{text}"
                 + f"\n\nPREVIOUS VIEW (update it; replace next_probe if the transcript now answers it):\n{json.dumps(prev) if prev else 'none yet'}"

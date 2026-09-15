@@ -50,6 +50,7 @@
   .flag { font-size:12.5px; margin:2px 0; }
   .two { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; } @media (max-width:700px){ .two { grid-template-columns:1fr; } }
   .zone-hot h3 { color:var(--bad); }
+  li.bias { border-left:3px solid var(--bad); padding-left:6px; }
   .warnbox { background:var(--warn-soft); border-left:3px solid var(--warn); padding:8px 12px; font-size:13px; margin:10px 0; max-width:90ch; }
 </style>
 </head>
@@ -83,6 +84,7 @@
   </div>
   <div class="col">
     <h2 id="viewtitle">View <small id="modelname"></small></h2>
+    <div id="livewrap" hidden><h3>Questions, as they are asked <span class="meta">fast lane, ~1 s</span></h3><ul class="list" id="liveq"></ul></div>
     <div id="view"><div class="meta">press start</div></div>
   </div>
 </div>
@@ -134,7 +136,7 @@ function applyPack(){
 function setStatus(html){ $("status").innerHTML = html; }
 function reset(){
   $("tx").innerHTML = '<span class="cursor"></span>'; $("flags").innerHTML = '<div class="meta">none yet</div>'; $("activity").innerHTML = '<div class="meta">starting…</div>';
-  $("view").innerHTML = '<div class="meta">waiting for the first interval</div>'; $("nsyn").textContent="0"; $("lat").textContent="–"; prev={}; flagCount=0; actCount=0; txCount=0;
+  $("view").innerHTML = '<div class="meta">waiting for the first interval</div>'; $("liveq").innerHTML=""; $("livewrap").hidden=true; $("nsyn").textContent="0"; $("lat").textContent="–"; prev={}; flagCount=0; actCount=0; txCount=0;
 }
 const same = (a,b) => String(a==null?"":a).toLowerCase() === String(b==null?"":b).toLowerCase();
 function isNew(key, item, keyf){ const ps = (prev[key]||[]); return !ps.some(x => same(keyf(x), keyf(item))); }
@@ -186,6 +188,12 @@ function onEvent(d){
     const span = document.createElement("span"); span.innerHTML = (txCount++ % 25 === 0 ? `<br><span class="t">${mmss(d.t)}</span>` : "") + html + " ";
     tx.insertBefore(span, cur); tx.scrollTop = tx.scrollHeight;
     (d.flags||[]).forEach(f => { if (flagCount++ === 0) $("flags").innerHTML=""; $("flags").insertAdjacentHTML("beforeend", `<div class="flag">${mmss(d.t)} heard <b>${esc(f.heard)}</b> → maybe <b>${esc(f.maybe)}</b></div>`); });
+  }
+  else if (d.event === "question"){
+    $("livewrap").hidden = false;
+    const li = document.createElement("li"); li.className = "new" + (d.bias_issue ? " bias" : "");
+    li.innerHTML = `<span class="tier ${d.asked_by==="interviewer"?"ok":""}">${esc(d.asked_by)}</span> ${esc(d.paraphrase)}${d.competency?` <span class="basis">${esc(d.competency)} · ${mmss(d.t)} · ${(d.ms/1000).toFixed(1)} s</span>`:""}${d.bias_issue?`<span class="basis" style="color:var(--bad)">bias guard: ${esc(d.bias_issue)}</span>`:""}`;
+    $("liveq").prepend(li); while ($("liveq").childElementCount > 12) $("liveq").lastElementChild.remove();
   }
   else if (d.event === "synthesis"){ renderView(d.synth||{}); $("nsyn").textContent = String(d.snapshot+1); $("lat").textContent = d.latency_s+" s"; }
   else if (d.event === "activity"){
