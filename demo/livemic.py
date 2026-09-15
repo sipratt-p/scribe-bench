@@ -197,9 +197,9 @@ async def asr_reader(asr, sess: Session):
 
 
 @router.websocket("/ws/mic")
-async def ws_mic(ws: WebSocket, model: str = "gemma", interval: float = 20.0, pack: str = "interview"):
+async def ws_mic(ws: WebSocket, model: str = "gemma_beast", interval: float = 20.0, pack: str = "interview"):
     await ws.accept()
-    model = model if model in MODELS else "gemma"
+    model = model if model in MODELS else "gemma_beast"
     pack = pack if pack in PACKS else "interview"
     sess = Session(model, interval, pack)
     await ws.send_json({"event": "start", "id": "mic", "duration_s": 0, "speed": 1, "interval": interval, "model": MODELS[model][2], "asr": ASR_MODEL, "pack": pack_public(PACKS[pack])})
