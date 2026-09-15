@@ -73,11 +73,15 @@ async def run(a):
                     print(f"[{ev['t']:6.1f}] {ev['text']}" + (f"  FLAGS {ev['flags']}" if ev.get("flags") else ""), flush=True)
                 elif e == "synthesis":
                     s = ev["synth"]
-                    if "competencies" in s or "next_probe" in s:
+                    if "you_said" in s or "open_threads" in s:
+                        print(f"=== view {ev['snapshot']+1} at {ev['t']}s, {ev['latency_s']}s: stage={s.get('stage')!r} you_said={len(s.get('you_said') or [])} open={s.get('open_threads')} not_yet={len(s.get('not_yet_shown') or [])}", flush=True)
+                    elif "competencies" in s or "next_probe" in s:
                         cov = {c.get("name"): c.get("status") for c in s.get("competencies") or [] if isinstance(c, dict)}
                         print(f"=== view {ev['snapshot']+1} at {ev['t']}s, {ev['latency_s']}s: stage={s.get('stage')!r} claims={len(s.get('claims') or [])} competencies={cov}\n    probe={s.get('next_probe')!r}\n    concerns={s.get('concerns')} bias={[(b.get('issue') if isinstance(b, dict) else b) for b in s.get('bias_guard') or []]} inconsistencies={len(s.get('inconsistencies') or [])}", flush=True)
                     else:
                         print(f"=== view {ev['snapshot']+1} at {ev['t']}s, {ev['latency_s']}s: complaint={s.get('complaint')!r} dx={[d.get('dx') for d in s.get('differential') or [] if isinstance(d, dict)]} next={s.get('next_question')!r} flags={len(s.get('red_flags') or [])}", flush=True)
+                elif e == "help":
+                    print(f"HELP {ev['t']}s {ev['ms']/1000:.1f}s [{ev['type']}] {ev['question']}\n   outline: {ev['outline'][:3]}\n   arch: {ev['architecture'][:2]}\n   code: {ev['code'][:100]!r}\n   from you: {ev['from_your_experience'][:2]}", flush=True)
                 elif e in ("activity",):
                     print(f"   · {ev['t']:6.1f} {ev['task']} {ev['status']}: {ev['detail'][:100]}", flush=True)
                 else:

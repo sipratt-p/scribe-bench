@@ -154,6 +154,51 @@ def interview_hold(js: dict, upto_t: float) -> dict:
     return js
 
 
+# ---------------------------------------------------------------------------------------------------------------------
+# Candidate pack (interviewee side). The help lane answers each detected question within seconds; the full view is a ledger.
+CANDIDATE_SYSTEM = """You are a live assistant for the CANDIDATE in a job interview. The transcript is a live stream from a speech recogniser: no speaker labels, sentences may be cut mid-way, names and product terms may be misheard. Keep a running ledger so the candidate stays consistent and complete. Output ONE JSON object only, with these keys:
+
+"role": the role being interviewed for ("" if unknown);
+"stage": one of "intro", "background", "technical", "system design", "coding", "behavioural", "role and team", "candidate questions", "wrap-up", "unclear";
+"summary": one sentence of where the interview is right now;
+"questions_asked": interviewer's questions so far, paraphrased briefly, in order;
+"you_said": list of the concrete claims YOU (the candidate) have made so far (numbers, names, decisions), so later answers stay consistent;
+"open_threads": things the interviewer asked that you have not fully answered yet, or promised to come back to;
+"strengths_shown": evidence-backed strengths you have already demonstrated (short);
+"not_yet_shown": requirements from the job description you have not yet given evidence for, with a one-line idea of which of your experiences would cover it;
+"questions_to_ask": 3 good questions to ask the interviewer, grounded in what was said;
+"time_check": {"minutes": elapsed minutes as an integer, "note": ""};
+"revisions": list of {"was", "now", "because"};
+"gaps": short list of what you still need to convey;
+"terms": technical terms, products or names heard.
+
+Rules: everything in questions_asked and you_said must come from the transcript; be short; never invent experience the candidate has not described in the CV/notes or the transcript."""
+
+CANDIDATE_HELP_SYS = """You are a live assistant for the CANDIDATE in a job interview. An interviewer question has just been asked. Using the candidate's CV/notes and the conversation so far, give fast, practical help to answer it well. Reply with one JSON object only:
+{"type": "technical"|"system design"|"coding"|"behavioural"|"experience"|"motivation"|"logistics"|"other",
+ "clarify": ["<up to 2 short clarifying questions worth asking back before answering, or empty>"],
+ "outline": ["<3-6 short bullets: the structure of a strong answer, in the order to say them; for behavioural questions use situation, action, result with a number>"],
+ "architecture": ["<for design/technical questions: the key components, data flow and 2-3 trade-offs to name; otherwise empty>"],
+ "code": "<for coding or syntax questions: a minimal correct snippet in the language they asked about (default Python), at most 25 lines, as a plain string with newlines; otherwise empty>",
+ "pitfalls": ["<up to 3 things to avoid or common mistakes for this question>"],
+ "from_your_experience": ["<up to 2 specific things from the CV/notes or earlier in this conversation that fit this question, quoted briefly>"],
+ "likely_follow_ups": ["<up to 3 follow-up questions the interviewer is likely to ask next>"]}
+Be concrete and brief; the candidate is reading this while talking. Never invent experience that is not in the CV/notes or the transcript; if nothing fits, leave from_your_experience empty."""
+
+CANDIDATE_PANELS = [
+    {"key": "summary", "title": "", "type": "headline", "zone": "top", "prefix_key": "role", "prefix_sep": " · ", "suffix_key": "stage"},
+    {"key": "open_threads", "title": "Open threads to close", "type": "list", "zone": "wide"},
+    {"key": "not_yet_shown", "title": "Not yet shown (from the job description)", "type": "list", "zone": "wide"},
+    {"key": "you_said", "title": "What you have said (stay consistent)", "type": "list", "zone": "left"},
+    {"key": "strengths_shown", "title": "Strengths shown", "type": "list", "zone": "right"},
+    {"key": "questions_asked", "title": "Questions asked", "type": "list", "zone": "left"},
+    {"key": "questions_to_ask", "title": "Questions to ask them", "type": "list", "zone": "right"},
+    {"key": "gaps", "title": "Still to convey", "type": "list", "zone": "left"},
+    {"key": "time_check", "title": "Time", "type": "kv", "label": "minutes", "sub": "note", "zone": "right"},
+    {"key": "terms", "title": "Terms and names heard", "type": "list", "zone": "wide"},
+]
+
+
 PACKS: dict[str, Pack] = {
     "clinical": Pack(
         name="clinical", title="Live decision support", lede="In-visit clinical view: differential, next question, tiered red flags, plan stated vs suggested, safety-netting; guideline lookups attached to the next tick.",
@@ -163,6 +208,11 @@ PACKS: dict[str, Pack] = {
         system=INTERVIEW_SYSTEM, panels=INTERVIEW_PANELS, hold=interview_hold, max_tokens=2400,
         context_fields=[{"key": "job", "label": "Job description", "placeholder": "Paste the job description or the competencies you are hiring for (optional)."},
                         {"key": "cv", "label": "Candidate CV or notes", "placeholder": "Paste the CV, application or your notes (optional)."}]),
+    "candidate": Pack(
+        name="candidate", title="Interview copilot, candidate side", lede="For the person being interviewed: each question is detected as it is asked and answered with an outline, the architecture points or a code snippet, pitfalls and likely follow-ups within a few seconds; the ledger keeps you consistent. Check whether the interview process allows assistance before using it live; it works as a practice partner either way.",
+        system=CANDIDATE_SYSTEM, panels=CANDIDATE_PANELS, hold=None, max_tokens=1600,
+        context_fields=[{"key": "cv", "label": "Your CV and notes", "placeholder": "Paste your CV, your prep notes, the stack you know best (optional but makes the help specific)."},
+                        {"key": "job", "label": "Job description", "placeholder": "Paste the job description (optional)."}]),
 }
 
 
