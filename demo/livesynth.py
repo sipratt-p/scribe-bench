@@ -485,8 +485,9 @@ def apply_hold(js: dict, upto_t: float) -> dict:
 
 def synthesize_once(text: str, prev: dict | None, upto_t: float, model: str, refs: dict | None = None, think: bool = False) -> dict:
     dxs = [d.get("dx") for d in ((prev or {}).get("differential") or []) if isinstance(d, dict) and d.get("dx")]
-    user = (f"PREVIOUS VIEW:\n{json.dumps(prev) if prev else 'none yet'}" + reference_block(refs or {}, dxs)
-            + f"\n\nTRANSCRIPT SO FAR ({upto_t:.0f} s into the visit):\n{text}\n\nUpdate the view now.")
+    # append-only transcript first so a prefix cache covers it; references and the previous view after
+    user = (f"TRANSCRIPT SO FAR ({upto_t:.0f} s into the visit):\n{text}" + reference_block(refs or {}, dxs)
+            + f"\n\nPREVIOUS VIEW:\n{json.dumps(prev) if prev else 'none yet'}\n\nUpdate the view now.")
     js = parse_json(_llm(SYNTH_SYSTEM, user, max_tokens=2400 if think else 1300, model=model, think=think)) or prev or {}
     return apply_hold(js, upto_t)
 

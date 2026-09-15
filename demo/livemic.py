@@ -29,7 +29,8 @@ import websockets
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 
-from demo.livesynth import BEAST, MODELS, THINK, _slug, lookup, misheard, new_dx_to_lookup, synthesize_once
+from demo.livesynth import BEAST, MODELS, THINK, _slug, lookup, misheard, new_dx_to_lookup
+from demo.packs import PACKS, pack_public
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "runs/live_mic"
@@ -45,11 +46,18 @@ def mic_page():
     return (ROOT / "demo/mic.html").read_text()
 
 
+@router.get("/api/packs")
+def packs():
+    return {k: pack_public(v) for k, v in PACKS.items()}
+
+
 class Session:
     """One live conversation: transcript chunks with wall-clock times, the running view, lookups, activity."""
 
     def __init__(self, model: str, interval: float, pack: str):
         self.model, self.interval, self.pack = model, interval, pack
+        self.P = PACKS[pack]
+        self.context: dict = {}
         self.t0 = time.time()
         self.lock = threading.Lock()
         self.transcript: list[dict] = []        # {"t": s, "text": str}
@@ -91,7 +99,7 @@ class Session:
         piece, self.buf = self.buf[:cut], self.buf[cut:]
         t = self.now()
         words = _WORD.findall(piece)
-        flags = misheard(words, self.recent, self.seen)
+        flags = misheard(words, self.recent, self.seen) if self.P.mishearings else []
         self.recent = (self.recent + words)[-40:]
         with self.lock:
             self.transcript.append({"t": t, "text": piece})
@@ -124,7 +132,7 @@ class Session:
         self.act("synthesis", "started", f"{self.synth_words} words of transcript")
         t0 = time.time()
         try:
-            js = synthesize_once(text, prev, upto_t, self.model, refs, think=THINK)
+            js = self.P.synthesize(text, prev, upto_t, self.model, refs, self.context, think=THINK)
         except Exception as e:  # noqa: BLE001
             js = prev or {"error": str(e)}
         lat = round(time.time() - t0, 1)
@@ -132,13 +140,19 @@ class Session:
             self.synth = js
             self.snapshots.append({"t": upto_t, "synth": js, "latency_s": lat})
             self.pending = False
-            todo = new_dx_to_lookup(js, self.refs, self.inflight)
-        dxs = [d.get("dx") for d in (js.get("differential") or []) if isinstance(d, dict)]
+            todo = new_dx_to_lookup(js, self.refs, self.inflight) if self.P.lookups else []
+        dxs = [d.get("dx") for d in (js.get("differential") or []) if isinstance(d, dict)] if self.P.lookups else []
         for r in (js.get("revisions") or []):
             if isinstance(r, dict) and (r.get("was") or r.get("now")):
                 self.act("revised", "done", f"{r.get('was')} → {r.get('now')} · because: {r.get('because')}")
-        self.act("synthesis", "done", f"differential {dxs}" + (" · next question set" if js.get("next_question") else "")
-                 + (f" · {len(js.get('red_flags') or [])} red flag(s)" if js.get("red_flags") else ""), int(1000 * lat))
+        if self.P.name == "clinical":
+            done = f"differential {dxs}" + (" · next question set" if js.get("next_question") else "") + (f" · {len(js.get('red_flags') or [])} red flag(s)" if js.get("red_flags") else "")
+        else:
+            cov = [c.get("name") for c in (js.get("competencies") or []) if isinstance(c, dict) and c.get("status") == "covered"]
+            done = f"stage {js.get('stage')} · {len(js.get('claims') or [])} claims · covered {cov}" + (" · probe set" if js.get("next_probe") else "") + (f" · {len(js.get('bias_guard') or [])} bias-guard item(s)" if js.get("bias_guard") else "")
+        if js.get("_stale"):
+            done = "STALE: " + js["_stale"]
+        self.act("synthesis", "done", done, int(1000 * lat))
         self.emit({"event": "synthesis", "t": upto_t, "latency_s": lat, "snapshot": len(self.snapshots) - 1, "synth": js})
         for dx in todo:
             self.pool.submit(self.do_lookup, dx, upto_t)
@@ -159,7 +173,7 @@ class Session:
     def dump(self) -> Path:
         OUT.mkdir(parents=True, exist_ok=True)
         p = OUT / f"{int(self.t0)}.json"
-        p.write_text(json.dumps({"t0": self.t0, "model": self.model, "interval": self.interval, "pack": self.pack, "transcript": self.transcript,
+        p.write_text(json.dumps({"t0": self.t0, "model": self.model, "interval": self.interval, "pack": self.pack, "context": self.context, "transcript": self.transcript,
                                  "snapshots": self.snapshots, "flags": self.flags, "activity": self.activity, "lookups": self.refs}, indent=1))
         return p
 
@@ -183,11 +197,12 @@ async def asr_reader(asr, sess: Session):
 
 
 @router.websocket("/ws/mic")
-async def ws_mic(ws: WebSocket, model: str = "gemma", interval: float = 20.0, pack: str = "clinical"):
+async def ws_mic(ws: WebSocket, model: str = "gemma", interval: float = 20.0, pack: str = "interview"):
     await ws.accept()
     model = model if model in MODELS else "gemma"
+    pack = pack if pack in PACKS else "interview"
     sess = Session(model, interval, pack)
-    await ws.send_json({"event": "start", "id": "mic", "duration_s": 0, "speed": 1, "interval": interval, "model": MODELS[model][2], "asr": ASR_MODEL})
+    await ws.send_json({"event": "start", "id": "mic", "duration_s": 0, "speed": 1, "interval": interval, "model": MODELS[model][2], "asr": ASR_MODEL, "pack": pack_public(PACKS[pack])})
     try:
         asr = await websockets.connect(ASR_WS, max_size=None, ping_interval=20)
     except Exception as e:  # noqa: BLE001
@@ -226,6 +241,10 @@ async def ws_mic(ws: WebSocket, model: str = "gemma", interval: float = 20.0, pa
                     ctl = {}
                 if ctl.get("type") == "stop":
                     break
+                if ctl.get("type") == "context":
+                    sess.context = {f["key"]: str(ctl.get(f["key"]) or "")[:6000] for f in PACKS[pack].context_fields}
+                    sess.t0 = time.time()  # the clock starts when the context is in and audio is about to flow
+                    sess.act("context", "done", ", ".join(f"{k}: {len(v)} chars" for k, v in sess.context.items() if v) or "no documents supplied")
     except WebSocketDisconnect:
         pass
     finally:

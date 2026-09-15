@@ -62,15 +62,22 @@ async def run(a):
                 print("timeout waiting for done")
             print(f"audio {len(pcm)/32000:.1f}s sent in {sent:.1f}s; first delta at {first}; {words} words", flush=True)
         return
-    url = f"{a.url}/ws/mic?model={a.model}&interval={a.interval}"
+    url = f"{a.url}/ws/mic?model={a.model}&interval={a.interval}&pack={a.pack}"
     async with websockets.connect(url, max_size=None) as ws:
+        ctx = json.load(open(a.context)) if a.context else {}
+        await ws.send(json.dumps({"type": "context", **ctx}))
         async def reader():
             async for raw in ws:
                 ev = json.loads(raw); e = ev.get("event")
                 if e == "transcript":
                     print(f"[{ev['t']:6.1f}] {ev['text']}" + (f"  FLAGS {ev['flags']}" if ev.get("flags") else ""), flush=True)
                 elif e == "synthesis":
-                    s = ev["synth"]; print(f"=== view {ev['snapshot']+1} at {ev['t']}s, {ev['latency_s']}s: complaint={s.get('complaint')!r} dx={[d.get('dx') for d in s.get('differential') or [] if isinstance(d, dict)]} next={s.get('next_question')!r} flags={len(s.get('red_flags') or [])}", flush=True)
+                    s = ev["synth"]
+                    if "competencies" in s or "next_probe" in s:
+                        cov = {c.get("name"): c.get("status") for c in s.get("competencies") or [] if isinstance(c, dict)}
+                        print(f"=== view {ev['snapshot']+1} at {ev['t']}s, {ev['latency_s']}s: stage={s.get('stage')!r} claims={len(s.get('claims') or [])} competencies={cov}\n    probe={s.get('next_probe')!r}\n    concerns={s.get('concerns')} bias={[(b.get('issue') if isinstance(b, dict) else b) for b in s.get('bias_guard') or []]} inconsistencies={len(s.get('inconsistencies') or [])}", flush=True)
+                    else:
+                        print(f"=== view {ev['snapshot']+1} at {ev['t']}s, {ev['latency_s']}s: complaint={s.get('complaint')!r} dx={[d.get('dx') for d in s.get('differential') or [] if isinstance(d, dict)]} next={s.get('next_question')!r} flags={len(s.get('red_flags') or [])}", flush=True)
                 elif e in ("activity",):
                     print(f"   · {ev['t']:6.1f} {ev['task']} {ev['status']}: {ev['detail'][:100]}", flush=True)
                 else:
@@ -96,6 +103,6 @@ async def run(a):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("wav"); ap.add_argument("--seconds", type=float, default=0); ap.add_argument("--url", default="ws://localhost:8700")
-    ap.add_argument("--model", default="qwen27b"); ap.add_argument("--interval", type=float, default=15)
+    ap.add_argument("--model", default="gemma"); ap.add_argument("--interval", type=float, default=15); ap.add_argument("--pack", default="interview"); ap.add_argument("--context", default="", help="JSON file with context fields, e.g. {\"job\": \"...\"}")
     ap.add_argument("--asr", default=""); ap.add_argument("--asr_model", default="voxtral-realtime"); ap.add_argument("--out", default="")
     asyncio.run(run(ap.parse_args()))
