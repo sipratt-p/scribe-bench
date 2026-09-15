@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Copilot · microphone</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root { --bg:#F4F6F8; --surface:#FFFFFF; --ink:#172029; --muted:#5C6B78; --line:#CAD3DB; --accent:#0F6B8A; --accent-soft:#DDEEF4; --live:#8A5A0F; --live-soft:#F5EBD8; --bad:#B3261E; --bad-soft:#F9E1DF; --ok:#1E7B4F; --ok-soft:#DDF1E6; --warn:#8A5A0F; --warn-soft:#F5EBD8;
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace; --sans:"Public Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; --serif:"Newsreader",Georgia,serif; color-scheme:light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme=light]) { --bg:#0F151B; --surface:#161E26; --ink:#E4EAF0; --muted:#94A3B1; --line:#2E3A46; --accent:#52B7D6; --accent-soft:#12303B; --live:#D9A441; --live-soft:#33270F; --bad:#F28B82; --bad-soft:#3A1917; --ok:#6CCB93; --ok-soft:#12301F; --warn:#E3B04B; --warn-soft:#33270F; color-scheme:dark; } }
+  :root[data-theme=dark] { --bg:#0F151B; --surface:#161E26; --ink:#E4EAF0; --muted:#94A3B1; --line:#2E3A46; --accent:#52B7D6; --accent-soft:#12303B; --live:#D9A441; --live-soft:#33270F; --bad:#F28B82; --bad-soft:#3A1917; --ok:#6CCB93; --ok-soft:#12301F; --warn:#E3B04B; --warn-soft:#33270F; color-scheme:dark; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:14.5px; line-height:1.5; padding-inline:clamp(16px,3vw,40px); padding-block:22px 60px; }
+  h1 { font-family:var(--serif); font-weight:500; font-size:30px; margin:0; }
+  h2 { font-family:var(--serif); font-weight:500; font-size:19px; margin:0 0 8px; } h2 small { font-family:var(--sans); font-weight:400; color:var(--muted); font-size:12.5px; margin-left:8px; }
+  h3 { font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:14px 0 4px; }
+  .lede { color:var(--muted); max-width:90ch; margin:6px 0 14px; }
+  .eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  a { color:var(--accent); }
+  .controls { display:flex; flex-wrap:wrap; gap:12px 18px; align-items:end; background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:12px 16px; }
+  .controls label { display:block; font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  select, button { font:inherit; padding:6px 10px; border-radius:4px; border:1px solid var(--line); background:var(--surface); color:var(--ink); }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); } button:disabled { opacity:.5; }
+  button.rec { background:var(--bad); color:#fff; border-color:var(--bad); }
+  .clock { font-family:var(--mono); font-size:13px; } .clock small { display:block; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .status { font-family:var(--mono); font-size:12px; color:var(--muted); margin:8px 0; }
+  .status .on { color:var(--ok); } .status .err { color:var(--bad); }
+  .meter { display:inline-block; width:120px; height:8px; border:1px solid var(--line); border-radius:4px; vertical-align:middle; overflow:hidden; } .meter i { display:block; height:100%; background:var(--ok); width:0; transition:width .1s; }
+  .grid { display:grid; grid-template-columns:minmax(280px,1.1fr) minmax(320px,1.6fr); gap:16px; margin-top:16px; }
+  @media (max-width:900px){ .grid { grid-template-columns:1fr; } }
+  .col { background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:14px 16px; min-width:0; }
+  .transcript { font-family:var(--mono); font-size:12.5px; line-height:1.7; max-height:52vh; overflow:auto; white-space:normal; }
+  .transcript .t { color:var(--muted); font-size:10.5px; margin-right:6px; } .transcript mark { background:var(--warn-soft); color:var(--warn); padding:0 2px; }
+  .cursor { display:inline-block; width:6px; height:14px; background:var(--accent); vertical-align:middle; animation:blink 1s steps(2) infinite; } @keyframes blink { to { visibility:hidden; } }
+  .complaint { font-family:var(--serif); font-size:20px; margin:0 0 6px; }
+  .dxcard { border:1px solid var(--line); border-radius:5px; padding:8px 10px; margin:6px 0; } .dxcard.new { border-color:var(--accent); background:var(--accent-soft); }
+  .dxcard b { font-size:14.5px; } .lk { font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:8px; } .lk.tc { color:var(--bad); }
+  .ev { margin:4px 0 0; padding-left:18px; font-size:13px; } .miss { font-size:12.5px; color:var(--muted); margin-top:4px; }
+  ul.list { margin:0; padding-left:18px; } ul.list li { margin:2px 0; } li.new { background:var(--accent-soft); }
+  .nextq { background:var(--live-soft); border-left:3px solid var(--live); padding:8px 10px; font-size:15px; }
+  .tier { font-family:var(--mono); font-size:10px; padding:1px 6px; border-radius:8px; text-transform:uppercase; letter-spacing:.04em; }
+  .tier.now { background:var(--bad-soft); color:var(--bad); } .tier.today { background:var(--warn-soft); color:var(--warn); } .tier.ok { background:var(--ok-soft); color:var(--ok); }
+  .basis { display:block; font-size:11.5px; color:var(--muted); }
+  .meta { color:var(--muted); font-size:12.5px; }
+  .activity { font-family:var(--mono); font-size:11.5px; max-height:30vh; overflow:auto; } .activity > div { display:grid; grid-template-columns:44px 150px 1fr 48px; gap:8px; padding:3px 0; border-bottom:1px dashed var(--line); }
+  .activity .started { color:var(--muted); } .activity .task-revised { color:var(--live); } .activity .empty { color:var(--muted); }
+  .flag { font-size:12.5px; margin:2px 0; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; } @media (max-width:700px){ .two { grid-template-columns:1fr; } }
+  .warnbox { background:var(--warn-soft); border-left:3px solid var(--warn); padding:8px 12px; font-size:13px; margin:10px 0; max-width:90ch; }
+</style>
+</head>
+<body>
+<div class="eyebrow">scribe-bench · live copilot · microphone input (MVP)</div>
+<h1>Live decision support, from your microphone</h1>
+<p class="lede">Speak, or hold a conversation near the laptop. Audio streams to a self-hosted recogniser on the GPU box; the running view is rebuilt from the transcript every interval with the same rules, lookups and activity log as the replay page. No scorecard: there is no reference note for a live conversation.</p>
+<div class="warnbox" id="consent">Everyone in earshot should know the conversation is being transcribed. Nothing leaves the local network: audio goes to the GPU box and the transcript is saved under <code>runs/live_mic/</code>.</div>
+
+<div class="controls">
+  <div><label>Writer</label><select id="model"><option value="qwen27b">Qwen3.8-27B dense (1 GPU)</option><option value="dsflash_official">DeepSeek V4 Flash official (2 GPUs)</option><option value="dsflash">DeepSeek V4 Flash (2 GPUs)</option></select></div>
+  <div><label>Re-synthesize every</label><select id="interval"><option value="10">10 s</option><option value="15">15 s</option><option value="20" selected>20 s</option><option value="30">30 s</option></select></div>
+  <div><label>Microphone</label><select id="mics"></select></div>
+  <div><label>&nbsp;</label><button id="go" class="primary">Start listening</button> <button id="stop" disabled>Stop</button></div>
+  <div class="clock"><small>elapsed</small><span id="clock">0:00</span></div>
+  <div class="clock"><small>level</small><span class="meter"><i id="lvl"></i></span></div>
+  <div class="clock"><small>syntheses</small><span id="nsyn">0</span></div>
+  <div class="clock"><small>last latency</small><span id="lat">–</span></div>
+</div>
+<div class="status" id="status">idle</div>
+
+<div class="grid">
+  <div class="col">
+    <h2>Live transcript <small id="asrname">streaming recogniser on the GPU box</small></h2>
+    <div class="transcript" id="tx"><span class="cursor"></span></div>
+    <h3>Possible mishearings</h3>
+    <div id="flags"><div class="meta">none yet</div></div>
+    <h3>Activity</h3>
+    <div class="activity" id="activity"><div class="meta">not started</div></div>
+  </div>
+  <div class="col">
+    <h2>Decision support <small id="modelname"></small></h2>
+    <div class="complaint" id="complaint">—</div>
+    <div class="meta" id="synmeta"></div>
+    <h3>Differential <span class="meta" id="c-dx"></span></h3>
+    <div id="dx"><div class="meta">waiting for the first interval</div></div>
+    <h3>Next question</h3>
+    <div class="nextq" id="nextq">—</div>
+    <h3>Red flags</h3>
+    <ul class="list" id="red"></ul>
+    <div class="two">
+      <div><h3>Plan stated</h3><ul class="list" id="plan"></ul></div>
+      <div><h3>Plan suggested</h3><ul class="list" id="plansug"></ul></div>
+      <div><h3>Safety-netting given</h3><ul class="list" id="safety"></ul></div>
+      <div><h3>Safety-netting to add</h3><ul class="list" id="safetysug"></ul></div>
+      <div><h3>History <span class="meta" id="c-history"></span></h3><ul class="list" id="history"></ul></div>
+      <div><h3>Findings</h3><ul class="list" id="findings"></ul></div>
+      <div><h3>Assumptions under test</h3><ul class="list" id="assume"></ul></div>
+      <div><h3>Gaps</h3><ul class="list" id="gaps"></ul></div>
+    </div>
+    <h3>Terms heard</h3>
+    <ul class="list" id="terms"></ul>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+function esc(s){ return (s||"").replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function mmss(t){ t=Math.max(0,Math.floor(t)); return Math.floor(t/60)+":"+String(t%60).padStart(2,"0"); }
+let ws=null, ctx=null, node=null, stream=null, prev={}, tickTimer=null, wall0=0, flagCount=0, actCount=0, txCount=0;
+
+const WORKLET = `
+class Pcm16 extends AudioWorkletProcessor {
+  constructor(){ super(); this.buf=[]; this.n=0; }
+  process(inputs){
+    const ch = inputs[0] && inputs[0][0]; if (!ch) return true;
+    // downsample from sampleRate to 16000 by averaging (sampleRate is 44100 or 48000 in practice)
+    const ratio = sampleRate / 16000; let peak = 0;
+    for (let i = 0; i < ch.length; i++){ const v = Math.abs(ch[i]); if (v > peak) peak = v; }
+    this.buf.push(Float32Array.from(ch)); this.n += ch.length;
+    if (this.n >= ratio * 1600) {  // ~100 ms
+      const all = new Float32Array(this.n); let o = 0; for (const b of this.buf){ all.set(b, o); o += b.length; }
+      const outLen = Math.floor(all.length / ratio); const out = new Int16Array(outLen);
+      for (let i = 0; i < outLen; i++){ const s = Math.floor(i*ratio), e = Math.min(all.length, Math.floor((i+1)*ratio)); let acc = 0; for (let j = s; j < e; j++) acc += all[j]; const v = acc / Math.max(1, e - s); out[i] = Math.max(-32768, Math.min(32767, Math.round(v * 32767))); }
+      this.port.postMessage({pcm: out.buffer, peak}, [out.buffer]);
+      this.buf = []; this.n = 0;
+    }
+    return true;
+  }
+}
+registerProcessor("pcm16", Pcm16);`;
+
+async function listMics(){
+  try {
+    const devs = await navigator.mediaDevices.enumerateDevices();
+    const mics = devs.filter(d => d.kind === "audioinput");
+    $("mics").innerHTML = mics.map(d => `<option value="${d.deviceId}">${esc(d.label || "microphone")}</option>`).join("") || `<option value="">default</option>`;
+  } catch (e) { $("mics").innerHTML = `<option value="">default</option>`; }
+}
+function setStatus(html){ $("status").innerHTML = html; }
+function reset(){
+  $("tx").innerHTML = '<span class="cursor"></span>'; $("flags").innerHTML = '<div class="meta">none yet</div>'; $("activity").innerHTML = '<div class="meta">starting…</div>';
+  ["history","findings","plan","plansug","safety","safetysug","red","gaps","terms","assume"].forEach(k => $(k).innerHTML="");
+  $("dx").innerHTML='<div class="meta">waiting for the first interval</div>'; $("nextq").textContent="—"; $("c-dx").textContent=""; $("complaint").textContent="—"; $("nsyn").textContent="0"; $("lat").textContent="–"; $("synmeta").textContent=""; prev={}; flagCount=0; actCount=0; txCount=0;
+}
+function renderList(id, items, prevItems){
+  const ps = new Set((prevItems||[]).map(x=>String(x).toLowerCase()));
+  $(id).innerHTML = (items||[]).map(x => `<li class="${ps.has(String(x).toLowerCase())?"":"new"}">${esc(String(x))}</li>`).join("");
+}
+function renderObjList(id, items, prevItems, keyf, fmt){
+  const ps = new Set((prevItems||[]).map(x=>keyf(x).toLowerCase()));
+  $(id).innerHTML = (items||[]).map(x => `<li class="${ps.has(keyf(x).toLowerCase())?"":"new"}">${fmt(x)}</li>`).join("");
+}
+function renderSynth(s){
+  $("complaint").textContent = s.complaint || "—";
+  const pdx = new Set(((prev.differential)||[]).map(d => String((d&&d.dx)||"").toLowerCase()));
+  $("dx").innerHTML = (s.differential||[]).filter(d=>d&&d.dx).map(d => `<div class="dxcard ${pdx.has(String(d.dx).toLowerCase())?"":"new"}"><b>${esc(d.dx)}</b><span class="lk">${esc(d.likelihood||"")}</span>${d.time_critical?'<span class="lk tc">time-critical · exclude</span>':""}` +
+      ((d.evidence||[]).length ? `<ul class="ev">${(d.evidence||[]).map(e=>`<li>${esc(String(e))}</li>`).join("")}</ul>` : "") +
+      ((d.missing||[]).length ? `<div class="miss">to confirm/exclude: ${(d.missing||[]).map(m=>esc(String(m))).join(" · ")}</div>` : "") + `</div>`).join("") || `<div class="meta">no differential yet</div>`;
+  $("c-dx").textContent = (s.differential||[]).length ? (s.differential||[]).length+" candidates" : "";
+  $("nextq").textContent = s.next_question || "—";
+  renderObjList("assume", s.assumptions, prev.assumptions, x=>String((x&&x.assumption)||x), x => `${esc(String((x&&x.assumption)||x))}${x&&x.would_change_if?` <span class="basis">changes if: ${esc(x.would_change_if)}</span>`:""}`);
+  renderObjList("red", s.red_flags, prev.red_flags, x=>String((x&&x.feature)||x), x => `<span class="tier ${(x&&x.tier)==="act now"?"now":"today"}">${esc((x&&x.tier)||"check today")}</span> <b>${esc(String((x&&x.feature)||x))}</b>${x&&x.why?" — "+esc(x.why):""}${x&&x.action?" → <b>"+esc(x.action)+"</b>":""}`);
+  renderList("plan", s.plan_stated, prev.plan_stated);
+  renderObjList("plansug", s.plan_suggested, prev.plan_suggested, x=>String((x&&x.item)||x), x => `${esc(String((x&&x.item)||x))}${x&&x.basis?`<span class="basis">${esc(x.basis)}</span>`:""}`);
+  renderList("safety", s.safety_netting_stated, prev.safety_netting_stated);
+  renderList("safetysug", s.safety_netting_suggested, prev.safety_netting_suggested);
+  renderList("history", s.history, prev.history); renderList("findings", s.findings, prev.findings); renderList("gaps", s.gaps, prev.gaps); renderList("terms", s.terms, prev.terms);
+  $("c-history").textContent = (s.history||[]).length ? (s.history||[]).length+" items" : "";
+  prev = s;
+}
+function onEvent(d){
+  if (d.event === "start"){ $("modelname").textContent = `${d.model}, every ${d.interval} s`; $("asrname").textContent = d.asr + " (self-hosted, streaming)"; }
+  else if (d.event === "asr_status"){ setStatus(`<span class="${d.status==="error"?"err":"on"}">recogniser ${esc(d.status)}</span> · ${esc(d.detail||"")}`); }
+  else if (d.event === "transcript"){
+    const tx = $("tx"); const cur = tx.querySelector(".cursor");
+    const flagged = new Set((d.flags||[]).map(f => f.heard.toLowerCase()));
+    const html = d.text.split(" ").map(w => flagged.has(w.toLowerCase().replace(/[^a-z'-]/g,"")) ? `<mark>${esc(w)}</mark>` : esc(w)).join(" ");
+    const span = document.createElement("span"); span.innerHTML = (txCount++ % 25 === 0 ? `<br><span class="t">${mmss(d.t)}</span>` : "") + html + " ";
+    tx.insertBefore(span, cur); tx.scrollTop = tx.scrollHeight;
+    (d.flags||[]).forEach(f => { if (flagCount++ === 0) $("flags").innerHTML=""; $("flags").insertAdjacentHTML("beforeend", `<div class="flag">${mmss(d.t)} heard <b>${esc(f.heard)}</b> → maybe <b>${esc(f.maybe)}</b></div>`); });
+  }
+  else if (d.event === "synthesis"){ renderSynth(d.synth||{}); $("nsyn").textContent = String(d.snapshot+1); $("lat").textContent = d.latency_s+" s"; $("synmeta").textContent = `view ${d.snapshot+1} at ${mmss(d.t)} · model latency ${d.latency_s} s`; }
+  else if (d.event === "activity"){
+    if (actCount++ === 0) $("activity").innerHTML = "";
+    const src = (d.sources||[]).slice(0,2).map(u => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.split("/")[2])}</a>`).join(" ");
+    const row = document.createElement("div"); row.className = `task-${d.task} ${d.status}`;
+    const tier = d.tier==="wikipedia" ? ' <span class="tier today">low trust</span>' : (d.tier==="nhs" ? ' <span class="tier ok">NHS</span>' : (d.tier==="patientinfo" ? ' <span class="tier ok">patient.info pro</span>' : ""));
+    row.innerHTML = `<span>${mmss(d.t)}</span><span>${esc(d.task)} ${esc(d.status)}</span><span>${esc(d.detail)}${tier}${src?" · "+src:""}</span><span>${d.ms!=null?(d.ms/1000).toFixed(1)+" s":""}</span>`;
+    $("activity").prepend(row); while ($("activity").childElementCount > 60) $("activity").lastElementChild.remove();
+  }
+  else if (d.event === "final"){
+    setStatus(`session over · ${d.audio_s} s of audio · ${(d.latency||[]).length} views · saved ${esc(d.saved||"")}`);
+    teardown();
+  }
+}
+async function start(){
+  reset();
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: $("mics").value ? { exact: $("mics").value } : undefined, channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+  } catch (e) { setStatus(`<span class="err">microphone refused: ${esc(String(e))}</span> (needs https or localhost)`); return; }
+  await listMics();
+  ctx = new AudioContext();
+  await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET], {type: "application/javascript"})));
+  const src = ctx.createMediaStreamSource(stream);
+  node = new AudioWorkletNode(ctx, "pcm16");
+  src.connect(node);
+  ws = new WebSocket(`${proto}://${location.host}/ws/mic?model=${$("model").value}&interval=${$("interval").value}`);
+  ws.binaryType = "arraybuffer";
+  ws.onopen = () => { setStatus('<span class="on">connected</span> · streaming audio'); $("go").disabled = true; $("stop").disabled = false; $("go").classList.add("rec"); wall0 = performance.now(); tickTimer = setInterval(() => $("clock").textContent = mmss((performance.now()-wall0)/1000), 500); };
+  ws.onmessage = ev => { try { onEvent(JSON.parse(ev.data)); } catch (e) {} };
+  ws.onclose = () => { if ($("stop").disabled === false) setStatus("connection closed"); teardown(); };
+  ws.onerror = () => setStatus('<span class="err">connection error</span>');
+  node.port.onmessage = ev => { $("lvl").style.width = Math.min(100, Math.round(ev.data.peak * 140)) + "%"; if (ws && ws.readyState === 1) ws.send(ev.data.pcm); };
+}
+function teardown(){
+  clearInterval(tickTimer);
+  if (node) { try { node.disconnect(); } catch(e){} node = null; }
+  if (ctx) { try { ctx.close(); } catch(e){} ctx = null; }
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  $("go").disabled = false; $("stop").disabled = true; $("go").classList.remove("rec"); $("lvl").style.width = "0";
+}
+$("go").onclick = start;
+$("stop").onclick = () => { if (ws && ws.readyState === 1) { ws.send(JSON.stringify({type: "stop"})); setStatus("stopping · final view…"); } else teardown(); };
+listMics();
+</script>
+</body>
+</html>

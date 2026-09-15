@@ -41,6 +41,8 @@ JOBS: dict[str, dict] = {}
 
 from demo.livesynth import router as live_router  # noqa: E402
 app.include_router(live_router)
+from demo.livemic import router as mic_router  # noqa: E402
+app.include_router(mic_router)
 
 
 @app.get("/", response_class=HTMLResponse)
