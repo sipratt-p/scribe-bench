@@ -56,7 +56,7 @@
 <div class="warnbox" id="consent">Everyone in earshot should know the conversation is being transcribed. Nothing leaves the local network: audio goes to the GPU box and the transcript is saved under <code>runs/live_mic/</code>.</div>
 
 <div class="controls">
-  <div><label>Writer</label><select id="model"><option value="qwen27b">Qwen3.8-27B dense (1 GPU)</option><option value="dsflash_official">DeepSeek V4 Flash official (2 GPUs)</option><option value="dsflash">DeepSeek V4 Flash (2 GPUs)</option></select></div>
+  <div><label>Writer</label><select id="model"><option value="gemma" selected>Gemma 4 26B-A4B on the Mac (76 tok/s)</option><option value="qwen27b">Qwen3.8-27B dense on the GPU box (49 tok/s)</option><option value="dsflash_official">DeepSeek V4 Flash on the GPU box (220 tok/s; needs both GPUs, so the recogniser must move)</option></select></div>
   <div><label>Re-synthesize every</label><select id="interval"><option value="10">10 s</option><option value="15">15 s</option><option value="20" selected>20 s</option><option value="30">30 s</option></select></div>
   <div><label>Microphone</label><select id="mics"></select></div>
   <div><label>&nbsp;</label><button id="go" class="primary">Start listening</button> <button id="stop" disabled>Stop</button></div>

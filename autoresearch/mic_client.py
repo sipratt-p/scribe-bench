@@ -44,7 +44,10 @@ async def run(a):
                         words += len(ev["delta"].split())
                         print(f"[{time.time()-t0:6.1f}s] {ev['delta']}", flush=True)
                     elif ev.get("type") == "transcription.done":
-                        print(f"DONE {len(ev.get('text','').split())} words", flush=True); return
+                        print(f"DONE {len(ev.get('text','').split())} words", flush=True)
+                        if a.out:
+                            open(a.out, "w").write(json.dumps({"wav": a.wav, "seconds": a.seconds, "text": ev.get("text", ""), "first_delta_s": first}))
+                        return
                     elif ev.get("type") == "error":
                         print("ERR", ev, flush=True)
             rt = asyncio.create_task(reader())
@@ -94,5 +97,5 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("wav"); ap.add_argument("--seconds", type=float, default=0); ap.add_argument("--url", default="ws://localhost:8700")
     ap.add_argument("--model", default="qwen27b"); ap.add_argument("--interval", type=float, default=15)
-    ap.add_argument("--asr", default=""); ap.add_argument("--asr_model", default="voxtral-realtime")
+    ap.add_argument("--asr", default=""); ap.add_argument("--asr_model", default="voxtral-realtime"); ap.add_argument("--out", default="")
     asyncio.run(run(ap.parse_args()))
