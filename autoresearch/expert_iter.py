@@ -15,6 +15,7 @@ Readouts : composite, grounded, linked, misattrib, plan recall, edits/100w, len 
   python -m autoresearch.expert_iter train --data <jsonl...> --out <adapter dir>
 """
 from __future__ import annotations
+import os
 
 import argparse
 import json
@@ -258,7 +259,7 @@ def cmd_run(args):
     recs, dev, test = L.load_recs()
     tr = transcripts(dev + test, recs)
     judge = L.LLM("http://localhost:8004/v1", "qwen3.8-27b", workers=8)
-    judge2 = L.LLM("http://100.90.251.52:8600/v1", "v4-flash", workers=4)
+    judge2 = L.LLM(os.environ.get("SCRIBE_MAC_URL", "http://localhost:8600") + "/v1", "v4-flash", workers=4)
     state_p = OUT / "state.json"
     state = json.loads(state_p.read_text()) if state_p.exists() else {"r0": None, "rounds": {}}
 

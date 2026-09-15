@@ -29,7 +29,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "demo/data"
 OUT = ROOT / "runs/live_synth"
-BEAST = os.environ.get("SCRIBE_BEAST_IP", "100.83.231.108")
+BEAST = os.environ.get("SCRIBE_BEAST_IP", os.environ.get("SCRIBE_BEAST_HOST", "localhost"))
 MODELS = {
     "dsflash": (f"http://{BEAST}:8000/v1", "DeepSeek-V4-Flash-Abliterated", "DeepSeek V4 Flash NVFP4 (MoE, DSpark draft), 2 GPUs"),
     "qwen27b": (f"http://{BEAST}:8004/v1", "qwen3.8-27b", "Qwen3.8-27B dense FP8, 1 GPU"),

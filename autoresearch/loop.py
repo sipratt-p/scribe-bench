@@ -20,6 +20,7 @@ note-side config are scored too, so the gap is always measured like-for-like.
 Everything is cached by content hash under runs/autoresearch/cache so reruns are free.
 Results go to autoresearch/notebook.md and autoresearch/state.json. Touch autoresearch/STOP to end."""
 from __future__ import annotations
+import os
 
 import argparse
 import hashlib
@@ -69,7 +70,7 @@ DEV_N = 20
 # note-model endpoints the loop may choose between (judge stays fixed for comparability)
 NOTE_MODELS = {
     "qwen27b": ("http://localhost:8004/v1", "qwen3.8-27b"),
-    "dsv4flash": ("http://100.90.251.52:8600/v1", "v4-flash"),
+    "dsv4flash": (os.environ.get("SCRIBE_MAC_URL", "http://localhost:8600") + "/v1", "v4-flash"),
     "dsv4flash_official": ("http://localhost:8000/v1", "DeepSeek-V4-Flash-DSpark"),
 }
 
@@ -325,11 +326,11 @@ def mutate(best, variants):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--note_url", default="http://100.83.231.108:8004/v1")
+    ap.add_argument("--note_url", default=os.environ.get("SCRIBE_NOTE_URL", "http://localhost:8004") + "/v1")
     ap.add_argument("--note_model", default="qwen3.8-27b")
-    ap.add_argument("--judge_url", default="http://100.83.231.108:8005/v1")
+    ap.add_argument("--judge_url", default=os.environ.get("SCRIBE_JUDGE_URL", "http://localhost:8005") + "/v1")
     ap.add_argument("--judge_model", default="gemma-4-26b-a4b-it")
-    ap.add_argument("--judge2_url", default="http://100.90.251.52:8600/v1", help="second judge for the accept step; '' to disable")
+    ap.add_argument("--judge2_url", default=os.environ.get("SCRIBE_MAC_URL", "http://localhost:8600") + "/v1", help="second judge for the accept step; '' to disable")
     ap.add_argument("--judge2_model", default="v4-flash")
     ap.add_argument("--deadline", default="2026-09-13 08:30")
     ap.add_argument("--max_iters", type=int, default=200)

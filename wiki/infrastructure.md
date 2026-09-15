@@ -9,7 +9,7 @@
 - Logs: `runs/autoresearch_loop.log`, `runs/expert_iter.log`, `runs/plan_recall.log`, `runs/verif_eval.log`.
 - RunPod API key: `~/.runpod/api_key`.
 
-## Mac Studio (cosmo, 100.90.251.52)
+## Mac Studio (cosmo, <mac-host>)
 - oMLX :8600 (`v4-flash` DeepSeek V4 Flash 4-bit; `EigenLabs--Qwen3.8-27B-4bit` for the demo); llama-server gemma4-vision :8500; Nemotron Ultra in-process via mlx_lm.
 - Demo server: FastAPI on :8700 (`SCRIBE_GPU=1 uv run uvicorn demo.server:app`), live mode ssh-runs `live_asr.py` on the beast (needs ≥12 GB free on a beast GPU).
 

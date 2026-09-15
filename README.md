@@ -1,5 +1,8 @@
 # scribe-bench
 
+> Open-data, open-weight evaluation harness for ambient clinical documentation (speech-to-note): seven ASR systems, note generation, LoRA fine-tuning, a claim-level verifier, and clinician-defined scorers. All numbers in RESULTS.md are reproducible from the commands below. Endpoints are configured with SCRIBE_NOTE_URL, SCRIBE_JUDGE_URL and SCRIBE_MAC_URL.
+
+
 Local evaluation harness for the ambient-scribe "frontier stack" described in the
 ambient-scribe architecture study. Everything runs on open data and open weights:
 
