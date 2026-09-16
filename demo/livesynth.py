@@ -40,7 +40,7 @@ MODELS = {
 }
 THINK_OFF = {"dsflash": {"thinking": False}, "dsflash_official": {"thinking": False}, "qwen27b": {"enable_thinking": False}, "flashnext": {"enable_thinking": False}, "gemma": {"enable_thinking": False}, "gemma_beast": {"enable_thinking": False}}
 THINK_LOW = {"dsflash": {"thinking": True, "reasoning_effort": "low"}, "dsflash_official": {"thinking": True, "reasoning_effort": "low"}, "qwen27b": {"enable_thinking": False}, "flashnext": {"enable_thinking": False}, "gemma": {"enable_thinking": False}}
-SEARX = os.environ.get("SCRIBE_SEARX", "http://127.0.0.1:8890")  # beast SearXNG via `ssh -N -L 8890:127.0.0.1:8890 beast`
+SEARX = os.environ.get("SCRIBE_SEARX", "http://127.0.0.1:8890")  # SearXNG on the GPU host, e.g. via `ssh -N -L 8890:127.0.0.1:8890 <gpu-host>`
 LOOKUPS = ROOT / "runs/live_synth/lookups"
 THINK = os.environ.get("SCRIBE_LIVE_THINK", "0") == "1"  # thinking-low synthesis: +0.5 s/tick, no throughput loss, but can starve the JSON on long prompts
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"

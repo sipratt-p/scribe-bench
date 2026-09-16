@@ -50,7 +50,6 @@
   .flag { font-size:12.5px; margin:2px 0; }
   .two { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; } @media (max-width:700px){ .two { grid-template-columns:1fr; } }
   .zone-hot h3 { color:var(--bad); }
-  li.bias { border-left:3px solid var(--bad); padding-left:6px; }
   .warnbox { background:var(--warn-soft); border-left:3px solid var(--warn); padding:8px 12px; font-size:13px; margin:10px 0; max-width:90ch; }
 </style>
 </head>
@@ -61,7 +60,7 @@
 <div class="warnbox" id="consent">Tell everyone on the call that an assistant is transcribing before you press start; in twelve US states and under GDPR that consent is required. Nothing leaves the local network: audio goes to the GPU box and the transcript is saved under <code>runs/live_mic/</code>.</div>
 
 <div class="controls">
-  <div><label>Conversation</label><select id="pack"><option value="interview" selected>Interview (interviewer side)</option><option value="candidate">Interview (candidate side)</option><option value="clinical">Clinical consultation</option></select></div>
+  <div><label>Conversation</label><select id="pack"><option value="clinical" selected>Clinical consultation</option></select></div>
   <div><label>Writer</label><select id="model"><option value="gemma_beast" selected>Gemma 4 26B-A4B on the GPU box (vLLM, FP8)</option><option value="gemma">Gemma 4 26B-A4B on the Mac (76 tok/s)</option><option value="qwen27b">Qwen3.8-27B dense on the GPU box (49 tok/s)</option><option value="dsflash_official">DeepSeek V4 Flash on the GPU box (220 tok/s; needs both GPUs)</option></select></div>
   <div><label>Re-synthesize every</label><select id="interval"><option value="10">10 s</option><option value="15">15 s</option><option value="20">20 s</option><option value="30" selected>30 s</option><option value="45">45 s</option></select></div>
   <div><label>Microphone</label><select id="mics"></select></div>
@@ -84,7 +83,6 @@
   </div>
   <div class="col">
     <h2 id="viewtitle">View <small id="modelname"></small></h2>
-    <div id="livewrap" hidden><h3>Questions and answers, as they happen <span class="meta">fast lane ~1 s · answer scored at the end of each turn ~2 s</span></h3><ul class="list" id="liveq"></ul></div>
     <div id="view"><div class="meta">press start</div></div>
   </div>
 </div>
@@ -136,7 +134,7 @@ function applyPack(){
 function setStatus(html){ $("status").innerHTML = html; }
 function reset(){
   $("tx").innerHTML = '<span class="cursor"></span>'; $("flags").innerHTML = '<div class="meta">none yet</div>'; $("activity").innerHTML = '<div class="meta">starting…</div>';
-  $("view").innerHTML = '<div class="meta">waiting for the first interval</div>'; $("liveq").innerHTML=""; $("livewrap").hidden=true; $("nsyn").textContent="0"; $("lat").textContent="–"; prev={}; flagCount=0; actCount=0; txCount=0;
+  $("view").innerHTML = '<div class="meta">waiting for the first interval</div>'; $("nsyn").textContent="0"; $("lat").textContent="–"; prev={}; flagCount=0; actCount=0; txCount=0;
 }
 const same = (a,b) => String(a==null?"":a).toLowerCase() === String(b==null?"":b).toLowerCase();
 function isNew(key, item, keyf){ const ps = (prev[key]||[]); return !ps.some(x => same(keyf(x), keyf(item))); }
@@ -173,10 +171,9 @@ function renderPanel(p, s){
 }
 function renderView(s){
   if (!PACK) return;
-  const keepHelp = $("help") ? $("help").outerHTML : "";
   const zones = {top:[], wide:[], left:[], right:[]};
   for (const p of PACK.panels){ const html = renderPanel(p, s); zones[p.zone||"wide"].push(p.hot ? `<div class="zone-hot">${html}</div>` : html); }
-  $("view").innerHTML = keepHelp + zones.top.join("") + zones.wide.join("") + `<div class="two"><div>${zones.left.join("")}</div><div>${zones.right.join("")}</div></div>`;
+  $("view").innerHTML = zones.top.join("") + zones.wide.join("") + `<div class="two"><div>${zones.left.join("")}</div><div>${zones.right.join("")}</div></div>`;
   prev = s;
 }
 function onEvent(d){
@@ -189,27 +186,6 @@ function onEvent(d){
     const span = document.createElement("span"); span.innerHTML = (txCount++ % 25 === 0 ? `<br><span class="t">${mmss(d.t)}</span>` : "") + html + " ";
     tx.insertBefore(span, cur); tx.scrollTop = tx.scrollHeight;
     (d.flags||[]).forEach(f => { if (flagCount++ === 0) $("flags").innerHTML=""; $("flags").insertAdjacentHTML("beforeend", `<div class="flag">${mmss(d.t)} heard <b>${esc(f.heard)}</b> → maybe <b>${esc(f.maybe)}</b></div>`); });
-  }
-  else if (d.event === "question"){
-    $("livewrap").hidden = false;
-    const li = document.createElement("li"); li.className = "new" + (d.bias_issue ? " bias" : "");
-    li.innerHTML = `<span class="tier ${d.asked_by==="interviewer"?"ok":""}">${esc(d.asked_by)}</span> ${esc(d.paraphrase)}${d.competency?` <span class="basis">${esc(d.competency)} · ${mmss(d.t)} · ${(d.ms/1000).toFixed(1)} s</span>`:""}${d.bias_issue?`<span class="basis" style="color:var(--bad)">bias guard: ${esc(d.bias_issue)}</span>`:""}`;
-    $("liveq").prepend(li); while ($("liveq").childElementCount > 12) $("liveq").lastElementChild.remove();
-  }
-  else if (d.event === "help"){
-    let h = $("help"); if (!h){ h = document.createElement("div"); h.id = "help"; $("view").prepend(h); }
-    const list = (t, xs) => (xs&&xs.length) ? `<h3>${t}</h3><ul class="list">${xs.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>` : "";
-    h.innerHTML = `<div class="callout"><b>${esc(d.question)}</b> <span class="lk">${esc(d.type)} · ${(d.ms/1000).toFixed(1)} s</span></div>` +
-      list("Say it in this order", d.outline) + list("Clarify first", d.clarify) + list("Architecture and trade-offs", d.architecture) +
-      (d.code ? `<h3>Code</h3><pre style="font-family:var(--mono);font-size:12px;background:var(--accent-soft);padding:8px;border-radius:4px;overflow:auto;white-space:pre">${esc(d.code)}</pre>` : "") +
-      list("From your experience", d.from_your_experience) + list("Avoid", d.pitfalls) + list("Likely follow-ups", d.likely_follow_ups);
-    h.scrollIntoView({block: "nearest"});
-  }
-  else if (d.event === "probe"){
-    const c = document.querySelector(".callout") || (function(){ const h = document.createElement("div"); h.innerHTML = '<h3>Ask next</h3><div class="callout"></div>'; $("view").prepend(h); return h.querySelector(".callout"); })();
-    c.innerHTML = d.next_probe ? esc(d.next_probe) + `<span class="basis">after a ${esc(d.specificity)} answer to “${esc(d.question)}” · ${(d.ms/1000).toFixed(1)} s</span>` : `<span class="meta">answer was ${esc(d.specificity)}; nothing pending</span>`;
-    const q = Array.from(document.querySelectorAll("#liveq li")).find(l => l.innerText.includes(d.question.slice(0, 30)));
-    if (q) q.insertAdjacentHTML("beforeend", `<span class="basis">answer: <span class="tier ${d.specificity==="specific"?"ok":(d.specificity==="vague"?"hot":"")}">${esc(d.specificity)}</span>${d.evidence?" “"+esc(d.evidence)+"”":""}${d.concern?` · <span style="color:var(--bad)">${esc(d.concern)}</span>`:""}</span>`);
   }
   else if (d.event === "synthesis"){ renderView(d.synth||{}); $("nsyn").textContent = String(d.snapshot+1); $("lat").textContent = d.latency_s+" s"; }
   else if (d.event === "activity"){

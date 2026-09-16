@@ -1,4 +1,4 @@
-"""Live decision support on real microphone audio.
+"""Live decision support on real microphone audio (clinical pack).
 
 Browser (getUserMedia → AudioWorklet → 16 kHz PCM16) ──WebSocket /ws/mic──▶ this server ──WebSocket──▶ streaming ASR (vLLM
 realtime endpoint, Voxtral Mini 4B Realtime) ──transcription.delta──▶ timestamped chunks ──▶ the same tick loop, hold rules,
@@ -30,7 +30,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 
 from demo.livesynth import BEAST, MODELS, THINK, _slug, lookup, misheard, new_dx_to_lookup
-from demo.packs import CANDIDATE_HELP_SYS, PACKS, pack_public
+from demo.packs import PACKS, pack_public
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "runs/live_mic"
@@ -39,14 +39,6 @@ ASR_MODEL = os.environ.get("SCRIBE_ASR_MODEL", "voxtral-realtime")
 router = APIRouter()
 
 _WORD = re.compile(r"\S+")
-_SENT_END = re.compile(r"[.?!]\s")
-_QWORD = re.compile(r"^(what|why|how|when|where|which|who|tell me|talk me|walk me|can you|could you|would you|do you|did you|have you|are you|is there|was there|describe|explain|give me|any )", re.I)
-FAST_SYS = """You classify one sentence from a live interview transcript (no speaker labels). Reply with one JSON object only:
-{"is_question": true|false, "asked_by": "interviewer"|"candidate"|"unclear", "paraphrase": "<the question in at most 12 words, or empty>", "competency": "<one of: technical depth, problem solving, ownership and delivery, communication, collaboration, leadership or influence, learning and adaptability, other, or empty>", "bias_issue": "<empty, or a few words naming the protected characteristic if the sentence is an interviewer question about age, family, marital status, pregnancy, health, disability, religion, nationality, origin, or anything not job-related>"}
-Interviewer questions ask the candidate about their experience, skills, decisions or motivation, and include imperative requests ("write a function", "design a system", "walk me through", "tell me about"); candidate questions ask about the role, team, process or logistics. Statements, answers and acknowledgements are not questions."""
-TURN_SYS = """You are a live assistant for the INTERVIEWER. You get the last interviewer question and the candidate's answer to it (from a speech recogniser, no speaker labels, may be cut off). Reply with one JSON object only:
-{"specificity": "specific"|"vague"|"unverified", "evidence": "<at most 15 words quoting the most concrete thing the candidate said, or empty>", "competency": "<one of: technical depth, problem solving, ownership and delivery, communication, collaboration, leadership or influence, learning and adaptability, other>", "next_probe": "<the single best follow-up to ask now, phrased to say aloud: turn a vague answer into specifics (what exactly did you do, what was the result, how did you measure it), or empty if the answer was specific and complete>", "concern": "<at most 12 words if the answer revealed a gap or contradiction, else empty>"}
-Never suggest questions about protected characteristics. Short, calm wording."""
 
 
 def _reachable(base_url: str) -> bool:
@@ -87,13 +79,9 @@ class Session:
         self.recent: list[str] = []
         self.seen: set[str] = set()
         self.buf = ""
-        self.sent_buf = ""            # text waiting for a sentence boundary (fast lane)
         self.last_delta = time.time()
         self.last_full = 0.0
         self.words_at_full = 0
-        self.questions: list[dict] = []
-        self.turns: list[dict] = []
-        self.last_turn_check = 0.0
         self.pending = False
         self.synth_words = 0
         self.pool = ThreadPoolExecutor(3)
@@ -130,61 +118,6 @@ class Session:
             self.flags.extend({**f, "t": t} for f in flags)
             self.last_delta = time.time()
         self.emit({"event": "transcript", "t": t, "text": piece.strip(), "flags": flags})
-        if self.P.name in ("interview", "candidate"):
-            self.sent_buf += piece
-            while True:
-                m = _SENT_END.search(self.sent_buf)
-                if not m:
-                    break
-                sent, self.sent_buf = self.sent_buf[: m.end()].strip(), self.sent_buf[m.end():]
-                if len(sent.split()) >= 4:   # every sentence goes to the 0.3 s classifier; short fragments are skipped
-                    self.pool.submit(self.fast_question, sent, t)
-
-    def fast_question(self, sent: str, t: float):
-        """Fast lane: one short model call per candidate sentence, ~1 s, so questions and bias issues show within seconds."""
-        t0 = time.time()
-        try:
-            from demo.livesynth import _llm, parse_json
-            js = parse_json(_llm(FAST_SYS, f"SENTENCE: {sent}", max_tokens=120, model=self.model)) or {}
-        except Exception as e:  # noqa: BLE001
-            js = {"error": str(e)[:80]}
-        if not js.get("is_question"):
-            return
-        who = js.get("asked_by") or "unclear"
-        if who == "unclear":
-            low = " " + sent.lower() + " "
-            who = "interviewer" if (" you " in low or " your " in low or low.lstrip().startswith((" tell", " describe", " walk", " talk"))) else who
-        q = {"t": t, "asked_by": who, "paraphrase": js.get("paraphrase") or sent[:120], "competency": js.get("competency") or "", "bias_issue": js.get("bias_issue") or "", "sentence": sent, "ms": int(1000 * (time.time() - t0))}
-        with self.lock:
-            self.questions.append(q)
-        self.emit({"event": "question", **q})
-        if q["asked_by"] != "candidate":
-            if self.P.name == "candidate":
-                self.pool.submit(self.help_answer, q, t)   # help lane: answer support for the question just asked
-            else:
-                self.pool.submit(self.turn_update, t)   # a new question means the previous answer is complete
-
-    def help_answer(self, q: dict, t: float):
-        """Candidate pack help lane: one call per interviewer question, ~3-5 s, with the CV/notes and recent transcript."""
-        t0 = time.time()
-        with self.lock:
-            recent = "".join(c["text"] for c in self.transcript)[-3000:]
-        ctx = "".join(f"\n\n{k.upper()}:\n{v.strip()[:3500]}" for k, v in self.context.items() if v and v.strip())
-        try:
-            from demo.livesynth import _llm, parse_json
-            js = parse_json(_llm(CANDIDATE_HELP_SYS, f"{ctx.lstrip()}\n\nCONVERSATION SO FAR (recent):\n{recent}\n\nQUESTION JUST ASKED: {q['sentence']}", max_tokens=700, model=self.model)) or {}
-        except Exception as e:  # noqa: BLE001
-            js = {"error": str(e)[:80]}
-        ev = {"event": "help", "t": t, "question": q["paraphrase"], "sentence": q["sentence"], "ms": int(1000 * (time.time() - t0)),
-              **{k: js.get(k) or ([] if k != "code" and k != "type" else "") for k in ("type", "clarify", "outline", "architecture", "code", "pitfalls", "from_your_experience", "likely_follow_ups")}}
-        with self.lock:
-            q["help"] = {k: ev[k] for k in ("type", "outline", "architecture", "code")}
-            self.turns.append(ev)
-        self.emit(ev)
-        self.act("help", "done", f"{ev['type']} question · {len(ev['outline'])} outline points" + (" · code" if ev["code"] else "") + (" · architecture" if ev["architecture"] else ""), ev["ms"])
-        if q["bias_issue"]:
-            self.act("bias guard", "alert", f"{q['bias_issue']}: \"{sent[:90]}\"", q["ms"])
-
     # ---- view -------------------------------------------------------------------------------------------------------
     def do_lookup(self, dx: str, t: float):
         self.act("lookup", "started", f"references: {dx}")
@@ -208,13 +141,10 @@ class Session:
             refs = dict(self.refs)
             upto_t = self.now()
             self.synth_words = len(text.split())
-        self.act("synthesis", "started", f"{self.synth_words} words of transcript" + (f" · {len(self.questions)} questions from the fast lane" if self.questions else ""))
+        self.act("synthesis", "started", f"{self.synth_words} words of transcript")
         t0 = time.time()
         try:
             ctx = dict(self.context)
-            if self.questions:
-                ctx["questions_live"] = "\n".join(f"[{q['t']:.0f}s] {q['asked_by']}: {q['paraphrase']}" + (f"  (bias: {q['bias_issue']})" if q['bias_issue'] else "")
-                                                 + (f"  → answer {q['specificity']}" + (f", evidence: {q['evidence']}" if q.get('evidence') else "") if q.get('specificity') else "") for q in self.questions[-40:])
             js = self.P.synthesize(text, prev, upto_t, self.model, refs, ctx, think=THINK)
         except Exception as e:  # noqa: BLE001
             js = prev or {"error": str(e)}
@@ -231,8 +161,7 @@ class Session:
         if self.P.name == "clinical":
             done = f"differential {dxs}" + (" · next question set" if js.get("next_question") else "") + (f" · {len(js.get('red_flags') or [])} red flag(s)" if js.get("red_flags") else "")
         else:
-            cov = [c.get("name") for c in (js.get("competencies") or []) if isinstance(c, dict) and c.get("status") == "covered"]
-            done = f"stage {js.get('stage')} · {len(js.get('claims') or [])} claims · covered {cov}" + (" · probe set" if js.get("next_probe") else "") + (f" · {len(js.get('bias_guard') or [])} bias-guard item(s)" if js.get("bias_guard") else "")
+            done = f"view updated · {len([k for k, v in js.items() if v])} fields"
         if js.get("_stale"):
             done = "STALE: " + js["_stale"]
         self.act("synthesis", "done", done, int(1000 * lat))
@@ -242,40 +171,6 @@ class Session:
 
     MIN_GAP_S = 8.0   # never rebuild the full view more often than this
 
-    def turn_update(self, t: float):
-        """Turn lane: after a candidate answer ends, one short call scores that answer and refreshes the next probe (~2 s)."""
-        with self.lock:
-            qs = [q for q in self.questions if q["asked_by"] != "candidate" and not q.get("bias_issue")]
-            if not qs:
-                return
-            # score the latest unscored interviewer question whose answer is long enough; the answer ends at the next question
-            q = None
-            for cand in reversed(qs):
-                if cand.get("scored"):
-                    break
-                q = cand
-            if q is None:
-                return
-            later = [x["t"] for x in self.questions if x["t"] > q["t"]]
-            t_end = min(later) if later else 1e9
-            answer = "".join(c["text"] for c in self.transcript if q["t"] < c["t"] <= t_end).strip()
-            if len(answer.split()) < 12:
-                return
-            q["scored"] = True
-        t0 = time.time()
-        try:
-            from demo.livesynth import _llm, parse_json
-            js = parse_json(_llm(TURN_SYS, f"QUESTION: {q['sentence']}\n\nANSWER SO FAR:\n{answer[-2500:]}", max_tokens=180, model=self.model)) or {}
-        except Exception as e:  # noqa: BLE001
-            js = {"error": str(e)[:80]}
-        ev = {"event": "probe", "t": t, "question": q["paraphrase"], "specificity": js.get("specificity") or "unverified", "evidence": js.get("evidence") or "",
-              "competency": js.get("competency") or q.get("competency") or "", "next_probe": js.get("next_probe") or "", "concern": js.get("concern") or "", "ms": int(1000 * (time.time() - t0))}
-        with self.lock:
-            q.update({k: ev[k] for k in ("specificity", "evidence", "next_probe", "concern")})
-            self.turns.append(ev)
-        self.emit(ev)
-        self.act("turn", "done", f"{ev['specificity']} answer to \"{q['paraphrase'][:60]}\"" + (f" · probe: {ev['next_probe'][:70]}" if ev["next_probe"] else " · no probe needed"), ev["ms"])
-
     def maybe_tick(self):
         """Called from the event loop every second. A full view is rebuilt when EITHER the interval has passed, OR a turn
         seems to have ended (>= 1.5 s with no new words after >= 25 new words), with at least MIN_GAP_S between rebuilds."""
@@ -283,9 +178,6 @@ class Session:
         with self.lock:
             quiet = (now - self.last_delta) >= 1.5
             words = sum(len(c["text"].split()) for c in self.transcript)
-        if quiet and self.P.name == "interview" and now - self.last_turn_check >= 1.0:
-            self.last_turn_check = now
-            self.pool.submit(self.turn_update, self.now())
         with self.lock:
             if self.pending:
                 return
@@ -303,7 +195,7 @@ class Session:
         OUT.mkdir(parents=True, exist_ok=True)
         p = OUT / f"{int(self.t0)}.json"
         p.write_text(json.dumps({"t0": self.t0, "model": self.model, "interval": self.interval, "pack": self.pack, "context": self.context, "transcript": self.transcript,
-                                 "snapshots": self.snapshots, "flags": self.flags, "activity": self.activity, "lookups": self.refs, "questions": self.questions, "turns": self.turns}, indent=1))
+                                 "snapshots": self.snapshots, "flags": self.flags, "activity": self.activity, "lookups": self.refs}, indent=1))
         return p
 
 
@@ -326,10 +218,10 @@ async def asr_reader(asr, sess: Session):
 
 
 @router.websocket("/ws/mic")
-async def ws_mic(ws: WebSocket, model: str = "gemma_beast", interval: float = 20.0, pack: str = "interview"):
+async def ws_mic(ws: WebSocket, model: str = "gemma_beast", interval: float = 20.0, pack: str = "clinical"):
     await ws.accept()
     model = model if model in MODELS else "gemma_beast"
-    pack = pack if pack in PACKS else "interview"
+    pack = pack if pack in PACKS else "clinical"
     fallback = None
     if not _reachable(MODELS[model][0]):
         for alt in ("gemma_beast", "gemma", "qwen27b"):
