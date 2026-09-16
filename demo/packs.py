@@ -62,6 +62,7 @@ CLINICAL_PANELS = [
     {"key": "complaint", "title": "", "type": "headline", "zone": "top"},
     {"key": "differential", "title": "Differential", "type": "cards", "label": "dx", "sub": "likelihood", "flag": "time_critical", "flag_text": "time-critical · exclude", "lists": ["evidence"], "note": "missing", "note_prefix": "to confirm/exclude: ", "zone": "wide"},
     {"key": "next_question", "title": "Next question", "type": "callout", "zone": "wide"},
+    {"key": "questions_to_ask", "title": "Questions to ask (from the guideline lookups)", "type": "list", "zone": "wide"},
     {"key": "red_flags", "title": "Red flags", "type": "objlist", "label": "feature", "badge": "tier", "badge_hot": "act now", "why": "why", "arrow": "action", "zone": "wide"},
     {"key": "plan_stated", "title": "Plan stated", "type": "list", "zone": "left"},
     {"key": "plan_suggested", "title": "Plan suggested", "type": "objlist", "label": "item", "sub": "basis", "zone": "right"},

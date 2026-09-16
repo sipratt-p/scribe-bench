@@ -155,6 +155,18 @@ class Session:
             self.pending = False
             todo = new_dx_to_lookup(js, self.refs, self.inflight) if self.P.lookups else []
         dxs = [d.get("dx") for d in (js.get("differential") or []) if isinstance(d, dict)] if self.P.lookups else []
+        if self.P.lookups and isinstance(js, dict):
+            # questions a clinician would ask next, taken from the guideline lookups already fetched for the top differentials
+            qs, seen = [], set()
+            for dx in dxs[:3]:
+                r = self.refs.get(_slug(dx)) if dx else None
+                for q in (r or {}).get("key_questions") or []:
+                    k = str(q).strip().lower()
+                    if k and k not in seen:
+                        seen.add(k); qs.append(f"{str(q).strip()} ({dx})")
+                    if len(qs) >= 8: break
+            if qs:
+                js["questions_to_ask"] = qs
         for r in (js.get("revisions") or []):
             if isinstance(r, dict) and (r.get("was") or r.get("now")):
                 self.act("revised", "done", f"{r.get('was')} → {r.get('now')} · because: {r.get('because')}")

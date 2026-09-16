@@ -36,7 +36,7 @@ MODELS = {
     "flashnext": (f"http://{BEAST}:8003/v1", "Qwen3.8-Flash-Next-ablit-nvfp4", "Qwen3.8-Flash-Next NVFP4 (MoE), 1 GPU"),
     "gemma": ("http://localhost:8500/v1", "gemma4-vision", "Gemma 4 26B-A4B MoE (Mac, 76 tok/s)"),
     "gemma_beast": (f"http://{BEAST}:8091/v1", "gemma4-26b", "Gemma 4 26B-A4B MoE FP8 (GPU box, vLLM)"),
-    "dsflash_official": (f"http://{BEAST}:8000/v1", "DeepSeek-V4-Flash-DSpark", "DeepSeek V4 Flash NVFP4 official weights (DSpark draft), 2 GPUs"),
+    "dsflash_official": (f"http://{BEAST}:8000/v1", "DeepSeek-V4-Flash-DSpark", "DeepSeek V4 Flash FP8 (DSpark checkpoint), 2 GPUs"),
 }
 THINK_OFF = {"dsflash": {"thinking": False}, "dsflash_official": {"thinking": False}, "qwen27b": {"enable_thinking": False}, "flashnext": {"enable_thinking": False}, "gemma": {"enable_thinking": False}, "gemma_beast": {"enable_thinking": False}}
 THINK_LOW = {"dsflash": {"thinking": True, "reasoning_effort": "low"}, "dsflash_official": {"thinking": True, "reasoning_effort": "low"}, "qwen27b": {"enable_thinking": False}, "flashnext": {"enable_thinking": False}, "gemma": {"enable_thinking": False}}
